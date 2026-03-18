@@ -9,13 +9,27 @@
 .sacred-header {
   text-align: center;
   margin-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
 }
 
+.sacred-header h1 {
+  font-size: 3.5rem;
+  letter-spacing: 0.5rem;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+               0 0 20px rgba(0, 240, 255, 0.3);
+}
+/* Removed neon-flicker animation and keyframes as per user request */
+
 .cross-icon {
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: var(--accent-blue);
   text-shadow: var(--glow-blue);
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  opacity: 0.8;
 }
 
 .subtitle {
@@ -65,19 +79,22 @@
   background: transparent;
   border: 1px solid var(--accent-blue);
   color: var(--accent-blue);
-  padding: 1rem 2rem;
+  padding: 1.2rem 2.5rem;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 1rem; /* Slightly larger */
+  font-weight: 900; /* Much bolder */
   cursor: pointer;
-  letter-spacing: 0.2rem;
-  transition: all 0.3s ease;
-  box-shadow: var(--glow-blue);
+  letter-spacing: 0.3rem; /* More spacing */
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
 }
 
 .sacred-btn:hover {
   background: var(--accent-blue);
-  color: #000;
-  box-shadow: 0 0 20px var(--accent-blue);
+  color: #000 !important;
+  box-shadow: 0 0 30px var(--accent-blue);
+  transform: translateY(-2px);
 }
 
 .engine-logs {

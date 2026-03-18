@@ -34,7 +34,7 @@ def run_services():
         return
 
     print("\n† Ritual Commenced. All nodes operational. †")
-    print("➜ Backend: http://localhost:8000")
+    print("➜ Backend: http://localhost:8888")
     print("➜ Frontend: Check Vite terminal for link")
     print("\nPress Ctrl+C to collapse all world-lines.")
 
