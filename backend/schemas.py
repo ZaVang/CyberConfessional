@@ -1,36 +1,46 @@
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
 
-
 class FactualState(BaseModel):
     X: int = Field(..., description="现实所做决定：1 为做，0 为没做")
     Y: int = Field(..., description="现实结局：1 为好结局，0 为坏结局")
-    # 未来可以扩展 M: Optional[int], Z: Optional[float] 等
 
 class CounterfactualQuery(BaseModel):
     do_X: int = Field(..., description="用户设想的反事实决定（如果当时...）")
 
 class PriorParams(BaseModel):
+    name: str = Field(default="潜意识限制器", description="隐变量(U)的名称")
     mean: float = 0.0
     std: float = 1.0
 
-class EquationWeights(BaseModel):
+class M_EquationWeights(BaseModel):
+    name: str = Field(default="致命传导行为", description="中介变量(M)的名称，如'恐慌盯盘'")
     w_x: float = 1.0
-    w_u: float = 5.0
+    w_z: float = 0.0
+    w_u: float = 2.0
+    bias: float = 0.0
+
+class Y_EquationWeights(BaseModel):
+    w_x: float = 1.0
+    w_m: float = -5.0
+    w_z: float = -2.0
+    w_u: float = -2.0
     bias: float = 0.0
 
 class GraphParams(BaseModel):
-    u_prior: Optional[PriorParams] = Field(default_factory=PriorParams)
-    equation_weights: Optional[EquationWeights] = Field(default_factory=EquationWeights)
+    z_name: str = Field(default="宏观不可抗力", description="混淆因子(Z)的名称，如'行业寒冬'")
+    z_val: float = Field(default=1.0, description="环境变量Z的当前强度，通常设为1.0表示存在")
+    u_prior: PriorParams = Field(default_factory=PriorParams)
+    m_weights: M_EquationWeights = Field(default_factory=M_EquationWeights)
+    y_weights: Y_EquationWeights = Field(default_factory=Y_EquationWeights)
 
 class EngineInputSchema(BaseModel):
     factual: FactualState
     counterfactual: CounterfactualQuery
     graph_params: GraphParams = Field(
         default_factory=GraphParams,
-        description="因果图参数，包含先验分布(priors)和结构方程权重(weights)"
+        description="复杂因果图参数，包含Z, M, U的多维权重"
     )
-
 
 class EngineOutputSchema(BaseModel):
     counterfactual_prob: float = Field(..., description="反事实情况下的期望概率")
