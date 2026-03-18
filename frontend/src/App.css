@@ -1,0 +1,201 @@
+.altar-container {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh;
+}
+
+.sacred-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.cross-icon {
+  font-size: 2rem;
+  color: var(--accent-blue);
+  text-shadow: var(--glow-blue);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.confession-zone {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.input-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.neon-input {
+  width: 100%;
+  height: 250px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  line-height: 1.6;
+  resize: none;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.neon-input:focus {
+  outline: none;
+  border-bottom-color: var(--accent-blue);
+  box-shadow: 0 4px 10px -5px var(--accent-blue);
+}
+
+.sacred-btn {
+  margin-top: 3rem;
+  background: transparent;
+  border: 1px solid var(--accent-blue);
+  color: var(--accent-blue);
+  padding: 1rem 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+  letter-spacing: 0.2rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--glow-blue);
+}
+
+.sacred-btn:hover {
+  background: var(--accent-blue);
+  color: #000;
+  box-shadow: 0 0 20px var(--accent-blue);
+}
+
+.engine-logs {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #1a1a1a;
+  padding: 2rem;
+  color: var(--data-green);
+  font-size: 0.85rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.log-entry {
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.error-text {
+  color: var(--accent-red) !important;
+  opacity: 1;
+}
+
+.log-entry::before {
+  content: "> ";
+}
+
+/* Verdict Styles */
+.verdict-container {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 3rem;
+  width: 100%;
+}
+
+.priest-title {
+  color: var(--accent-red);
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.priest-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.retry-btn {
+  margin-top: 2rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  text-decoration: underline;
+}
+
+.data-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #1a1a1a;
+  padding: 1.5rem;
+}
+
+.stat {
+  margin: 1.5rem 0;
+}
+
+.label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #111;
+  margin-bottom: 0.3rem;
+}
+
+.fill {
+  height: 100%;
+  background: var(--accent-red);
+  box-shadow: var(--glow-red);
+}
+
+.value {
+  color: var(--accent-red);
+  font-size: 1.2rem;
+}
+
+.engine-msg {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 2rem;
+  font-style: italic;
+}
+
+/* Footer */
+.philosophical-footer {
+  margin-top: 6rem;
+  padding-bottom: 3rem;
+  border-top: 1px solid #111;
+  padding-top: 2rem;
+  text-align: center;
+}
+
+.philosophical-footer p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .verdict-container {
+    grid-template-columns: 1fr;
+  }
+}

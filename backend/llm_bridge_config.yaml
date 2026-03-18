@@ -1,0 +1,40 @@
+# LLM Bridge Configuration
+
+# Global retry settings
+retry:
+  max_retries: 3
+  base_delay: 1.0
+  max_delay: 60.0
+  exponential_base: 2.0
+
+# Whether to log token usage after each call
+log_usage: true
+
+# Default model alias to use when none is specified
+default_model: priest_gemini
+
+# Model aliases and configurations
+models:
+  priest_gpt:
+    provider: openai
+    model: gpt-4o
+    api_keys: ["${OPENAI_API_KEY:-}"]
+    max_tokens: 4096
+    temperature: 0.7
+    fallback_models: ["priest_claude"]
+
+  priest_claude:
+    provider: anthropic
+    model: claude-3-5-sonnet-20241022
+    api_keys: ["${ANTHROPIC_API_KEY:-}"]
+    max_tokens: 4096
+    temperature: 0.7
+
+  priest_gemini:
+    provider: google
+    model: gemini-2.5-flash
+    api_keys: ["${GOOGLE_API_KEY:-}"]
+
+    max_tokens: 4096
+    temperature: 0.7
+

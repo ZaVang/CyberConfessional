@@ -1,0 +1,62 @@
+import os
+from jinja2 import Template
+from llm_bridge import LLMBridge, ChatParameters
+from schemas import EngineInputSchema, EngineOutputSchema, FactualState, CounterfactualQuery
+
+class LLMService:
+    def __init__(self, config_path: str = "llm_bridge_config.yaml"):
+        self.bridge = LLMBridge.from_config(config_path)
+        self.prompt_dir = os.path.join(os.path.dirname(__file__), "prompts")
+
+    def _load_template(self, filename: str) -> Template:
+        with open(os.path.join(self.prompt_dir, filename), "r", encoding="utf-8") as f:
+            return Template(f.read())
+
+    async def parse_confession(self, text: str) -> EngineInputSchema:
+        """
+        Parse human confession into structured Causal Engine input via Jinja2 template.
+        """
+        try:
+            template = self._load_template("EXTRACT_SCM_PARAMS.j2")
+            prompt_content = template.render(confession=text)
+
+            response = await self.bridge.chat(
+                model="priest_gemini",
+                messages=[{"role": "user", "content": prompt_content}],
+                response_model=EngineInputSchema,
+                params=ChatParameters(temperature=0.1)
+            )
+            return response.parsed
+        except Exception as e:
+            print(f"[LLMService] Warning: LLM parsing failed ({e}). Falling back to Mock.")
+            return EngineInputSchema(
+                factual=FactualState(X=1, Y=0),
+                counterfactual=CounterfactualQuery(do_X=0)
+            )
+
+    async def generate_verdict(self, text: str, engine_result: EngineOutputSchema) -> str:
+        """
+        Generate the Cyber Priest's persona response based on the causal calculation via Jinja2.
+        """
+        try:
+            template = self._load_template("GENERATE_VERDICT.j2")
+            verdict_prompt = template.render(
+                confession=text,
+                prob=engine_result.counterfactual_prob,
+                u_value=engine_result.inferred_latents.get("U_hidden", 0.0),
+                message=engine_result.message
+            )
+
+            response = await self.bridge.chat(
+                model="priest_gemini",
+                messages=[{"role": "user", "content": verdict_prompt}],
+                params=ChatParameters(temperature=0.8)
+            )
+            return response.content.strip()
+
+        except Exception as e:
+            print(f"[LLMService] Warning: LLM generation failed ({e}). Falling back to Mock.")
+            return f"世界线观测受到干扰。在你的平行宇宙中，成功率为 {engine_result.counterfactual_prob:.4f}。命运依然收束。放下执念吧，凡人。"
+
+llm_service = LLMService()
+

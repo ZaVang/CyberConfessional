@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/infra/llm_bridge/storage/
+.env
+backend/.env
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+frontend/out/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Project specific
+logs/
+backend/infra/llm_bridge/storage/*.json
+!backend/infra/llm_bridge/storage/.gitkeep
