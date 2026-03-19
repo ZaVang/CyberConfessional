@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from schemas import EngineInputSchema, EngineOutputSchema
+from ..models.schemas import EngineInputSchema, EngineOutputSchema
 
 
 class BaseCausalEngine(ABC):

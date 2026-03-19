@@ -1,6 +1,6 @@
 .altar-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
   min-height: 80vh;
@@ -20,8 +20,9 @@
   letter-spacing: 0.5rem;
   color: #ffffff;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-               0 0 20px rgba(0, 240, 255, 0.3);
+    0 0 20px rgba(0, 240, 255, 0.3);
 }
+
 /* Removed neon-flicker animation and keyframes as per user request */
 
 .cross-icon {
@@ -81,10 +82,13 @@
   color: var(--accent-blue);
   padding: 1.2rem 2.5rem;
   font-family: var(--font-mono);
-  font-size: 1rem; /* Slightly larger */
-  font-weight: 900; /* Much bolder */
+  font-size: 1rem;
+  /* Slightly larger */
+  font-weight: 900;
+  /* Much bolder */
   cursor: pointer;
-  letter-spacing: 0.3rem; /* More spacing */
+  letter-spacing: 0.3rem;
+  /* More spacing */
   text-transform: uppercase;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
@@ -125,7 +129,7 @@
 /* Verdict Styles */
 .verdict-container {
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: 4fr 6fr;
   gap: 3rem;
   width: 100%;
 }

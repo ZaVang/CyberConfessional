@@ -1,4 +1,4 @@
-# Cyber Confessional (赛博神父)
+# Cyber Confessional
 
 [English] | [中文](./README_CN.md)
 

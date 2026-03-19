@@ -88,22 +88,70 @@ function App() {
         type: 'latent',
         symbol: 'U',
         name: 'Hidden Fate',
-        value: result.engine_output.inferred_latents.U_hidden.toFixed(4),
+        value: result.engine_output.inferred_latents.U_hidden?.toFixed(4) || '0.0000',
         desc: 'Deep latent cognition bias'
       }
     ];
   };
 
-  const getMermaidChart = (result) => {
-    if (!result) return '';
-    return `
-      graph TD;
-      U((Latent U)) -->|Bias| Y(Reality Y);
-      X[Decision X] -->|Influence| Y;
-      style U stroke:#FF003C,stroke-width:2px;
-      style Y stroke:#00F0FF,stroke-width:1px;
-      style X stroke:#00F0FF,stroke-width:1px;
-    `;
+  const [zVal, setZVal] = useState(1.0);
+  const [mBias, setMBias] = useState(0.0);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const debounceTimer = useRef(null);
+
+  // 当结果返回时，同步初始参数
+  useEffect(() => {
+    if (result && result.engine_input) {
+      setZVal(result.engine_input.graph_params.z_val || 1.0);
+      setMBias(result.engine_input.graph_params.m_weights.bias || 0.0);
+    }
+  }, [result?.confession]); // 仅在告解内容变化（新告解）时同步，避免模拟时被重置
+
+  const handleSimulate = async (newZ, newMBias) => {
+    if (!result) return;
+    
+    setIsSimulating(true);
+    try {
+      const response = await fetch('http://localhost:8888/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          engine_input: result.engine_input,
+          new_z: newZ,
+          new_m_bias: newMBias
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // 更新结果中的概率和 Mermaid 图，但不替换整个结果（保留判词）
+        setResult(prev => ({
+          ...prev,
+          engine_output: {
+            ...prev.engine_output,
+            counterfactual_prob: data.counterfactual_prob,
+            inferred_latents: data.inferred_latents
+          },
+          mermaid_chart: data.mermaid_chart
+        }));
+      }
+    } catch (err) {
+      console.error("Simulation failed:", err);
+    } finally {
+      setIsSimulating(false);
+    }
+  };
+
+  const onZChange = (val) => {
+    setZVal(val);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => handleSimulate(val, mBias), 150);
+  };
+
+  const onMChange = (val) => {
+    setMBias(val);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => handleSimulate(zVal, val), 150);
   };
 
   return (
@@ -153,10 +201,10 @@ function App() {
 
         {/* Verdict Results */}
         {result && !isComputing && (
-          <div className="verdict-container grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-12 w-full">
+          <div className="verdict-container grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-12 w-full">
             <div className="narrative-panel">
               <h2 className="priest-title text-[#ff003c] text-3xl font-bold mb-6 uppercase tracking-widest">The Verdict</h2>
-              <div className="priest-text font-serif text-lg leading-loose text-gray-200 pr-8">
+              <div className="priest-text font-serif text-lg leading-loose text-gray-200 pr-8 whitespace-pre-wrap">
                 {(() => {
                   try {
                     const parsedVerdict = JSON.parse(result.verdict);
@@ -174,14 +222,21 @@ function App() {
               </button>
             </div>
 
-            <div className="data-panel space-y-6">
+            <div className="data-panel space-y-6 flex-1">
               <CyberParamsPanel
-                prob={(result.engine_output.counterfactual_prob * 100).toFixed(4)}
+                prob={(result.engine_output.counterfactual_prob * 100).toFixed(2)}
                 causalNodes={getCausalNodes(result)}
+                zVal={zVal}
+                mBias={mBias}
+                onZChange={onZChange}
+                onMChange={onMChange}
+                isSimulating={isSimulating}
               />
-              <div className="p-4 border border-[#1a1a1a] bg-black/40">
-                <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 mono font-bold">Causal Topology</div>
-                <MermaidDAG chartString={getMermaidChart(result)} />
+              <div className="p-4 border border-[#1a1a1a] bg-black/40 min-h-[400px] flex flex-col">
+                <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-4 mono font-bold">Causal Topology</div>
+                <div className="flex-1">
+                  <MermaidDAG chartString={result.mermaid_chart} />
+                </div>
               </div>
             </div>
           </div>

@@ -1,12 +1,16 @@
 import os
 from jinja2 import Template
-from llm_bridge import LLMBridge, ChatParameters
-from schemas import EngineInputSchema, EngineOutputSchema, FactualState, CounterfactualQuery
+from .llm_bridge.bridge import LLMBridge, ChatParameters
+from ..models.schemas import EngineInputSchema, EngineOutputSchema, FactualState, CounterfactualQuery
 
 class LLMService:
-    def __init__(self, config_path: str = "llm_bridge_config.yaml"):
+    def __init__(self, config_path: str = None):
+        if config_path is None:
+            # Look for config in app/config/
+            config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "llm_bridge_config.yaml")
+        
         self.bridge = LLMBridge.from_config(config_path)
-        self.prompt_dir = os.path.join(os.path.dirname(__file__), "prompts")
+        self.prompt_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
 
     def _load_template(self, filename: str) -> Template:
         with open(os.path.join(self.prompt_dir, filename), "r", encoding="utf-8") as f:
