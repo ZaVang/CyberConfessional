@@ -33,17 +33,17 @@ def calibrate_soul(request: CalibrationRequest, session: Session = Depends(get_s
     if len(answers) != 4:
         raise HTTPException(status_code=400, detail="Calibration requires exactly 4 answers.")
         
-    u_risk_mean = 2.0 if answers[0] == "A" else 8.0
-    u_action_mean = 2.0 if answers[1] == "A" else 8.0
-    u_emotion_mean = 2.0 if answers[2] == "A" else 8.0
-    u_locus_mean = 8.0 if answers[3] == "A" else 2.0 # note: question 4 A is external (8.0)
+    u_risk_mean = 0.3 if answers[0] == "A" else 0.7 if answers[0] == "B" else 0.5
+    u_action_mean = 0.3 if answers[1] == "A" else 0.7 if answers[1] == "B" else 0.5
+    u_emotion_mean = 0.3 if answers[2] == "A" else 0.7 if answers[2] == "B" else 0.5
+    u_locus_mean = 0.7 if answers[3] == "A" else 0.3 if answers[3] == "B" else 0.5
     
     new_soul = SoulMatrix(
         username=request.username,
-        u_risk_mean=u_risk_mean, u_risk_std=2.0,
-        u_action_mean=u_action_mean, u_action_std=2.0,
-        u_emotion_mean=u_emotion_mean, u_emotion_std=2.0,
-        u_locus_mean=u_locus_mean, u_locus_std=2.0
+        u_risk_mean=u_risk_mean, u_risk_std=0.2,
+        u_action_mean=u_action_mean, u_action_std=0.2,
+        u_emotion_mean=u_emotion_mean, u_emotion_std=0.2,
+        u_locus_mean=u_locus_mean, u_locus_std=0.2
     )
     
     session.add(new_soul)

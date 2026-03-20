@@ -3,7 +3,9 @@
   max-width: 1400px;
   display: flex;
   flex-direction: column;
-  min-height: 80vh;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
 .sacred-header {
@@ -128,9 +130,6 @@
 
 /* Verdict Styles */
 .verdict-container {
-  display: grid;
-  grid-template-columns: 4fr 6fr;
-  gap: 3rem;
   width: 100%;
 }
 
@@ -144,6 +143,7 @@
   font-size: 1.1rem;
   line-height: 1.8;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .retry-btn {
@@ -215,8 +215,4 @@
   line-height: 1.6;
 }
 
-@media (max-width: 800px) {
-  .verdict-container {
-    grid-template-columns: 1fr;
-  }
-}
+/* removed max-width media query since we use tailwind now */

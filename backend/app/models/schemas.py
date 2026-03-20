@@ -9,8 +9,8 @@ class CounterfactualQuery(BaseModel):
     do_X: int = Field(..., description="用户设想的反事实决定（如果当时...）")
 
 class UPriorInstance(BaseModel):
-    mean: float = 5.0
-    std: float = 2.0
+    mean: float = 0.5
+    std: float = 0.2
 
 class U_Priors(BaseModel):
     name: str = Field(default="潜意识限制器矩阵", description="隐变量(U)的名称")

@@ -23,3 +23,5 @@ Thumbs.db
 logs/
 backend/infra/llm_bridge/storage/*.json
 !backend/infra/llm_bridge/storage/.gitkeep
+
+backend/cyber_priest.db

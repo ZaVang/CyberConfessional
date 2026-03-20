@@ -17,20 +17,20 @@ class SoulMatrix(SQLModel, table=True):
     
     # --- Bayesian Belief Network Priors ---
     # 1. Risk aversion
-    u_risk_mean: float = Field(default=5.0)
-    u_risk_std: float = Field(default=2.0)
+    u_risk_mean: float = Field(default=0.5)
+    u_risk_std: float = Field(default=0.2)
     
     # 2. Action paralysis
-    u_action_mean: float = Field(default=5.0)
-    u_action_std: float = Field(default=2.0)
+    u_action_mean: float = Field(default=0.5)
+    u_action_std: float = Field(default=0.2)
     
     # 3. Emotional entanglement
-    u_emotion_mean: float = Field(default=5.0)
-    u_emotion_std: float = Field(default=2.0)
+    u_emotion_mean: float = Field(default=0.5)
+    u_emotion_std: float = Field(default=0.2)
     
     # 4. External locus of control
-    u_locus_mean: float = Field(default=5.0)
-    u_locus_std: float = Field(default=2.0)
+    u_locus_mean: float = Field(default=0.5)
+    u_locus_std: float = Field(default=0.2)
 
     # Relationship back to confessions
     confessions: List["ConfessionLog"] = Relationship(back_populates="soul")

@@ -101,10 +101,10 @@ class ComplexCausalEngine:
                 "counterfactual_prob": 0.0,
                 "retained_universes": len(accepted_risk),
                 "inferred_latents": {
-                    "u_risk": 5.0,
-                    "u_action": 5.0,
-                    "u_emotion": 5.0,
-                    "u_locus": 5.0
+                    "u_risk": 0.5,
+                    "u_action": 0.5,
+                    "u_emotion": 0.5,
+                    "u_locus": 0.5
                 },
                 "message": "世界线断裂：参数设定极度矛盾，无法反推过去。"
             }

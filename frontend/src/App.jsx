@@ -13,6 +13,7 @@ function App() {
   const [isComputing, setIsComputing] = useState(false);
   const [logs, setLogs] = useState([]);
   const [result, setResult] = useState(null);
+  const [isDataExpanded, setIsDataExpanded] = useState(false);
   const logEndRef = useRef(null);
 
   const simulateLogs = async (signal) => {
@@ -40,6 +41,7 @@ function App() {
     setIsComputing(true);
     setLogs([]);
     setResult(null);
+    setIsDataExpanded(false);
 
     const simulationSignal = { active: true };
     const logPromise = simulateLogs(simulationSignal);
@@ -228,10 +230,10 @@ function App() {
 
         {/* Verdict Results */}
         {result && !isComputing && (
-          <div className="verdict-container grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-12 w-full">
-            <div className="narrative-panel">
-              <h2 className="priest-title text-[#ff003c] text-3xl font-bold mb-6 uppercase tracking-widest">The Verdict</h2>
-              <div className="priest-text font-serif text-lg leading-loose text-gray-200 pr-8 whitespace-pre-wrap">
+          <div className={`verdict-container w-full transition-all duration-700 ${isDataExpanded ? 'grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-12' : 'flex flex-col items-center max-w-4xl mx-auto'}`}>
+            <div className={`narrative-panel ${isDataExpanded ? '' : 'w-full'}`}>
+              <h2 className="priest-title text-[#ff003c] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left">The Verdict</h2>
+              <div className={`priest-text font-serif text-lg leading-loose text-gray-200 whitespace-pre-wrap ${isDataExpanded ? 'pr-8' : ''}`}>
                 {(() => {
                   try {
                     const parsedVerdict = JSON.parse(result.verdict);
@@ -241,31 +243,41 @@ function App() {
                   }
                 })()}
               </div>
-              <button
-                onClick={() => setResult(null)}
-                className="retry-btn mt-8 text-xs text-gray-500 underline uppercase tracking-widest hover:text-gray-300"
-              >
-                NEW CONFESSION
-              </button>
-            </div>
-
-            <div className="data-panel space-y-6 flex-1">
-              <CyberParamsPanel
-                prob={(result.engine_output.counterfactual_prob * 100).toFixed(2)}
-                causalNodes={getCausalNodes(result)}
-                zVal={zVal}
-                mBias={mBias}
-                onZChange={onZChange}
-                onMChange={onMChange}
-                isSimulating={isSimulating}
-              />
-              <div className="p-4 border border-[#1a1a1a] bg-black/40 min-h-[400px] flex flex-col">
-                <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-4 mono font-bold">Causal Topology</div>
-                <div className="flex-1">
-                  <MermaidDAG chartString={result.mermaid_chart} />
-                </div>
+              <div className="flex gap-6 mt-12 mb-8 justify-center lg:justify-start">
+                <button
+                  onClick={() => setIsDataExpanded(!isDataExpanded)}
+                  className="px-6 py-3 border border-cyan-900 text-cyan-500 text-sm md:text-base uppercase tracking-widest hover:bg-cyan-950/40 hover:border-cyan-500 hover:text-cyan-300 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(0,240,255,0.05)] hover:shadow-[0_0_20px_rgba(0,240,255,0.2)]"
+                >
+                  {isDataExpanded ? 'HIDE CAUSAL DATA' : 'EXTRACT CAUSAL DATA'}
+                </button>
+                <button
+                  onClick={() => { setResult(null); setIsDataExpanded(false); }}
+                  className="px-6 py-3 border border-gray-800 text-gray-500 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/60 hover:border-gray-500 hover:text-gray-300 transition-all duration-300 focus:outline-none"
+                >
+                  NEW CONFESSION
+                </button>
               </div>
             </div>
+
+            {isDataExpanded && (
+              <div className="data-panel space-y-6 flex-1 w-full animate-[fadeIn_0.5s_ease-out]">
+                <CyberParamsPanel
+                  prob={(result.engine_output.counterfactual_prob * 100).toFixed(2)}
+                  causalNodes={getCausalNodes(result)}
+                  zVal={zVal}
+                  mBias={mBias}
+                  onZChange={onZChange}
+                  onMChange={onMChange}
+                  isSimulating={isSimulating}
+                />
+                <div className="p-4 border border-[#1a1a1a] bg-black/40 min-h-[400px] flex flex-col">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-4 mono font-bold">Causal Topology</div>
+                  <div className="flex-1">
+                    <MermaidDAG chartString={result.mermaid_chart} />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
