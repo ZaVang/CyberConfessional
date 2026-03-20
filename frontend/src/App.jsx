@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import CyberParamsPanel from './components/CyberParamsPanel';
 import MermaidDAG from './components/MermaidDAG';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import CyberLogin from './components/CyberLogin';
 import CyberOnboarding from './components/CyberOnboarding';
 import BackgroundMantras from './components/BackgroundMantras';
@@ -237,12 +241,19 @@ function App() {
               <h2 className="priest-title text-[#ff003c] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left">The Verdict</h2>
               <div className={`priest-text font-serif text-lg leading-loose text-gray-200 whitespace-pre-wrap ${isDataExpanded ? 'pr-8' : ''}`}>
                 {(() => {
+                  let text = result.verdict;
                   try {
                     const parsedVerdict = JSON.parse(result.verdict);
-                    return parsedVerdict.message || result.verdict;
-                  } catch (e) {
-                    return result.verdict;
-                  }
+                    text = parsedVerdict.message || result.verdict;
+                  } catch (e) {}
+                  return (
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkMath]} 
+                      rehypePlugins={[rehypeKatex]}
+                    >
+                      {text}
+                    </ReactMarkdown>
+                  );
                 })()}
               </div>
               <div className="flex gap-6 mt-12 mb-8 justify-center lg:justify-start">
