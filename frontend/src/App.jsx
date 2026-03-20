@@ -82,6 +82,14 @@ function App() {
       // If complete, start simulation logs
       const logPromise = simulateLogs(simulationSignal);
       await logPromise;
+      
+      let verdictText = data.verdict;
+      try {
+        const parsedVerdict = JSON.parse(data.verdict);
+        verdictText = parsedVerdict.message || data.verdict;
+      } catch (e) {}
+
+      setMessages(prev => [...prev, { role: 'assistant', content: verdictText, isVerdict: true }]);
       setResult(data);
     } catch (err) {
       simulationSignal.active = false;
@@ -229,9 +237,22 @@ function App() {
                     <div className="text-[10px] uppercase tracking-widest mb-2 opacity-50 font-bold">
                       {msg.role === 'user' ? 'Soul Identity' : 'Cyber Priest'}
                     </div>
-                    <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap">
-                      {msg.content}
-                    </div>
+                    {msg.isVerdict ? (
+                      <details className="cursor-pointer group">
+                        <summary className="font-serif text-sm tracking-widest text-[#ff003c] opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 outline-none">
+                           <span className="text-lg leading-none transform group-open:rotate-180 transition-transform">▾</span> PREVIOUS VERDICT ARCHIVE
+                        </summary>
+                        <div className="mt-4 font-serif text-sm leading-relaxed text-gray-400 border-l border-[#ff003c]/20 pl-4 py-2">
+                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                            {msg.content}
+                          </ReactMarkdown>
+                        </div>
+                      </details>
+                    ) : (
+                      <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap">
+                        {msg.content}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
