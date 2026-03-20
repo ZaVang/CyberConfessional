@@ -1,121 +1,131 @@
-from abc import ABC, abstractmethod
 import numpy as np
 from ..models.schemas import EngineInputSchema, EngineOutputSchema
 
-
-class BaseCausalEngine(ABC):
+class ComplexCausalEngine:
     """
-    赛博神父因果计算引擎基类。
-    所有具体的 SCM 引擎必须继承此基类并实现 run_inference 方法。
+    V3.0 终极赛博神父引擎 (四维灵魂矩阵版)
     """
     def __init__(self, payload: EngineInputSchema):
-        self.payload = payload
-        # 引擎初始化时，子类可以从 payload.graph_params 中提取自己需要的参数
-
-    @abstractmethod
-    def run_inference(self, num_samples: int = 100000) -> EngineOutputSchema:
-        """
-        执行反事实推理三步曲（溯因、干预、预测）。
-        必须返回符合 EngineOutputSchema 标准的计算结果。
-        """
-        pass
-
-
-class ComplexCausalEngine(BaseCausalEngine):
-    """
-    V2.0 复杂赛博神父引擎。
-    包含环境变量 (Z) 与 中介传导路径 (M)。
-    因果图结构：
-    Z -> X, Z -> M, Z -> Y
-    U -> M, U -> Y
-    X -> M -> Y
-    """
-    def __init__(self, payload):
-        super().__init__(payload)
-        # 为了兼容性，这里使用 dict 的 get 方法。
-        # 如果您的 payload.graph_params 已经是 Pydantic 对象，请改为点号(.)访问
-        params = self.payload.graph_params if isinstance(self.payload.graph_params, dict) else self.payload.graph_params.model_dump()
+        params = payload.graph_params if isinstance(payload.graph_params, dict) else payload.graph_params.model_dump()
         
-        # 1. 隐变量 U (如：天生性格) 的先验
-        u_prior = params.get('u_prior', {})
-        self.u_mean = u_prior.get('mean', 0.0)
-        self.u_std = u_prior.get('std', 1.0)
+        # 1. 解析四个隐变量的先验分布 (Priors)
+        priors = params.get('u_priors', {})
+        self.prior_risk = priors.get('u_risk', {'mean': 5.0, 'std': 2.0})
+        self.prior_action = priors.get('u_action', {'mean': 5.0, 'std': 2.0})
+        self.prior_emotion = priors.get('u_emotion', {'mean': 5.0, 'std': 2.0})
+        self.prior_locus = priors.get('u_locus', {'mean': 5.0, 'std': 2.0})
 
-        # 2. 环境变量 Z (如：宏观经济)。假设在事实和反事实中 Z 是不变的常量
-        self.z_val = params.get('z_val', 0.0)
+        self.z_val = params.get('z_val', 1.0)
 
-        # 3. 中介变量 M 的方程权重: M = sigmoid(w_mx*X + w_mz*Z + w_mu*U + bias_m)
+        # 2. 解析 M 的权重向量 (包含对四个 U 的敏感度)
         m_weights = params.get('m_weights', {})
-        self.w_mx = m_weights.get('w_x', 1.0)  # X 导致 M 发生的概率权重
-        self.w_mz = m_weights.get('w_z', 0.0)  # 环境 Z 对 M 的压迫感
-        self.w_mu = m_weights.get('w_u', 2.0)  # 隐变量 U 对 M 的影响
+        self.w_mx = m_weights.get('w_x', 1.0)
+        self.w_mz = m_weights.get('w_z', 0.0)
+        self.w_m_u_risk = m_weights.get('w_u_risk', 0.0)
+        self.w_m_u_action = m_weights.get('w_u_action', 0.0)
+        self.w_m_u_emotion = m_weights.get('w_u_emotion', 0.0)
+        self.w_m_u_locus = m_weights.get('w_u_locus', 0.0)
         self.bias_m = m_weights.get('bias', 0.0)
 
-        # 4. 结局变量 Y 的方程权重: Y = sigmoid(w_yx*X + w_ym*M + w_yz*Z + w_yu*U + bias_y)
+        # 3. 解析 Y 的权重向量
         y_weights = params.get('y_weights', {})
-        self.w_yx = y_weights.get('w_x', 1.0)  # X 对 Y 的直接效应
-        self.w_ym = y_weights.get('w_m', -5.0) # M(骚操作) 对 Y 的致命打击
-        self.w_yz = y_weights.get('w_z', -2.0) # 环境 Z 对 Y 的宏观影响
-        self.w_yu = y_weights.get('w_u', 3.0)  # 隐变量 U 对 Y 的直接影响
+        self.w_yx = y_weights.get('w_x', 1.0)
+        self.w_ym = y_weights.get('w_m', -5.0)
+        self.w_yz = y_weights.get('w_z', -2.0)
+        self.w_y_u_risk = y_weights.get('w_u_risk', 0.0)
+        self.w_y_u_action = y_weights.get('w_u_action', 0.0)
+        self.w_y_u_emotion = y_weights.get('w_u_emotion', 0.0)
+        self.w_y_u_locus = y_weights.get('w_u_locus', 0.0)
         self.bias_y = y_weights.get('bias', 0.0)
+
+        # 事实与反事实状态
+        self.factual_x = payload.factual.X if not isinstance(payload, dict) else payload['factual']['X']
+        self.factual_y = payload.factual.Y if not isinstance(payload, dict) else payload['factual']['Y']
+        self.cf_x = payload.counterfactual.do_X if not isinstance(payload, dict) else payload['counterfactual']['do_X']
 
     def _sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
-    def _get_m_prob(self, x, z, u):
-        """计算中介行为 M 发生的概率"""
-        logit = self.w_mx * x + self.w_mz * z + self.w_mu * u + self.bias_m
+    def _get_m_prob(self, x, z, u_risk, u_action, u_emotion, u_locus):
+        """计算中介行为 M 发生的概率 (高维张量运算)"""
+        logit = (self.w_mx * x + self.w_mz * z + 
+                 self.w_m_u_risk * u_risk + 
+                 self.w_m_u_action * u_action + 
+                 self.w_m_u_emotion * u_emotion + 
+                 self.w_m_u_locus * u_locus + self.bias_m)
         return self._sigmoid(logit)
 
-    def _get_y_prob_given_m(self, x, m, z, u):
-        """在已知是否发生 M 的情况下，计算好结局 Y 的概率"""
-        logit = self.w_yx * x + self.w_ym * m + self.w_yz * z + self.w_yu * u + self.bias_y
+    def _get_y_prob_given_m(self, x, m, z, u_risk, u_action, u_emotion, u_locus):
+        """在已知 M 的情况下，计算 Y 的概率"""
+        logit = (self.w_yx * x + self.w_ym * m + self.w_yz * z + 
+                 self.w_y_u_risk * u_risk + 
+                 self.w_y_u_action * u_action + 
+                 self.w_y_u_emotion * u_emotion + 
+                 self.w_y_u_locus * u_locus + self.bias_y)
         return self._sigmoid(logit)
 
-    def _calculate_marginal_y_prob(self, x, z, u):
-        """
-        核心数学逻辑：边缘化中介变量 M。
-        因为 M 的发生是一个概率事件，我们需要计算：
-        P(Y) = P(Y|M=1)*P(M=1) + P(Y|M=0)*P(M=0)
-        """
-        p_m1 = self._get_m_prob(x, z, u)
+    def _calculate_marginal_y_prob(self, x, z, u_risk, u_action, u_emotion, u_locus):
+        """边缘化中介变量 M"""
+        p_m1 = self._get_m_prob(x, z, u_risk, u_action, u_emotion, u_locus)
         p_m0 = 1.0 - p_m1
-
-        p_y_given_m1 = self._get_y_prob_given_m(x, 1, z, u)
-        p_y_given_m0 = self._get_y_prob_given_m(x, 0, z, u)
-
+        p_y_given_m1 = self._get_y_prob_given_m(x, 1, z, u_risk, u_action, u_emotion, u_locus)
+        p_y_given_m0 = self._get_y_prob_given_m(x, 0, z, u_risk, u_action, u_emotion, u_locus)
         return (p_y_given_m1 * p_m1) + (p_y_given_m0 * p_m0)
 
-    def run_inference(self, num_samples: int = 100000): # -> EngineOutputSchema:
-        factual_x = self.payload.factual.X
-        factual_y = self.payload.factual.Y
-        cf_x = self.payload.counterfactual.do_X
+    def run_inference(self, num_samples: int = 100000):
+        # 1. 溯因 (Abduction)：在四个维度上同时生成 10 万个平行宇宙的灵魂碎片
+        samples_risk = np.random.normal(self.prior_risk['mean'], self.prior_risk['std'], num_samples)
+        samples_action = np.random.normal(self.prior_action['mean'], self.prior_action['std'], num_samples)
+        samples_emotion = np.random.normal(self.prior_emotion['mean'], self.prior_emotion['std'], num_samples)
+        samples_locus = np.random.normal(self.prior_locus['mean'], self.prior_locus['std'], num_samples)
 
-        # 1. 溯因 (Abduction)：在当前环境 Z_val 下，反推用户的真实隐变量 U
-        u_samples = np.random.normal(self.u_mean, self.u_std, num_samples)
-        y_probs_obs = self._calculate_marginal_y_prob(factual_x, self.z_val, u_samples)
+        # 极速并行计算这 10 万个宇宙中，现实 Y 发生的概率
+        y_probs_obs = self._calculate_marginal_y_prob(
+            self.factual_x, self.z_val, 
+            samples_risk, samples_action, samples_emotion, samples_locus
+        )
         
-        likelihoods = y_probs_obs if factual_y == 1 else (1 - y_probs_obs)
+        # 抛硬币筛选：只保留那些与用户现实结局吻合的世界线
+        likelihoods = y_probs_obs if self.factual_y == 1 else (1 - y_probs_obs)
         random_thresholds = np.random.uniform(0, 1, num_samples)
-        accepted_u = u_samples[random_thresholds < likelihoods]
+        accept_mask = random_thresholds < likelihoods
 
-        if len(accepted_u) < 10:
-            # 兼容您的输出 Schema
+        # 提取幸存的世界线
+        accepted_risk = samples_risk[accept_mask]
+        accepted_action = samples_action[accept_mask]
+        accepted_emotion = samples_emotion[accept_mask]
+        accepted_locus = samples_locus[accept_mask]
+
+        if len(accepted_risk) < 10:
             return {
                 "counterfactual_prob": 0.0,
-                "retained_universes": len(accepted_u),
-                "inferred_latents": {"U_hidden": 0.0},
-                "message": "世界线断裂：现实参数过于极端，无法匹配平行宇宙。"
+                "retained_universes": len(accepted_risk),
+                "inferred_latents": {
+                    "u_risk": 5.0,
+                    "u_action": 5.0,
+                    "u_emotion": 5.0,
+                    "u_locus": 5.0
+                },
+                "message": "世界线断裂：参数设定极度矛盾，无法反推过去。"
             }
 
-        # 2 & 3. 干预与预测 (Intervention & Prediction)：强制执行 do(X)
-        # 注意：这里我们强制改变了 X，这会引起 M 发生概率的连锁改变！
-        y_probs_cf = self._calculate_marginal_y_prob(cf_x, self.z_val, accepted_u)
+        # 2 & 3. 干预与预测 (Intervention & Prediction)：强制改变 X，在幸存的宇宙中推演未来
+        y_probs_cf = self._calculate_marginal_y_prob(
+            self.cf_x, self.z_val, 
+            accepted_risk, accepted_action, accepted_emotion, accepted_locus
+        )
+        
         expected_cf_prob = float(np.mean(y_probs_cf))
 
+        # 返回结果：分别计算四个维度的后验均值
         return {
             "counterfactual_prob": expected_cf_prob,
-            "retained_universes": len(accepted_u),
-            "inferred_latents": {"U_hidden": float(np.mean(accepted_u))},
-            "message": "推演完成，包含环境因素与行为中介的多维命运已收束。"
+            "retained_universes": len(accepted_risk),
+            "inferred_latents": {
+                "u_risk": float(np.mean(accepted_risk)),
+                "u_action": float(np.mean(accepted_action)),
+                "u_emotion": float(np.mean(accepted_emotion)),
+                "u_locus": float(np.mean(accepted_locus))
+            },
+            "message": "高维命运张量已收束。"
         }

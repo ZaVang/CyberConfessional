@@ -2,8 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import CyberParamsPanel from './components/CyberParamsPanel';
 import MermaidDAG from './components/MermaidDAG';
+import CyberLogin from './components/CyberLogin';
+import CyberOnboarding from './components/CyberOnboarding';
 
 function App() {
+  const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
+  const [userId, setUserId] = useState('');
+  
   const [confession, setConfession] = useState('');
   const [isComputing, setIsComputing] = useState(false);
   const [logs, setLogs] = useState([]);
@@ -43,7 +48,7 @@ function App() {
       const response = await fetch('http://localhost:8888/confess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confession }),
+        body: JSON.stringify({ confession, username: userId }),
       });
 
       if (!response.ok) {
@@ -153,6 +158,28 @@ function App() {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => handleSimulate(zVal, val), 150);
   };
+
+  const handleLoginSuccess = (isNewUser, usernameStr) => {
+    setUserId(usernameStr);
+    if (isNewUser) {
+      setAppState('onboarding');
+    } else {
+      setAppState('confessional');
+    }
+  };
+
+  const handleCalibrationComplete = (usernameStr) => {
+    setUserId(usernameStr);
+    setAppState('confessional');
+  };
+
+  if (appState === 'login') {
+    return <CyberLogin onLogin={handleLoginSuccess} />;
+  }
+
+  if (appState === 'onboarding') {
+    return <CyberOnboarding username={userId} onComplete={handleCalibrationComplete} />;
+  }
 
   return (
     <div className="altar-container font-mono">

@@ -9,6 +9,7 @@ from ..services.llm_service import llm_service
 router = APIRouter()
 
 class ConfessionRequest(BaseModel):
+    username: str = Field(..., description="The user's calling name mapped to the database")
     confession: str = Field(..., description="The user's natural language confession.")
 
 class ConfessionResponse(BaseModel):
@@ -27,7 +28,7 @@ def generate_mermaid_dag(parsed_data: EngineInputSchema, engine_output: EngineOu
     params = parsed_data.graph_params
     z_name = params.z_name
     m_name = params.m_weights.name
-    u_name = params.u_prior.name
+    u_name = params.u_priors.name
     
     # 获取引擎溯因推导出的 U 的真实数值
     inferred_latents = engine_output.inferred_latents
@@ -65,14 +66,36 @@ def generate_mermaid_dag(parsed_data: EngineInputSchema, engine_output: EngineOu
     """
     return mermaid_str
 
+from fastapi import Depends
+from ..db.database import get_session
+from sqlmodel import Session, select
+from ..models.domain import SoulMatrix, ConfessionLog
+
 @router.post("/confess", response_model=ConfessionResponse)
-async def confess_endpoint(request: ConfessionRequest):
+async def confess_endpoint(request: ConfessionRequest, session: Session = Depends(get_session)):
     """
     The main ritual: Parse, Compute, Judge, and Visualize.
+    Now with Bayesian Updating.
     """
     try:
+        # Load User Prior
+        statement = select(SoulMatrix).where(SoulMatrix.username == request.username)
+        user = session.exec(statement).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="灵魂未锚定。请先进行接入仪式。")
+            
         # 1. 解析自然语言到复杂 SCM
         engine_input = await llm_service.parse_confession(request.confession)
+        
+        # Inject DB Priors into engine input
+        engine_input.graph_params.u_priors.u_risk.mean = user.u_risk_mean
+        engine_input.graph_params.u_priors.u_risk.std = user.u_risk_std
+        engine_input.graph_params.u_priors.u_action.mean = user.u_action_mean
+        engine_input.graph_params.u_priors.u_action.std = user.u_action_std
+        engine_input.graph_params.u_priors.u_emotion.mean = user.u_emotion_mean
+        engine_input.graph_params.u_priors.u_emotion.std = user.u_emotion_std
+        engine_input.graph_params.u_priors.u_locus.mean = user.u_locus_mean
+        engine_input.graph_params.u_priors.u_locus.std = user.u_locus_std
         
         # 2. 运行因果推断引擎
         engine = ComplexCausalEngine(engine_input)
@@ -84,6 +107,41 @@ async def confess_endpoint(request: ConfessionRequest):
         
         # 4. 生成动态拓扑图
         mermaid_chart = generate_mermaid_dag(engine_input, engine_output)
+        
+        # 5. Bayesian State Update
+        latents = engine_output.inferred_latents
+        
+        # Update means with exponential moving average (alpha = 0.3 for new observation)
+        user.u_risk_mean = user.u_risk_mean * 0.7 + latents.get("u_risk", user.u_risk_mean) * 0.3
+        user.u_action_mean = user.u_action_mean * 0.7 + latents.get("u_action", user.u_action_mean) * 0.3
+        user.u_emotion_mean = user.u_emotion_mean * 0.7 + latents.get("u_emotion", user.u_emotion_mean) * 0.3
+        user.u_locus_mean = user.u_locus_mean * 0.7 + latents.get("u_locus", user.u_locus_mean) * 0.3
+        
+        # Reduce std to simulate conviction over time
+        user.u_risk_std = max(user.u_risk_std * 0.9, 0.2)
+        user.u_action_std = max(user.u_action_std * 0.9, 0.2)
+        user.u_emotion_std = max(user.u_emotion_std * 0.9, 0.2)
+        user.u_locus_std = max(user.u_locus_std * 0.9, 0.2)
+        
+        user.confession_count += 1
+        
+        log_entry = ConfessionLog(
+            soul_id=user.id,
+            content=request.confession,
+            counterfactual_prob=engine_output.counterfactual_prob,
+            inferred_u_risk=latents.get("u_risk"),
+            inferred_u_action=latents.get("u_action"),
+            inferred_u_emotion=latents.get("u_emotion"),
+            inferred_u_locus=latents.get("u_locus"),
+            z_name=engine_input.graph_params.z_name,
+            m_name=engine_input.graph_params.m_weights.name,
+            verdict_text=verdict,
+            mermaid_chart=mermaid_chart
+        )
+        
+        session.add(log_entry)
+        session.add(user)
+        session.commit()
         
         return ConfessionResponse(
             confession=request.confession,

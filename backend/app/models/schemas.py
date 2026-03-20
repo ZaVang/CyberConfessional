@@ -8,29 +8,41 @@ class FactualState(BaseModel):
 class CounterfactualQuery(BaseModel):
     do_X: int = Field(..., description="用户设想的反事实决定（如果当时...）")
 
-class PriorParams(BaseModel):
-    name: str = Field(default="潜意识限制器", description="隐变量(U)的名称")
-    mean: float = 0.0
-    std: float = 1.0
+class UPriorInstance(BaseModel):
+    mean: float = 5.0
+    std: float = 2.0
+
+class U_Priors(BaseModel):
+    name: str = Field(default="潜意识限制器矩阵", description="隐变量(U)的名称")
+    u_risk: UPriorInstance = Field(default_factory=UPriorInstance)
+    u_action: UPriorInstance = Field(default_factory=UPriorInstance)
+    u_emotion: UPriorInstance = Field(default_factory=UPriorInstance)
+    u_locus: UPriorInstance = Field(default_factory=UPriorInstance)
 
 class M_EquationWeights(BaseModel):
     name: str = Field(default="致命传导行为", description="中介变量(M)的名称，如'恐慌盯盘'")
     w_x: float = 1.0
     w_z: float = 0.0
-    w_u: float = 2.0
+    w_u_risk: float = 0.0
+    w_u_action: float = 0.0
+    w_u_emotion: float = 0.0
+    w_u_locus: float = 0.0
     bias: float = 0.0
 
 class Y_EquationWeights(BaseModel):
     w_x: float = 1.0
     w_m: float = -5.0
     w_z: float = -2.0
-    w_u: float = -2.0
+    w_u_risk: float = 0.0
+    w_u_action: float = 0.0
+    w_u_emotion: float = 0.0
+    w_u_locus: float = 0.0
     bias: float = 0.0
 
 class GraphParams(BaseModel):
     z_name: str = Field(default="宏观不可抗力", description="混淆因子(Z)的名称，如'行业寒冬'")
     z_val: float = Field(default=1.0, description="环境变量Z的当前强度，通常设为1.0表示存在")
-    u_prior: PriorParams = Field(default_factory=PriorParams)
+    u_priors: U_Priors = Field(default_factory=U_Priors)
     m_weights: M_EquationWeights = Field(default_factory=M_EquationWeights)
     y_weights: Y_EquationWeights = Field(default_factory=Y_EquationWeights)
 
