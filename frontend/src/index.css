@@ -39,3 +39,8 @@
 }
 
 /* Original Scroll Down/Up animations removed as per user request to revert UI */
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}

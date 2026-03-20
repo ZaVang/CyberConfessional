@@ -132,7 +132,7 @@ const CyberOnboarding = ({ username, onComplete }) => {
   }
 
   return (
-    <div className="w-full h-screen bg-[#050505] flex items-center justify-center p-8 relative overflow-hidden selection:bg-cyan-900 selection:text-cyan-100">
+    <div className="w-full h-screen flex items-center justify-center p-8 relative z-10 overflow-hidden selection:bg-cyan-900 selection:text-cyan-100">
       
       <div className="absolute top-10 text-gray-700 font-mono text-xs tracking-[0.5em] select-none">
         PHASE 0{step + 1} / 04

@@ -4,6 +4,7 @@ import CyberParamsPanel from './components/CyberParamsPanel';
 import MermaidDAG from './components/MermaidDAG';
 import CyberLogin from './components/CyberLogin';
 import CyberOnboarding from './components/CyberOnboarding';
+import BackgroundMantras from './components/BackgroundMantras';
 
 function App() {
   const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
@@ -14,7 +15,7 @@ function App() {
   const [logs, setLogs] = useState([]);
   const [result, setResult] = useState(null);
   const [isDataExpanded, setIsDataExpanded] = useState(false);
-  const logEndRef = useRef(null);
+  const logContainerRef = useRef(null);
 
   const simulateLogs = async (signal) => {
     const sequence = [
@@ -70,7 +71,9 @@ function App() {
   };
 
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
   }, [logs]);
 
   // Helper for causal nodes
@@ -175,19 +178,19 @@ function App() {
     setAppState('confessional');
   };
 
-  if (appState === 'login') {
-    return <CyberLogin onLogin={handleLoginSuccess} />;
-  }
-
-  if (appState === 'onboarding') {
-    return <CyberOnboarding username={userId} onComplete={handleCalibrationComplete} />;
-  }
-
   return (
-    <div className="altar-container font-mono">
-      {/* Header */}
-      <header className="sacred-header">
-        <h1>THE CYBER CONFESSIONAL</h1>
+    <>
+      <BackgroundMantras />
+      
+      {appState === 'login' && <CyberLogin onLogin={handleLoginSuccess} />}
+      
+      {appState === 'onboarding' && <CyberOnboarding username={userId} onComplete={handleCalibrationComplete} />}
+
+      {appState === 'confessional' && (
+        <div className="altar-container font-mono relative z-10 w-full min-h-screen">
+          {/* Header */}
+          <header className="sacred-header">
+            <h1>THE CYBER CONFESSIONAL</h1>
         <div className="cross-icon">†</div>
         <p className="mono subtitle">In math we trust, in causality we converge.</p>
       </header>
@@ -213,7 +216,7 @@ function App() {
 
         {/* Loading Logs */}
         {(isComputing || (logs.length > 0 && !result)) && (
-          <div className="engine-logs mono w-full p-8 bg-black/50 border border-[#1a1a1a] text-[#00ff41] text-sm h-[400px] overflow-y-auto">
+          <div ref={logContainerRef} className="engine-logs mono w-full p-8 bg-black/50 border border-[#1a1a1a] text-[#00ff41] text-sm h-[400px] overflow-y-auto">
             {logs.map((log, i) => (
               <div key={i} className={`log-entry mb-2 flex gap-2 ${log.includes('[Error]') ? 'error-text text-[#ff003c]' : 'opacity-80'}`}>
                 <span>&gt; {log}</span>
@@ -224,7 +227,6 @@ function App() {
                 RESET TEMPORAL ANOMALY
               </button>
             )}
-            <div ref={logEndRef} />
           </div>
         )}
 
@@ -251,7 +253,7 @@ function App() {
                   {isDataExpanded ? 'HIDE CAUSAL DATA' : 'EXTRACT CAUSAL DATA'}
                 </button>
                 <button
-                  onClick={() => { setResult(null); setIsDataExpanded(false); }}
+                  onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); setConfession(''); }}
                   className="px-6 py-3 border border-gray-800 text-gray-500 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/60 hover:border-gray-500 hover:text-gray-300 transition-all duration-300 focus:outline-none"
                 >
                   NEW CONFESSION
@@ -288,7 +290,9 @@ function App() {
           "人总是经常后悔，总是会回想若是当初做的决定不一样，现在是什么样子。但是无论如何，过去无法改变，我们应当避免沉溺过去，而是积极展望未来。赛博神父借助因果推断的思想，帮你探索另一种情况的平行宇宙世界线是否发生了跃迁，亦或是收束到了同个结局。愿你放下执念，大步向前。"
         </p>
       </footer>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
 

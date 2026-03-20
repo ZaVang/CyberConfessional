@@ -33,7 +33,7 @@ const CyberLogin = ({ onLogin }) => {
   };
 
   return (
-    <div className="w-full h-screen bg-black flex flex-col items-center justify-center font-serif text-gray-200">
+    <div className="w-full h-screen flex flex-col items-center justify-center font-serif text-gray-200 relative z-10 p-4">
       <div className="max-w-md w-full px-8 flex flex-col items-center">
         <h1 className="text-gray-400 text-xl tracking-[0.3em] mb-12 animate-pulse text-center">
           今天，是哪个迷途的灵魂来到了祭坛？
