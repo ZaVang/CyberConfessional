@@ -59,3 +59,12 @@ class EngineOutputSchema(BaseModel):
     retained_universes: int = Field(..., description="溯因阶段保留的有效样本数（世界线数量）")
     inferred_latents: Dict[str, float] = Field(..., description="反推计算出的隐变量后验均值")
     message: Optional[str] = Field(None, description="引擎附带的计算说明或警告")
+
+class Message(BaseModel):
+    role: str = Field(..., description="Either 'user' or 'assistant'")
+    content: str = Field(..., description="The content of the message")
+
+class ParsingResult(BaseModel):
+    is_complete: bool = Field(..., description="True if the SCM parameters can be successfully extracted from the conversation. False if more information is needed.")
+    clarification_question: Optional[str] = Field(None, description="If is_complete is False, the philosophical or context-seeking question to ask the user to clarify the situation.")
+    engine_input: Optional[EngineInputSchema] = Field(None, description="If is_complete is True, the extracted SCM parameters.")

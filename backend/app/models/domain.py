@@ -46,6 +46,7 @@ class ConfessionLog(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     content: str = Field(..., description="The raw confession text from the user")
+    messages_history: str = Field(default="[]", description="JSON serialized conversation history")
     
     counterfactual_prob: float = Field(..., description="Calculated probability of success if alternative action was taken")
     

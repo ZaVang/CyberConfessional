@@ -1,7 +1,7 @@
 import os
 from jinja2 import Template
 from .llm_bridge.bridge import LLMBridge, ChatParameters
-from ..models.schemas import EngineInputSchema, EngineOutputSchema, FactualState, CounterfactualQuery
+from ..models.schemas import EngineInputSchema, EngineOutputSchema, FactualState, CounterfactualQuery, Message, ParsingResult
 
 class LLMService:
     def __init__(self, config_path: str = None):
@@ -16,26 +16,34 @@ class LLMService:
         with open(os.path.join(self.prompt_dir, filename), "r", encoding="utf-8") as f:
             return Template(f.read())
 
-    async def parse_confession(self, text: str) -> EngineInputSchema:
+    async def parse_confession(self, messages: list[Message]) -> ParsingResult:
         """
-        Parse human confession into structured Causal Engine input via Jinja2 template.
+        Parse human conversation history into structured Causal Engine input via Jinja2 template.
         """
         try:
+            conversation_text = ""
+            for m in messages:
+                role_name = "User" if m.role == "user" else "Priest"
+                conversation_text += f"{role_name}: {m.content}\n"
+
             template = self._load_template("EXTRACT_SCM_PARAMS.j2")
-            prompt_content = template.render(confession=text)
+            prompt_content = template.render(conversation=conversation_text)
 
             response = await self.bridge.chat(
                 model="priest_gemini",
                 messages=[{"role": "user", "content": prompt_content}],
-                response_model=EngineInputSchema,
+                response_model=ParsingResult,
                 params=ChatParameters(temperature=0.1)
             )
             return response.parsed
         except Exception as e:
             print(f"[LLMService] Warning: LLM parsing failed ({e}). Falling back to Mock.")
-            return EngineInputSchema(
-                factual=FactualState(X=1, Y=0),
-                counterfactual=CounterfactualQuery(do_X=0)
+            return ParsingResult(
+                is_complete=True,
+                engine_input=EngineInputSchema(
+                    factual=FactualState(X=1, Y=0),
+                    counterfactual=CounterfactualQuery(do_X=0)
+                )
             )
 
     async def generate_verdict(self, text: str, engine_result: EngineOutputSchema) -> str:

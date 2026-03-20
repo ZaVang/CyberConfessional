@@ -14,8 +14,10 @@ function App() {
   const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
   const [userId, setUserId] = useState('');
   
+  const [messages, setMessages] = useState([]);
   const [confession, setConfession] = useState('');
   const [isComputing, setIsComputing] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false); // Used when waiting for LLM
   const [logs, setLogs] = useState([]);
   const [result, setResult] = useState(null);
   const [isDataExpanded, setIsDataExpanded] = useState(false);
@@ -43,19 +45,23 @@ function App() {
   const handleConfess = async () => {
     if (!confession.trim()) return;
 
+    const newMessages = [...messages, { role: 'user', content: confession }];
+    setMessages(newMessages);
+    setConfession('');
+
+    setIsGenerating(true);
     setIsComputing(true);
     setLogs([]);
     setResult(null);
     setIsDataExpanded(false);
 
-    const simulationSignal = { active: true };
-    const logPromise = simulateLogs(simulationSignal);
+    let simulationSignal = { active: true };
 
     try {
       const response = await fetch('http://localhost:8888/confess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confession, username: userId }),
+        body: JSON.stringify({ messages: newMessages, username: userId }),
       });
 
       if (!response.ok) {
@@ -64,10 +70,22 @@ function App() {
       }
 
       const data = await response.json();
+      setIsGenerating(false);
+
+      if (!data.is_complete) {
+        // It's a clarification question
+        setMessages(prev => [...prev, { role: 'assistant', content: data.clarification_question }]);
+        setIsComputing(false);
+        return;
+      }
+
+      // If complete, start simulation logs
+      const logPromise = simulateLogs(simulationSignal);
       await logPromise;
       setResult(data);
     } catch (err) {
       simulationSignal.active = false;
+      setIsGenerating(false);
       setLogs(prev => [...prev, `[Error] ${err.message}. Ensure backend is running.`]);
     } finally {
       setIsComputing(false);
@@ -201,25 +219,42 @@ function App() {
 
       {/* Main Area */}
       <main className="confession-zone">
-        {!result && !isComputing && (
-          <div className="input-wrapper w-full">
+        {!result && !(isComputing && !isGenerating) && (
+          <div className="input-wrapper w-full flex flex-col items-center">
+            {/* Conversation History */}
+            {messages.length > 0 && (
+              <div className="w-full mb-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar text-left">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`p-4 border ${msg.role === 'user' ? 'border-cyan-500/30 bg-cyan-950/20 text-cyan-100 ml-12' : 'border-[#ff003c]/30 bg-[#1a0509] text-gray-200 mr-12'} rounded-sm`}>
+                    <div className="text-[10px] uppercase tracking-widest mb-2 opacity-50 font-bold">
+                      {msg.role === 'user' ? 'Soul Identity' : 'Cyber Priest'}
+                    </div>
+                    <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap">
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <textarea
               value={confession}
               onChange={(e) => setConfession(e.target.value)}
-              placeholder="Confess your regrets... What world-line do you seek?"
-              className="neon-input w-full p-4 border-b border-cyan-500/20 bg-transparent text-xl font-serif text-gray-200 focus:outline-none focus:border-cyan-500 transition-all h-[250px] resize-none"
+              placeholder={messages.length === 0 ? "Confess your regrets... What world-line do you seek?" : "Reply to the Cyber Priest..."}
+              className="neon-input w-full p-4 border-b border-cyan-500/20 bg-transparent text-xl font-serif text-gray-200 focus:outline-none focus:border-cyan-500 transition-all h-[150px] resize-none"
             />
             <button
               onClick={handleConfess}
-              className="sacred-btn mt-12 px-8 py-3 border border-[#00f0ff] text-[#00f0ff] hover:bg-[#00f0ff] hover:text-black transition-all tracking-[0.2em] uppercase font-bold"
+              disabled={isGenerating}
+              className="sacred-btn mt-12 px-8 py-3 border border-[#00f0ff] text-[#00f0ff] hover:bg-[#00f0ff] hover:text-black transition-all tracking-[0.2em] uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              RUN COUNTERFACTUAL
+              {isGenerating ? "COMMUNICATING WITH THE VOID..." : "RUN COUNTERFACTUAL"}
             </button>
           </div>
         )}
 
         {/* Loading Logs */}
-        {(isComputing || (logs.length > 0 && !result)) && (
+        {(isComputing && !isGenerating && !result) && (
           <div ref={logContainerRef} className="engine-logs mono w-full p-8 bg-black/50 border border-[#1a1a1a] text-[#00ff41] text-sm h-[400px] overflow-y-auto">
             {logs.map((log, i) => (
               <div key={i} className={`log-entry mb-2 flex gap-2 ${log.includes('[Error]') ? 'error-text text-[#ff003c]' : 'opacity-80'}`}>
@@ -227,7 +262,7 @@ function App() {
               </div>
             ))}
             {logs.some(l => l.includes('[Error]')) && (
-              <button onClick={() => { setLogs([]); setConfession(''); }} className="retry-btn mt-4 text-xs text-gray-500 underline uppercase tracking-widest hover:text-gray-300">
+              <button onClick={() => { setLogs([]); setIsComputing(false); }} className="retry-btn mt-4 text-xs text-gray-500 underline uppercase tracking-widest hover:text-gray-300">
                 RESET TEMPORAL ANOMALY
               </button>
             )}
@@ -264,7 +299,13 @@ function App() {
                   {isDataExpanded ? 'HIDE CAUSAL DATA' : 'EXTRACT CAUSAL DATA'}
                 </button>
                 <button
-                  onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); setConfession(''); }}
+                  onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); }}
+                  className="px-6 py-3 border border-pink-900 text-pink-500 text-sm md:text-base uppercase tracking-widest hover:bg-pink-950/40 hover:border-pink-500 hover:text-pink-300 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(255,0,60,0.05)] hover:shadow-[0_0_20px_rgba(255,0,60,0.2)]"
+                >
+                  CONTINUE ASKING
+                </button>
+                <button
+                  onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); setConfession(''); setMessages([]); }}
                   className="px-6 py-3 border border-gray-800 text-gray-500 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/60 hover:border-gray-500 hover:text-gray-300 transition-all duration-300 focus:outline-none"
                 >
                   NEW CONFESSION

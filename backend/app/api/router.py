@@ -2,22 +2,27 @@ from fastapi import APIRouter, HTTPException, Body
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 
-from ..models.schemas import EngineInputSchema, EngineOutputSchema
+from ..models.schemas import EngineInputSchema, EngineOutputSchema, Message, ParsingResult
 from ..core.causal_engine import ComplexCausalEngine
 from ..services.llm_service import llm_service
+import json
+from typing import List
 
 router = APIRouter()
 
 class ConfessionRequest(BaseModel):
     username: str = Field(..., description="The user's calling name mapped to the database")
-    confession: str = Field(..., description="The user's natural language confession.")
+    messages: List[Message] = Field(..., description="The history of conversation.")
 
 class ConfessionResponse(BaseModel):
-    confession: str
-    engine_input: EngineInputSchema
-    engine_output: EngineOutputSchema
-    verdict: str
-    mermaid_chart: str = Field(..., description="动态生成的 Mermaid 因果图语法")
+    is_complete: bool = Field(..., description="If false, the system is asking a clarification question")
+    clarification_question: Optional[str] = None
+    
+    confession: Optional[str] = None
+    engine_input: Optional[EngineInputSchema] = None
+    engine_output: Optional[EngineOutputSchema] = None
+    verdict: Optional[str] = None
+    mermaid_chart: Optional[str] = None
     status: str = "World-line Convergence Confirmed"
 
 # --- Helper Function: Generate Mermaid DAG ---
@@ -85,7 +90,16 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
             raise HTTPException(status_code=404, detail="灵魂未锚定。请先进行接入仪式。")
             
         # 1. 解析自然语言到复杂 SCM
-        engine_input = await llm_service.parse_confession(request.confession)
+        parsing_result = await llm_service.parse_confession(request.messages)
+        
+        if not parsing_result.is_complete:
+            return ConfessionResponse(
+                is_complete=False,
+                clarification_question=parsing_result.clarification_question,
+                status="Seeking Clarification"
+            )
+            
+        engine_input = parsing_result.engine_input
         
         # Inject DB Priors into engine input
         engine_input.graph_params.u_priors.u_risk.mean = user.u_risk_mean
@@ -102,8 +116,10 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         engine_result_dict = engine.run_inference(num_samples=100000)
         engine_output = EngineOutputSchema(**engine_result_dict)
         
+        last_confession = request.messages[-1].content if request.messages else ""
+        
         # 3. 生成判词
-        verdict = await llm_service.generate_verdict(request.confession, engine_output)
+        verdict = await llm_service.generate_verdict(last_confession, engine_output)
         
         # 4. 生成动态拓扑图
         mermaid_chart = generate_mermaid_dag(engine_input, engine_output)
@@ -125,9 +141,12 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         
         user.confession_count += 1
         
+        messages_json = json.dumps([m.model_dump() for m in request.messages], ensure_ascii=False)
+        
         log_entry = ConfessionLog(
             soul_id=user.id,
-            content=request.confession,
+            content=last_confession,
+            messages_history=messages_json,
             counterfactual_prob=engine_output.counterfactual_prob,
             inferred_u_risk=latents.get("u_risk"),
             inferred_u_action=latents.get("u_action"),
@@ -144,7 +163,8 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         session.commit()
         
         return ConfessionResponse(
-            confession=request.confession,
+            is_complete=True,
+            confession=last_confession,
             engine_input=engine_input,
             engine_output=engine_output,
             verdict=verdict,
