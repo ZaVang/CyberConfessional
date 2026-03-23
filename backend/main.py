@@ -9,6 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app.api.router import router as api_router
 from app.api.gate import router as gate_router
+from app.api.user import router as user_router
 
 app = FastAPI(title="Cyber Confessional API V3.0")
 
@@ -24,6 +25,7 @@ app.add_middleware(
 # Include the main API routers
 app.include_router(api_router)
 app.include_router(gate_router, prefix="/api/gate")
+app.include_router(user_router, prefix="/api/users")
 
 from app.db.database import create_db_and_tables
 

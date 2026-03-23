@@ -8,7 +8,7 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=False)
 
 def create_db_and_tables():
-    from app.models.domain import SoulMatrix, ConfessionLog
+    from app.models.domain import SoulMatrix, ConfessionLog, CausalMemoryNode, CausalMemoryEdge
     SQLModel.metadata.create_all(engine)
 
 def get_session():

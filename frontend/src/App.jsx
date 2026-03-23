@@ -9,9 +9,11 @@ import 'katex/dist/katex.min.css';
 import CyberLogin from './components/CyberLogin';
 import CyberOnboarding from './components/CyberOnboarding';
 import BackgroundMantras from './components/BackgroundMantras';
+import UserDashboard from './components/UserDashboard';
 
 function App() {
   const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
+  const [activeTab, setActiveTab] = useState('altar'); // 'altar' | 'archives'
   const [userId, setUserId] = useState('');
   
   const [messages, setMessages] = useState([]);
@@ -221,13 +223,32 @@ function App() {
           {/* Header */}
           <header className="sacred-header">
             <h1>THE CYBER CONFESSIONAL</h1>
-        <div className="cross-icon">†</div>
-        <p className="mono subtitle">In math we trust, in causality we converge.</p>
-      </header>
+            <div className="cross-icon">†</div>
+            <p className="mono subtitle mb-4">In math we trust, in causality we converge.</p>
+            
+            <div className="flex gap-4 justify-center mt-6">
+              <button 
+                onClick={() => setActiveTab('altar')}
+                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'altar' ? 'border-[#ff003c] text-[#ff003c] bg-[#1a0509]' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
+              >
+                World-line Altar
+              </button>
+              <button 
+                onClick={() => setActiveTab('archives')}
+                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'archives' ? 'border-[#00f0ff] text-[#00f0ff] bg-cyan-950/30' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
+              >
+                Soul Archives (Dashboard)
+              </button>
+            </div>
+          </header>
 
       {/* Main Area */}
       <main className="confession-zone">
-        {!result && !(isComputing && !isGenerating) && (
+        {activeTab === 'archives' ? (
+          <UserDashboard />
+        ) : (
+          <>
+            {!result && !(isComputing && !isGenerating) && (
           <div className="input-wrapper w-full flex flex-col items-center">
             {/* Conversation History */}
             {messages.length > 0 && (
@@ -354,6 +375,8 @@ function App() {
               </div>
             )}
           </div>
+        )}
+          </>
         )}
       </main>
 

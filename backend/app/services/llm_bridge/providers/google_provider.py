@@ -94,6 +94,10 @@ class GoogleProvider(BaseProvider):
         if p.system_prompt is not None:
             gen_config_params["system_instruction"] = p.system_prompt
 
+        tools = kwargs.pop("tools", None)
+        if tools is not None:
+            gen_config_params["tools"] = tools
+
         if response_model is not None:
             gen_config_params["response_mime_type"] = "application/json"
             gen_config_params["response_schema"] = response_model

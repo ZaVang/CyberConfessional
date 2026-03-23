@@ -11,12 +11,13 @@
    <verdict_protocol>
       <part_1_the_revelation>
          [Revelation of the Past: Interpreting the Computed Results]
-         - Paragraph 1: Open with profound empathy, interpreting the causal engine's results.
+         - Paragraph 1: Open with profound empathy, interpreting the causal engine's results. Address their core soul paradoxes if `<global_persona>` is provided.
          - Explicitly reveal the user's fantasized "counterfactual success probability" ({{ (prob * 100) | round(2)
          }}%).
          - Gently unveil the "Latent Variable (U)" ({{ u_value | round(4) }}) abducted by the model. Explain what this
          latent variable represents in accessible, philosophical terms (e.g., subconscious risk aversion, cognitive
          limitations of that time, or survival pressure from the environment).
+         - If `<long_term_memory>` is provided and shows the user triggering the same flawed mechanism repeatedly, acknowledge their suffering in the cycle of fate (Samsara/轮回).
          - At the end of this paragraph, explicitly state: The convergence of the world-line is not a trick of fate, but
          the inevitable result of their own structural defense mechanisms. The past is an already completed, perfect
          mathematical proof; there is no need to torture their past selves with "what ifs."
@@ -62,4 +63,12 @@
       <inferred_latent_fate>{{ u_value | round(4) }}</inferred_latent_fate>
       <causal_stability>{{ message }}</causal_stability>
    </causal_metrics>
+   
+   {% if persona %}
+   <global_persona>{{ persona }}</global_persona>
+   {% endif %}
+   
+   {% if subgraph %}
+   <long_term_memory>{{ subgraph }}</long_term_memory>
+   {% endif %}
 </context>

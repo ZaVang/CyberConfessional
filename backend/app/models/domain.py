@@ -14,6 +14,7 @@ class SoulMatrix(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_confession_at: Optional[datetime] = None
     confession_count: int = Field(default=0, description="Number of confessions made")
+    global_persona_summary: Optional[str] = Field(default=None, description="Evolving text summary of the user's core conflicts and patterns")
     
     # --- Bayesian Belief Network Priors ---
     # 1. Risk aversion
@@ -65,3 +66,40 @@ class ConfessionLog(SQLModel, table=True):
     mermaid_chart: str = Field(..., description="DAG string for frontend rendering")
     
     soul: SoulMatrix = Relationship(back_populates="confessions")
+
+# ==========================================
+# Table 3: CausalMemoryNode (Graph Nodes)
+# ==========================================
+class CausalMemoryNode(SQLModel, table=True):
+    __tablename__ = "causal_memory_node"
+    
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    soul_id: uuid.UUID = Field(foreign_key="soul_matrix.id", index=True)
+    
+    node_type: str = Field(..., description="Type: 'Z' (Environment), 'M' (Mechanism), 'X' (Action), 'Y' (Outcome), 'U' (Latent)")
+    name: str = Field(..., description="The name/label extracted by the LLM (e.g., 'Panic Sell', 'Industry Winter')")
+    description: str = Field(default="", description="Optional context about the node")
+    
+    # Store when it was last triggered
+    last_triggered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    trigger_count: int = Field(default=1, description="How many times this node appeared in different confessions")
+    
+    # Optional explicitly stored latent state (used if this node is 'U' associated with an 'M')
+    u_risk_posterior: Optional[float] = None
+    u_action_posterior: Optional[float] = None
+    u_emotion_posterior: Optional[float] = None
+    u_locus_posterior: Optional[float] = None
+
+# ==========================================
+# Table 4: CausalMemoryEdge (Graph Edges)
+# ==========================================
+class CausalMemoryEdge(SQLModel, table=True):
+    __tablename__ = "causal_memory_edge"
+    
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    source_node_id: uuid.UUID = Field(foreign_key="causal_memory_node.id")
+    target_node_id: uuid.UUID = Field(foreign_key="causal_memory_node.id")
+    
+    relationship: str = Field(..., description="e.g., 'CAUSES', 'TRIGGERS', 'RESULTS_IN'")
+    weight: float = Field(default=1.0)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

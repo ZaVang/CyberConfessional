@@ -5,6 +5,7 @@ from typing import Optional, Dict, Any
 from ..models.schemas import EngineInputSchema, EngineOutputSchema, Message, ParsingResult
 from ..core.causal_engine import ComplexCausalEngine
 from ..services.llm_service import llm_service
+from ..services.memory_service import memory_service
 import json
 from typing import List
 
@@ -89,8 +90,14 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         if not user:
             raise HTTPException(status_code=404, detail="灵魂未锚定。请先进行接入仪式。")
             
+        last_confession = request.messages[-1].content if request.messages else ""
+        
+        # --- Memory Step 1: Subgraph Retrieval ---
+        subgraph = memory_service.retrieve_subgraph(session, user.id, last_confession)
+        persona = user.global_persona_summary
+            
         # 1. 解析自然语言到复杂 SCM
-        parsing_result = await llm_service.parse_confession(request.messages)
+        parsing_result = await llm_service.parse_confession(request.messages, persona=persona, subgraph=subgraph)
         
         if not parsing_result.is_complete:
             return ConfessionResponse(
@@ -116,10 +123,8 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         engine_result_dict = engine.run_inference(num_samples=100000)
         engine_output = EngineOutputSchema(**engine_result_dict)
         
-        last_confession = request.messages[-1].content if request.messages else ""
-        
         # 3. 生成判词
-        verdict = await llm_service.generate_verdict(last_confession, engine_output)
+        verdict = await llm_service.generate_verdict(last_confession, engine_output, persona=persona, subgraph=subgraph)
         
         # 4. 生成动态拓扑图
         mermaid_chart = generate_mermaid_dag(engine_input, engine_output)
@@ -161,6 +166,13 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         session.add(log_entry)
         session.add(user)
         session.commit()
+        
+        # --- Memory Step 2 & 3: Consolidate Graph and Evolve Persona ---
+        engine_input_dict = engine_input.model_dump()
+        memory_service.consolidate_memory(session, user.id, engine_input_dict, engine_output)
+        
+        # In a production app, this should be a FastAPI BackgroundTask, but await is fine for V1.
+        await memory_service.evolve_persona(session, user.id, last_confession, engine_output)
         
         return ConfessionResponse(
             is_complete=True,

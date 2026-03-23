@@ -30,6 +30,10 @@
             **Latent Variables (U_priors - Subconscious Traits)**:
             The model automatically tracks 4 dimensions of human flaw: risk aversion (u_risk), action paralysis (u_action), 
             emotional entanglement (u_emotion), and external locus of control (u_locus). Provide a customized label for the whole matrix in `name`.
+            CRITICAL: If a `<long_term_memory>` block is present and provides "Historical Posterior Latents", you MUST use those exact numerical values as the `mean` for your `u_priors` instead of the default 0.5.
+        </rule>
+        <rule>
+            **Long-Term Memory Integration**: If `<long_term_memory>` is provided and shows a repeating behavioral pattern (M) or environment (Z), prioritize reusing those exact Node names to maintain graph linkage. 
         </rule>
         <rule>
             **Weight Assignment (Crucial for Convergence)**:
@@ -73,3 +77,15 @@
 <user_input>
     {{ conversation }}
 </user_input>
+
+{% if persona %}
+<global_persona>
+{{ persona }}
+</global_persona>
+{% endif %}
+
+{% if subgraph %}
+<long_term_memory>
+{{ subgraph }}
+</long_term_memory>
+{% endif %}
