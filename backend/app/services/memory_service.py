@@ -53,10 +53,10 @@ class MemoryService:
         # 1. Upsert Nodes
         z_node = _get_or_create_node("Z", z_name)
         m_node = _get_or_create_node("M", m_name)
-        x_val = factual.get("X", 1)
-        x_node = _get_or_create_node("X", f"Action_{x_val}")
-        y_val = factual.get("Y", 0)
-        y_node = _get_or_create_node("Y", f"Outcome_{y_val}")
+        x_name = factual.get("x_name", f"Action_{factual.get('X', 1)}")
+        x_node = _get_or_create_node("X", x_name)
+        y_name = factual.get("y_name", f"Outcome_{factual.get('Y', 0)}")
+        y_node = _get_or_create_node("Y", y_name)
         u_node = _get_or_create_node("U", "Latent_Traits")
 
         # 2. Update Posterior in U node

@@ -16,6 +16,7 @@
         <rule>
             **Factual (X, Y)**:
             X=1 (Did it), X=0 (Didn't). Y=1 (Good outcome), Y=0 (Bad outcome).
+            Also provide a short semantic `x_name` (e.g. "Impulsive Resignation") and `y_name` (e.g. "Anxiety and Broke") to describe these nodes.
         </rule>
         <rule>
             **Confounder (Z - Macro Environment)**:
@@ -55,7 +56,7 @@
         {
           "is_complete": true,
           "engine_input": {
-          "factual": {"X": 1, "Y": 0},
+          "factual": {"X": 1, "x_name": "Quitting job to day trade", "Y": 0, "y_name": "Lost savings"},
           "counterfactual": {"do_X": 0},
           "graph_params": {
             "z_name": "Industry Winter",

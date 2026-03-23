@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MermaidDAG from './MermaidDAG';
+import KarmaNetwork3D from './KarmaNetwork3D';
 
 const UserDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -35,31 +36,14 @@ const UserDashboard = () => {
       const data = await res.json();
       setSelectedUser(data.user);
       
-      // Generate Mermaid Syntax from LTM Graph
-      let mermaidStr = 'graph TD;\n';
+      // Convert Edges to Links for react-force-graph-3d
+      const links = data.edges.map(e => ({
+        source: e.source,
+        target: e.target,
+        relationship: e.relationship
+      }));
       
-      // Add Nodes
-      data.nodes.forEach(n => {
-        let styleStr = '';
-        if (n.node_type === 'Z') styleStr = 'style ' + n.id.substring(0,6) + ' stroke:#3b82f6,stroke-width:2px;';
-        if (n.node_type === 'M') styleStr = 'style ' + n.id.substring(0,6) + ' stroke:#EAB308,stroke-width:2px,fill:#1a1505,color:#EAB308;';
-        if (n.node_type === 'X') styleStr = 'style ' + n.id.substring(0,6) + ' stroke:#22c55e,stroke-width:2px;';
-        if (n.node_type === 'Y') styleStr = 'style ' + n.id.substring(0,6) + ' stroke:#a855f7,stroke-width:2px;';
-        if (n.node_type === 'U') styleStr = 'style ' + n.id.substring(0,6) + ' stroke:#FF003C,stroke-width:2px,fill:#1a0509,color:#FF003C;';
-        
-        let label = `[${n.node_type}] ${n.name}`;
-        if (n.trigger_count > 1) label += ` (Triggered: ${n.trigger_count})`;
-        
-        mermaidStr += `    ${n.id.substring(0,6)}["${label}"]\n`;
-        mermaidStr += `    ${styleStr}\n`;
-      });
-      
-      // Add Edges
-      data.edges.forEach(e => {
-        mermaidStr += `    ${e.source.substring(0,6)} -->|${e.relationship}| ${e.target.substring(0,6)}\n`;
-      });
-      
-      setGraphData(mermaidStr);
+      setGraphData({ nodes: data.nodes, links });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -151,9 +135,9 @@ const UserDashboard = () => {
                 </div>
                 <div className="flex-1 rounded border border-gray-900 overflow-hidden relative">
                   {graphData ? (
-                    <MermaidDAG chartString={graphData} />
+                    <KarmaNetwork3D graphData={graphData} />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-600 italic font-serif">
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-600 italic font-serif z-10">
                       Awaiting World-line Extrapolation...
                     </div>
                   )}

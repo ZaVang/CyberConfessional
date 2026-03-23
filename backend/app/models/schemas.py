@@ -3,7 +3,9 @@ from typing import Dict, Any, Optional
 
 class FactualState(BaseModel):
     X: int = Field(..., description="现实所做决定：1 为做，0 为没做")
+    x_name: str = Field(default="决定", description="所做决定的具体语义名称，如'冲动辞职'")
     Y: int = Field(..., description="现实结局：1 为好结局，0 为坏结局")
+    y_name: str = Field(default="结局", description="结局的具体语义名称，如'断绝收入陷入焦虑'")
 
 class CounterfactualQuery(BaseModel):
     do_X: int = Field(..., description="用户设想的反事实决定（如果当时...）")
