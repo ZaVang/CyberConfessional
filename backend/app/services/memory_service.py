@@ -93,16 +93,17 @@ class MemoryService:
         u_statement = select(CausalMemoryNode).where(
             CausalMemoryNode.soul_id == soul_id,
             CausalMemoryNode.node_type == "U"
-        ).first()
+        )
+        u_node = session.exec(u_statement).first()
 
         subgraph_text = "【Past Causal Graph Nodes】\n"
         for m in m_nodes:
             subgraph_text += f"- Flawed Mechanism (M): '{m.name}' (Triggered {m.trigger_count} times in the past. Last triggered at {m.last_triggered_at.strftime('%Y-%m-%d')})\n"
         
-        if u_statement:
+        if u_node:
             subgraph_text += "\n【Historical Posterior Latents (Use as Priors)】\n"
-            subgraph_text += f"u_risk: {u_statement.u_risk_posterior:.4f}, u_action: {u_statement.u_action_posterior:.4f}, "
-            subgraph_text += f"u_emotion: {u_statement.u_emotion_posterior:.4f}, u_locus: {u_statement.u_locus_posterior:.4f}\n"
+            subgraph_text += f"u_risk: {u_node.u_risk_posterior:.4f}, u_action: {u_node.u_action_posterior:.4f}, "
+            subgraph_text += f"u_emotion: {u_node.u_emotion_posterior:.4f}, u_locus: {u_node.u_locus_posterior:.4f}\n"
 
         return subgraph_text
 
@@ -132,8 +133,7 @@ class MemoryService:
             # We use the existing llm service bridge for a quick simple call
             response = await llm_service.bridge.chat(
                 model="priest_gemini",
-                messages=[{"role": "user", "content": prompt}],
-                tools=[{"google_search": {}}]
+                messages=[{"role": "user", "content": prompt}]
             )
             new_persona = response.content.strip()
             soul.global_persona_summary = new_persona

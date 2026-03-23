@@ -37,8 +37,7 @@ class LLMService:
                 model="priest_gemini",
                 messages=[{"role": "user", "content": prompt_content}],
                 response_model=ParsingResult,
-                params=ChatParameters(temperature=0.1),
-                tools=[{"google_search": {}}]
+                params=ChatParameters(temperature=0.1)
             )
             return response.parsed
         except Exception as e:
@@ -69,8 +68,7 @@ class LLMService:
             response = await self.bridge.chat(
                 model="priest_gemini",
                 messages=[{"role": "user", "content": verdict_prompt}],
-                params=ChatParameters(temperature=0.8),
-                tools=[{"google_search": {}}]
+                params=ChatParameters(temperature=0.8)
             )
             return response.content.strip()
 
