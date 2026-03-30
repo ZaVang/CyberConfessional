@@ -33,10 +33,10 @@ const CyberLogin = ({ onLogin }) => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center font-serif text-gray-200 relative z-10 p-4">
-      <div className="max-w-md w-full px-8 flex flex-col items-center">
-        <h1 className="text-gray-500 text-xl tracking-[0.2em] mb-12 animate-pulse text-center font-mono glitch" data-text="> SYSTEM_ENTRY: Insert anomalous subject UID">
-          &gt; SYSTEM_ENTRY: Insert anomalous subject UID
+    <div className="w-full h-screen flex flex-col items-center justify-center font-mono text-gray-100 relative z-10 p-4">
+      <div className="glass-panel max-w-lg w-full p-12 flex flex-col items-center rounded-sm animate-entry">
+        <h1 className="text-gray-300 text-xl md:text-2xl tracking-[0.15em] mb-12 text-center font-mono glitch font-semibold" data-text="> SYSTEM_ENTRY_: UID_REQ">
+          &gt; SYSTEM_ENTRY_: UID_REQ
         </h1>
         
         <form onSubmit={handleLogin} className="w-full flex flex-col items-center">
@@ -44,8 +44,8 @@ const CyberLogin = ({ onLogin }) => {
             type="text" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="UID_INPUT..."
-            className="w-full bg-transparent border-b border-gray-700 text-center text-xl pb-2 focus:outline-none focus:border-red-600 transition-colors duration-500 tracking-widest text-gray-300 placeholder-gray-800 font-mono"
+            placeholder="INSERT_UID..."
+            className="w-full bg-black/40 border-b-2 border-gray-700 text-center text-2xl py-3 focus:outline-none focus:border-red-500 transition-colors duration-300 tracking-widest text-gray-100 placeholder-gray-600 font-mono"
             autoFocus
           />
           
@@ -54,8 +54,8 @@ const CyberLogin = ({ onLogin }) => {
             disabled={isLoading || !username.trim()}
             className={`mt-12 w-full py-3 border tracking-[0.5em] focus:outline-none transition-all duration-500 font-mono text-sm
               ${(!isLoading && username.trim()) 
-                ? 'border-gray-600 text-gray-400 hover:border-red-600 hover:text-red-500 hover:shadow-[0_0_15px_rgba(204,0,0,0.2)] hover:bg-black' 
-                : 'border-gray-900 text-gray-800 opacity-50 cursor-not-allowed'
+                ? 'border-gray-500 text-gray-200 hover:border-red-500 hover:text-red-400 hover:shadow-[0_0_20px_rgba(255,51,51,0.3)] hover:bg-red-950/40 cursor-pointer' 
+                : 'border-gray-800 text-gray-600 opacity-60 cursor-not-allowed bg-black/20'
               }
             `}
           >
@@ -64,7 +64,7 @@ const CyberLogin = ({ onLogin }) => {
         </form>
 
         {errorMsg && (
-          <p className="mt-8 text-red-500 font-mono text-sm tracking-widest text-center animate-pulse">
+          <p className="mt-8 text-red-500 font-mono text-base tracking-widest text-center glass-panel px-4 py-2 border-red-900/50">
             &gt; {errorMsg}
           </p>
         )}

@@ -132,31 +132,31 @@ const CyberOnboarding = ({ username, onComplete }) => {
   }
 
   return (
-    <div className="w-full h-screen flex items-center justify-center p-8 relative z-10 overflow-hidden selection:bg-gray-900 selection:text-gray-100">
+    <div className="w-full h-screen flex items-center justify-center p-4 md:p-8 relative z-10 overflow-hidden selection:bg-gray-700 selection:text-white">
       
-      <div className="absolute top-10 text-gray-700 font-mono text-xs tracking-[0.5em] select-none">
+      <div className="absolute top-10 text-gray-400 font-mono text-sm tracking-[0.4em] select-none animate-entry delay-100">
         PHASE 0{step + 1} / 04
       </div>
 
-      <div className={`max-w-2xl w-full flex flex-col transition-opacity duration-[4000ms] ease-in-out ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`glass-panel p-8 md:p-12 max-w-3xl w-full flex flex-col transition-opacity duration-[4000ms] ease-in-out font-mono animate-entry delay-200 ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}>
         
         <div className="min-h-[160px] mb-16">
-          <p className="text-gray-300 text-lg md:text-xl font-serif leading-[2] tracking-wide text-justify drop-shadow-[0_0_10px_rgba(255,255,255,0.05)] inline">
+          <p className="text-gray-100 text-xl md:text-2xl font-serif leading-[2.2] tracking-wider text-justify drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] inline font-medium">
             {displayedText}
           </p>
-          <span className="inline-block w-[10px] h-[22px] bg-gray-600 ml-2 animate-pulse align-middle shadow-[0_0_8px_rgba(107,114,128,0.5)]"></span>
+          <span className="inline-block w-[12px] h-[26px] bg-red-600 ml-2 animate-pulse align-middle shadow-[0_0_8px_rgba(255,51,51,0.6)]"></span>
         </div>
 
         <div className={`flex flex-col w-full gap-5 font-mono transition-opacity duration-1000 pt-8 border-t border-gray-900/50 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <button 
             onClick={() => handleOptionClick('A')}
             className={`
-              w-full py-5 px-8 border transition-all duration-300 tracking-widest text-sm md:text-base text-left
+              w-full py-5 px-8 border transition-all duration-300 tracking-wider text-base md:text-lg text-left font-mono font-medium
               ${selectedOption === 'A' 
-                ? 'border-gray-500 text-gray-300 bg-gray-900/40 animate-pulse shadow-[0_0_15px_rgba(107,114,128,0.2)] focus:outline-none' 
+                ? 'border-gray-500 text-white bg-gray-800/80 shadow-[0_0_20px_rgba(255,255,255,0.1)] focus:outline-none' 
                 : selectedOption 
-                  ? 'border-gray-900 text-gray-800 opacity-20 pointer-events-none' 
-                  : 'border-gray-800 text-gray-500 hover:border-gray-600 hover:text-gray-400 hover:bg-black hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] focus:outline-none' 
+                  ? 'border-gray-900 text-gray-700 opacity-20 pointer-events-none' 
+                  : 'border-gray-700 text-gray-300 hover:border-gray-400 hover:text-white hover:bg-gray-800/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.08)] cursor-pointer focus:outline-none' 
               }
             `}
           >
@@ -166,12 +166,12 @@ const CyberOnboarding = ({ username, onComplete }) => {
           <button 
             onClick={() => handleOptionClick('B')}
             className={`
-              w-full py-5 px-8 border transition-all duration-300 tracking-widest text-sm md:text-base text-right
+              w-full py-5 px-8 border transition-all duration-300 tracking-wider text-base md:text-lg text-right font-mono font-medium
               ${selectedOption === 'B' 
-                ? 'border-red-600 text-red-500 bg-red-950/30 animate-pulse shadow-[0_0_30px_rgba(204,0,0,0.15)] focus:outline-none' 
+                ? 'border-red-500 text-red-100 bg-red-900/60 shadow-[0_0_30px_rgba(255,51,51,0.3)] focus:outline-none' 
                 : selectedOption
-                  ? 'border-gray-900 text-gray-800 opacity-20 pointer-events-none' 
-                  : 'border-gray-800 text-gray-500 hover:border-red-900/50 hover:text-red-600/80 hover:bg-black hover:shadow-[0_0_15px_rgba(204,0,0,0.05)] focus:outline-none' 
+                  ? 'border-gray-900 text-gray-700 opacity-20 pointer-events-none' 
+                  : 'border-gray-700 text-gray-300 hover:border-red-700/80 hover:text-red-400 hover:bg-red-950/40 hover:shadow-[0_0_20px_rgba(255,51,51,0.15)] cursor-pointer focus:outline-none' 
               }
             `}
           >
@@ -181,12 +181,12 @@ const CyberOnboarding = ({ username, onComplete }) => {
           <button 
             onClick={() => handleOptionClick('C')}
             className={`
-              w-full py-4 px-8 border transition-all duration-300 tracking-widest text-sm md:text-base text-center
+              w-full py-5 px-8 border transition-all duration-300 tracking-wider text-base md:text-lg text-center font-mono font-medium
               ${selectedOption === 'C' 
-                ? 'border-green-600 text-green-500 bg-green-900/20 animate-pulse shadow-[0_0_20px_rgba(0,255,0,0.1)] focus:outline-none' 
+                ? 'border-green-500 text-green-100 bg-green-900/50 shadow-[0_0_30px_rgba(0,255,65,0.2)] focus:outline-none' 
                 : selectedOption
-                  ? 'border-gray-900 text-gray-800 opacity-20 pointer-events-none' 
-                  : 'border-gray-800 text-gray-500 hover:border-green-800/50 hover:text-green-600 hover:bg-black hover:shadow-[0_0_15px_rgba(0,255,0,0.05)] focus:outline-none' 
+                  ? 'border-gray-900 text-gray-700 opacity-20 pointer-events-none' 
+                  : 'border-gray-700 text-gray-300 hover:border-green-800/60 hover:text-green-400 hover:bg-green-950/30 hover:shadow-[0_0_20px_rgba(0,255,65,0.1)] cursor-pointer focus:outline-none' 
               }
             `}
           >

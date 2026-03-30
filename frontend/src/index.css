@@ -1,16 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Noto+Serif+SC:wght@400;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
   --bg-color: #030405;
-  --text-primary: #d1d5db;
-  --text-muted: #4b5563;
+  --text-primary: #e5e7eb;
+  --text-muted: #9ca3af;
   --accent-blue: #6b7280;
-  --accent-red: #cc0000;
-  --data-green: #00ff00;
+  --accent-red: #ff3333;
+  --data-green: #00ff41;
   --font-serif: 'Noto Serif SC', serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --glow-blue: 0 0 10px rgba(107, 114, 128, 0.3);
-  --glow-red: 0 0 10px rgba(204, 0, 0, 0.5);
+  --font-mono: 'Fira Code', monospace;
+  --glow-red: 0 0 12px rgba(255, 51, 51, 0.6);
+  --glow-green: 0 0 12px rgba(0, 255, 65, 0.4);
 }
 
 @layer base {
@@ -26,11 +27,15 @@
     font-family: var(--font-mono);
     min-height: 100vh;
     margin: 0;
+    /* CRT subtle scanlines background */
+    background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+    z-index: -1;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-mono);
-    font-weight: normal;
+    font-weight: 600;
   }
 }
 
@@ -38,11 +43,37 @@
   font-family: var(--font-mono);
 }
 
-/* Glitch Animation Classes */
+/* Glassmorphism Panels */
+.glass-panel {
+  background: rgba(10, 10, 12, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Staggered entry animations */
+@keyframes fade-slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-entry {
+  animation: fade-slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Glitch Animation Classes - refined for legibility */
 .glitch {
   position: relative;
   color: var(--text-primary);
-  animation: glitch-skew 1s infinite linear alternate-reverse;
+  display: inline-block;
 }
 
 .glitch::before,
@@ -53,18 +84,19 @@
   left: 0;
   width: 100%;
   height: 100%;
+  opacity: 0.8;
 }
 
 .glitch::before {
   left: 2px;
-  text-shadow: -2px 0 var(--accent-red);
+  text-shadow: -1px 0 var(--accent-red);
   clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim 5s infinite linear alternate-reverse;
+  animation: glitch-anim 4s infinite linear alternate-reverse;
 }
 
 .glitch::after {
   left: -2px;
-  text-shadow: -2px 0 var(--data-green);
+  text-shadow: -1px 0 var(--data-green);
   clip: rect(44px, 450px, 56px, 0);
   animation: glitch-anim2 5s infinite linear alternate-reverse;
 }
@@ -85,17 +117,4 @@
   60% { clip: rect(81px, 9999px, 43px, 0); }
   80% { clip: rect(50px, 9999px, 60px, 0); }
   100% { clip: rect(30px, 9999px, 10px, 0); }
-}
-
-@keyframes glitch-skew {
-  0% { transform: skew(0deg); }
-  10% { transform: skew(-2deg); }
-  20% { transform: skew(3deg); }
-  30% { transform: skew(0deg); }
-  100% { transform: skew(0deg); }
-}
-
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
 }

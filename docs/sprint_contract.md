@@ -1,19 +1,19 @@
-# Sprint Contract: V2.0 P2 - Onboarding & Audio Atmosphere
+# Sprint Contract: V3.0 - The Subterranean Hope (Catharsis)
 
 ## Goal
-Execute Iteration 2 of the CyberConfessional v2.0 update. This sprint focuses on the entry flows and sensory feedback to finalize the Radiohead aesthetic.
+Execute Sprint 3 of the `/contract-loop`. Modify the backend causal inference prompts and the frontend output rendering to introduce a humanist, positive, and cathartic "Hope Phase" at the end of the deterministic analysis, ensuring users feel liberated from regret rather than crushed by destiny.
 
 ## Scope
-1. **CyberLogin.jsx Refactor**:
-   - Replace the welcoming "priest" text with cold terminal inputs (`> SYSTEM_ENTRY: Insert anomalous subject UID`).
-   - Remove cyan borders/glows and replace with neutral grays and terminal greens.
-2. **CyberOnboarding.jsx Refactor**:
-   - Implement the "Fade Out" (*Street Spirit*) mechanic: Slow UI transitions, removing control, and fading into pure black/grey.
-   - Replace the final calibration screen text (`System.Soul_Anchoring...`) with `> Everything in its right place.`
-3. **Background Audio (Idioteque Synth/Noise)**:
-   - Create a Web Audio API hook or component (`BackgroundAudio.jsx`) to synthesize a faint, cold, nervous synthesizer noise (sine/square wave + low-pass filter) and deep sea rumble (pink noise), played only after the first user interaction (login).
+1. **Backend (`GENERATE_VERDICT.j2`)**:
+   - Append `<part_3_the_catharsis>`.
+   - The AI must explicitly state that because everything is structurally deterministic, "regret" is illogical. 
+   - Inject the humanist undertone: "You are not broken; this pain is a chemical reaction forging your wings (*Let Down*)."
+   - End with a prompt to "Immerse your soul in love" (*Street Spirit*).
+2. **Frontend (`App.jsx`)**:
+   - Restore the original slogan to the footer: `> In math we trust, in causality we find peace.`
+   - Ensure the verdict output UI cleanly handles the newly expanded, deeply philosophical responses.
 
 ## Explicit Testing Criteria
-- [ ] Login screen contains no warm language and uses terminal syntax.
-- [ ] Onboarding questions trigger the slow fade out (sink) effect as desired.
-- [ ] The app procedurally generates faint audio drones/noise upon entering the app, avoiding autoplay policies by initiating upon login click.
+- [ ] The prompt instructs the LLM to deliver a positive, uplifting conclusion after the cold diagnosis.
+- [ ] Radiohead quotes "grow wings/chemical reaction" and "immerse your soul in love" appear in the prompt logic.
+- [ ] The footer explicitly contains the restored "In math we trust..." slogan.

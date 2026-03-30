@@ -254,30 +254,49 @@ function App() {
           <div className="input-wrapper w-full flex flex-col items-center">
             {/* Conversation History */}
             {messages.length > 0 && (
-              <div className="w-full mb-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar text-left">
-                {messages.map((msg, idx) => (
-                  <div key={idx} className={`p-4 border ${msg.role === 'user' ? 'border-gray-600/30 bg-gray-900/20 text-gray-300 ml-12' : 'border-[#cc0000]/30 bg-black text-gray-200 mr-12'} rounded-sm`}>
-                    <div className="text-[10px] uppercase tracking-widest mb-2 opacity-50 font-bold">
-                      {msg.role === 'user' ? 'Soul Identity' : 'Karma Police'}
-                    </div>
-                    {msg.isVerdict ? (
-                      <details className="cursor-pointer group">
-                        <summary className="font-serif text-sm tracking-widest text-[#cc0000] opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 outline-none">
-                           <span className="text-lg leading-none transform group-open:rotate-180 transition-transform">▾</span> PREVIOUS VERDICT ARCHIVE
-                        </summary>
-                        <div className="mt-4 font-serif text-sm leading-relaxed text-gray-400 border-l border-[#cc0000]/20 pl-4 py-2">
-                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                            {msg.content}
-                          </ReactMarkdown>
-                        </div>
-                      </details>
-                    ) : (
-                      <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap">
-                        {msg.content}
+              <div className="w-full mb-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar text-left animate-entry">
+                {messages.map((msg, idx) => {
+                  let mainText = msg.content;
+                  let catharsisText = null;
+                  
+                  // Parse out catharsis tag if present
+                  const catharsisMatch = msg.content.match(/<catharsis>([\s\S]*?)<\/catharsis>/i);
+                  if (catharsisMatch) {
+                    catharsisText = catharsisMatch[1].trim();
+                    mainText = msg.content.replace(catharsisMatch[0], '').trim();
+                  }
+
+                  return (
+                    <div key={idx} className={`p-5 glass-panel border ${msg.role === 'user' ? 'border-gray-500/30 bg-gray-900/40 text-gray-200 ml-12' : 'border-red-500/40 bg-black/60 text-gray-100 mr-12'} rounded-sm`}>
+                      <div className="text-xs uppercase tracking-[0.2em] mb-3 opacity-60 font-mono font-bold text-gray-400">
+                        {msg.role === 'user' ? 'Soul Identity' : 'Karma Police'}
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {msg.isVerdict ? (
+                        <details className="cursor-pointer group">
+                          <summary className="font-mono text-sm tracking-widest text-red-400 opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 outline-none">
+                             <span className="text-lg leading-none transform group-open:rotate-180 transition-transform">▾</span> PREVIOUS VERDICT ARCHIVE
+                          </summary>
+                          <div className="mt-4 font-serif text-base leading-relaxed text-gray-300 border-l-2 border-red-500/20 pl-4 py-2">
+                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                              {mainText}
+                            </ReactMarkdown>
+                            {catharsisText && (
+                              <div className="mt-6 p-6 border-l-2 border-white/60 bg-white/5 text-white/90 font-serif leading-loose tracking-wide drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                  {catharsisText}
+                                </ReactMarkdown>
+                              </div>
+                            )}
+                          </div>
+                        </details>
+                      ) : (
+                        <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap">
+                          {msg.content}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -318,20 +337,44 @@ function App() {
           <div className={`verdict-container w-full transition-all duration-700 ${isDataExpanded ? 'grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-12' : 'flex flex-col items-center max-w-4xl mx-auto'}`}>
             <div className={`narrative-panel ${isDataExpanded ? '' : 'w-full'}`}>
               <h2 className="priest-title text-[#cc0000] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left glitch" data-text="> TERMINAL VERDICT">&gt; TERMINAL VERDICT</h2>
-              <div className={`priest-text font-serif text-lg leading-loose text-gray-200 whitespace-pre-wrap ${isDataExpanded ? 'pr-8' : ''}`}>
+              <div className={`priest-text font-serif text-lg md:text-xl leading-loose text-gray-200 whitespace-pre-wrap ${isDataExpanded ? 'pr-8' : ''}`}>
                 {(() => {
                   let text = result.verdict;
                   try {
                     const parsedVerdict = JSON.parse(result.verdict);
                     text = parsedVerdict.message || result.verdict;
                   } catch (e) {}
+
+                  let mainText = text;
+                  let catharsisText = null;
+                  const catharsisMatch = text.match(/<catharsis>([\s\S]*?)<\/catharsis>/i);
+                  if (catharsisMatch) {
+                    catharsisText = catharsisMatch[1].trim();
+                    mainText = text.replace(catharsisMatch[0], '').trim();
+                  }
+
                   return (
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkMath]} 
-                      rehypePlugins={[rehypeKatex]}
-                    >
-                      {text}
-                    </ReactMarkdown>
+                    <div className="animate-entry delay-100">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkMath]} 
+                        rehypePlugins={[rehypeKatex]}
+                      >
+                        {mainText}
+                      </ReactMarkdown>
+                      
+                      {catharsisText && (
+                        <div className="catharsis-block mt-10 p-6 md:p-8 border-l-2 border-white/60 bg-white/5 backdrop-blur-sm shadow-[0_4px_30px_rgba(255,255,255,0.02)] transition-all animate-entry delay-400">
+                          <div className="text-white/95 font-serif text-lg md:text-xl leading-loose tracking-wide drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]">
+                            <ReactMarkdown 
+                              remarkPlugins={[remarkMath]} 
+                              rehypePlugins={[rehypeKatex]}
+                            >
+                              {catharsisText}
+                            </ReactMarkdown>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })()}
               </div>
@@ -384,9 +427,9 @@ function App() {
 
       {/* Footer */}
       <footer className="philosophical-footer mt-24 pt-8 border-t border-[#111] text-center mb-12">
-        <p className="text-gray-600 text-[13px] leading-relaxed max-w-2xl mx-auto uppercase tracking-wider font-bold">
+        <p className="text-gray-500 text-sm leading-[2.5] max-w-2xl mx-auto uppercase tracking-widest font-mono font-bold animate-entry opacity-60 hover:opacity-100 transition-opacity">
           &gt; Everything in its right place.<br/>
-          (万物皆在它应在的位置 / 命运已收束)
+          &gt; In math we trust, In causality we converge.
         </p>
       </footer>
         </div>
