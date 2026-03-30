@@ -35,8 +35,8 @@ const CyberLogin = ({ onLogin }) => {
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center font-serif text-gray-200 relative z-10 p-4">
       <div className="max-w-md w-full px-8 flex flex-col items-center">
-        <h1 className="text-gray-400 text-xl tracking-[0.3em] mb-12 animate-pulse text-center">
-          今天，是哪个迷途的灵魂来到了祭坛？
+        <h1 className="text-gray-500 text-xl tracking-[0.2em] mb-12 animate-pulse text-center font-mono glitch" data-text="> SYSTEM_ENTRY: Insert anomalous subject UID">
+          &gt; SYSTEM_ENTRY: Insert anomalous subject UID
         </h1>
         
         <form onSubmit={handleLogin} className="w-full flex flex-col items-center">
@@ -44,8 +44,8 @@ const CyberLogin = ({ onLogin }) => {
             type="text" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="输入你的代号..."
-            className="w-full bg-transparent border-b border-gray-700 text-center text-xl pb-2 focus:outline-none focus:border-cyan-500 transition-colors duration-500 tracking-widest text-cyan-50 placeholder-gray-800 font-mono"
+            placeholder="UID_INPUT..."
+            className="w-full bg-transparent border-b border-gray-700 text-center text-xl pb-2 focus:outline-none focus:border-red-600 transition-colors duration-500 tracking-widest text-gray-300 placeholder-gray-800 font-mono"
             autoFocus
           />
           
@@ -54,12 +54,12 @@ const CyberLogin = ({ onLogin }) => {
             disabled={isLoading || !username.trim()}
             className={`mt-12 w-full py-3 border tracking-[0.5em] focus:outline-none transition-all duration-500 font-mono text-sm
               ${(!isLoading && username.trim()) 
-                ? 'border-cyan-800 text-cyan-600 hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] hover:bg-cyan-950/20' 
+                ? 'border-gray-600 text-gray-400 hover:border-red-600 hover:text-red-500 hover:shadow-[0_0_15px_rgba(204,0,0,0.2)] hover:bg-black' 
                 : 'border-gray-900 text-gray-800 opacity-50 cursor-not-allowed'
               }
             `}
           >
-            {isLoading ? '解析中...' : '觐见 (Seek Audience)'}
+            {isLoading ? '> PARSING_UID...' : '> INIT_CONNECTION'}
           </button>
         </form>
 

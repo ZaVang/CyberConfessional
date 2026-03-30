@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Body
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 
-from ..models.schemas import EngineInputSchema, EngineOutputSchema, Message, ParsingResult
+from ..models.schemas import EngineInputSchema, EngineOutputSchema, Message, ParsingResult, ConfessionRequest, ConfessionResponse, SimulateRequest
 from ..core.causal_engine import ComplexCausalEngine
 from ..services.llm_service import llm_service
 from ..services.memory_service import memory_service
@@ -10,21 +10,6 @@ import json
 from typing import List
 
 router = APIRouter()
-
-class ConfessionRequest(BaseModel):
-    username: str = Field(..., description="The user's calling name mapped to the database")
-    messages: List[Message] = Field(..., description="The history of conversation.")
-
-class ConfessionResponse(BaseModel):
-    is_complete: bool = Field(..., description="If false, the system is asking a clarification question")
-    clarification_question: Optional[str] = None
-    
-    confession: Optional[str] = None
-    engine_input: Optional[EngineInputSchema] = None
-    engine_output: Optional[EngineOutputSchema] = None
-    verdict: Optional[str] = None
-    mermaid_chart: Optional[str] = None
-    status: str = "World-line Convergence Confirmed"
 
 # --- Helper Function: Generate Mermaid DAG ---
 def generate_mermaid_dag(parsed_data: EngineInputSchema, engine_output: EngineOutputSchema) -> str:
@@ -186,11 +171,6 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"World-line computation failed: {str(e)}")
-
-class SimulateRequest(BaseModel):
-    engine_input: EngineInputSchema
-    new_z: float = Field(..., description="新的环境因子 Z 值")
-    new_m_bias: float = Field(..., description="新的行为阻断偏置 M bias")
 
 @router.post("/simulate")
 async def simulate_endpoint(request: SimulateRequest):

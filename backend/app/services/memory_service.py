@@ -117,17 +117,12 @@ class MemoryService:
 
         old_persona = soul.global_persona_summary or "None"
         
-        prompt = f"""
-        You are tracking the evolving soul of a human.
-        Current Global Persona Summary: {old_persona}
-        ---
-        New Confession Event: "{current_text}"
-        Resulting Counterfactual Prob: {engine_output.counterfactual_prob:.2f}
-        ---
-        Please rewrite and update the Global Persona Summary in 2-3 sentences max. 
-        Focus on their recurring causal flaws and emotional patterns.
-        Reply ONLY with the new persona text. Do not use markdown.
-        """
+        template = llm_service._load_template("EVOLVE_PERSONA.j2")
+        prompt = template.render(
+            old_persona=old_persona,
+            current_text=current_text,
+            prob=engine_output.counterfactual_prob
+        )
 
         try:
             # We use the existing llm service bridge for a quick simple call

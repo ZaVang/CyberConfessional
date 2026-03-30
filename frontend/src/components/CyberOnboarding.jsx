@@ -78,7 +78,7 @@ const CyberOnboarding = ({ username, onComplete }) => {
 
     setTimeout(() => {
       setIsFadingOut(true);
-    }, 800);
+    }, 1500);
 
     setTimeout(() => {
       const newAnswers = [...answers, option];
@@ -91,7 +91,7 @@ const CyberOnboarding = ({ username, onComplete }) => {
         setIsInitializing(true);
         submitCalibration(newAnswers);
       }
-    }, 2000);
+    }, 5500);
   };
 
   const submitCalibration = async (finalAnswers) => {
@@ -119,32 +119,32 @@ const CyberOnboarding = ({ username, onComplete }) => {
       <div className="w-full h-screen bg-black flex flex-col items-center justify-center font-mono relative overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
              {/* subtle background glow */}
-            <div className="w-[500px] h-[500px] bg-cyan-900 rounded-full blur-[150px]"></div>
+            <div className="w-[500px] h-[500px] bg-gray-900 rounded-full blur-[150px]"></div>
         </div>
-        <div className="z-10 text-cyan-500 text-xl tracking-[0.3em] uppercase animate-pulse drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]">
-          &gt; System.Soul_Anchoring...
+        <div className="z-10 text-gray-500 text-xl tracking-[0.2em] uppercase animate-pulse drop-shadow-[0_0_8px_rgba(107,114,128,0.8)] font-mono glitch" data-text="> Everything in its right place.">
+          &gt; Everything in its right place.
         </div>
-        <div className="z-10 mt-8 text-gray-500 text-sm tracking-[0.4em] transform hover:scale-105 transition-transform duration-1000">
-          信奉数学，归于收束。
+        <div className="z-10 mt-8 text-gray-600 text-sm tracking-[0.4em] transform hover:scale-105 transition-transform duration-1000">
+          (万物皆在它应在的位置)
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-screen flex items-center justify-center p-8 relative z-10 overflow-hidden selection:bg-cyan-900 selection:text-cyan-100">
+    <div className="w-full h-screen flex items-center justify-center p-8 relative z-10 overflow-hidden selection:bg-gray-900 selection:text-gray-100">
       
       <div className="absolute top-10 text-gray-700 font-mono text-xs tracking-[0.5em] select-none">
         PHASE 0{step + 1} / 04
       </div>
 
-      <div className={`max-w-2xl w-full flex flex-col transition-opacity duration-1000 ease-in-out ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`max-w-2xl w-full flex flex-col transition-opacity duration-[4000ms] ease-in-out ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}>
         
         <div className="min-h-[160px] mb-16">
           <p className="text-gray-300 text-lg md:text-xl font-serif leading-[2] tracking-wide text-justify drop-shadow-[0_0_10px_rgba(255,255,255,0.05)] inline">
             {displayedText}
           </p>
-          <span className="inline-block w-[10px] h-[22px] bg-cyan-700 ml-2 animate-pulse align-middle shadow-[0_0_8px_rgba(0,200,255,0.5)]"></span>
+          <span className="inline-block w-[10px] h-[22px] bg-gray-600 ml-2 animate-pulse align-middle shadow-[0_0_8px_rgba(107,114,128,0.5)]"></span>
         </div>
 
         <div className={`flex flex-col w-full gap-5 font-mono transition-opacity duration-1000 pt-8 border-t border-gray-900/50 ${isTyping ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -153,10 +153,10 @@ const CyberOnboarding = ({ username, onComplete }) => {
             className={`
               w-full py-5 px-8 border transition-all duration-300 tracking-widest text-sm md:text-base text-left
               ${selectedOption === 'A' 
-                ? 'border-cyan-500 text-cyan-400 bg-cyan-950/40 animate-pulse shadow-[0_0_30px_rgba(0,240,255,0.15)] focus:outline-none' 
+                ? 'border-gray-500 text-gray-300 bg-gray-900/40 animate-pulse shadow-[0_0_15px_rgba(107,114,128,0.2)] focus:outline-none' 
                 : selectedOption 
                   ? 'border-gray-900 text-gray-800 opacity-20 pointer-events-none' 
-                  : 'border-slate-800 text-slate-400 hover:border-cyan-900 hover:text-cyan-500 hover:bg-cyan-950/10 hover:shadow-[0_0_15px_rgba(0,255,255,0.05)] focus:outline-none' 
+                  : 'border-gray-800 text-gray-500 hover:border-gray-600 hover:text-gray-400 hover:bg-black hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] focus:outline-none' 
               }
             `}
           >
@@ -168,10 +168,10 @@ const CyberOnboarding = ({ username, onComplete }) => {
             className={`
               w-full py-5 px-8 border transition-all duration-300 tracking-widest text-sm md:text-base text-right
               ${selectedOption === 'B' 
-                ? 'border-red-500 text-red-400 bg-red-950/30 animate-pulse shadow-[0_0_30px_rgba(255,0,60,0.15)] focus:outline-none' 
+                ? 'border-red-600 text-red-500 bg-red-950/30 animate-pulse shadow-[0_0_30px_rgba(204,0,0,0.15)] focus:outline-none' 
                 : selectedOption
                   ? 'border-gray-900 text-gray-800 opacity-20 pointer-events-none' 
-                  : 'border-slate-800 text-slate-400 hover:border-red-900/50 hover:text-red-500/80 hover:bg-red-950/5 hover:shadow-[0_0_15px_rgba(255,0,0,0.05)] focus:outline-none' 
+                  : 'border-gray-800 text-gray-500 hover:border-red-900/50 hover:text-red-600/80 hover:bg-black hover:shadow-[0_0_15px_rgba(204,0,0,0.05)] focus:outline-none' 
               }
             `}
           >
@@ -183,10 +183,10 @@ const CyberOnboarding = ({ username, onComplete }) => {
             className={`
               w-full py-4 px-8 border transition-all duration-300 tracking-widest text-sm md:text-base text-center
               ${selectedOption === 'C' 
-                ? 'border-gray-300 text-gray-200 bg-gray-600/20 animate-pulse shadow-[0_0_30px_rgba(200,200,200,0.1)] focus:outline-none' 
+                ? 'border-green-600 text-green-500 bg-green-900/20 animate-pulse shadow-[0_0_20px_rgba(0,255,0,0.1)] focus:outline-none' 
                 : selectedOption
                   ? 'border-gray-900 text-gray-800 opacity-20 pointer-events-none' 
-                  : 'border-slate-800 text-slate-400 hover:border-gray-600 hover:text-gray-300 hover:bg-gray-800/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] focus:outline-none' 
+                  : 'border-gray-800 text-gray-500 hover:border-green-800/50 hover:text-green-600 hover:bg-black hover:shadow-[0_0_15px_rgba(0,255,0,0.05)] focus:outline-none' 
               }
             `}
           >

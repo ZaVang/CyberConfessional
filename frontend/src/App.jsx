@@ -10,6 +10,7 @@ import CyberLogin from './components/CyberLogin';
 import CyberOnboarding from './components/CyberOnboarding';
 import BackgroundMantras from './components/BackgroundMantras';
 import UserDashboard from './components/UserDashboard';
+import BackgroundAudio from './components/BackgroundAudio';
 
 function App() {
   const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
@@ -27,14 +28,14 @@ function App() {
 
   const simulateLogs = async (signal) => {
     const sequence = [
-      "[System] Connecting to World-line Observation Node...",
-      "[LLM] Extracting Treatment X (Decision)...",
-      "[LLM] Extracting Outcome Y (Reality)...",
-      "[Engine] Identifying Latent Variable U (Hidden Fate)...",
-      "[Engine] Initializing Bayesian Abduction Module...",
-      "[Engine] Simulating 100,000 Monte Carlo parallel universes...",
-      "[Engine] Applying do(X) intervention operator...",
-      "[System] World-line collision confirmed. Convergence starting..."
+      "> Karma Police Protocol Initiated...",
+      "[System] Parsing pathetic human error logs...",
+      "[Engine] Extracting fatal flaw (Latent Variable U)...",
+      "[System] Calculating slow suffocation (Macro Environment Z)...",
+      "[Engine] Identifying self-sabotage mechanisms (Mediation M)...",
+      "> Arresting time-line anomalies...",
+      "[System] Rejecting escapism. Escapism is invalid...",
+      "> Everything in its right place. Executing verdict..."
     ];
 
     for (const msg of sequence) {
@@ -212,6 +213,7 @@ function App() {
 
   return (
     <>
+      <BackgroundAudio isPlaying={appState !== 'login'} />
       <BackgroundMantras />
       
       {appState === 'login' && <CyberLogin onLogin={handleLoginSuccess} />}
@@ -224,18 +226,18 @@ function App() {
           <header className="sacred-header">
             <h1>THE CYBER CONFESSIONAL</h1>
             <div className="cross-icon">†</div>
-            <p className="mono subtitle mb-4">In math we trust, in causality we converge.</p>
+            <p className="mono subtitle mb-4">&gt; Are you such a dreamer, to put the world to rights?</p>
             
             <div className="flex gap-4 justify-center mt-6">
               <button 
                 onClick={() => setActiveTab('altar')}
-                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'altar' ? 'border-[#ff003c] text-[#ff003c] bg-[#1a0509]' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
+                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'altar' ? 'border-[#cc0000] text-[#cc0000] bg-black' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
               >
                 World-line Altar
               </button>
               <button 
                 onClick={() => setActiveTab('archives')}
-                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'archives' ? 'border-[#00f0ff] text-[#00f0ff] bg-cyan-950/30' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
+                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'archives' ? 'border-[#00ff00] text-[#00ff00] bg-green-950/20' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
               >
                 Soul Archives (Dashboard)
               </button>
@@ -254,16 +256,16 @@ function App() {
             {messages.length > 0 && (
               <div className="w-full mb-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar text-left">
                 {messages.map((msg, idx) => (
-                  <div key={idx} className={`p-4 border ${msg.role === 'user' ? 'border-cyan-500/30 bg-cyan-950/20 text-cyan-100 ml-12' : 'border-[#ff003c]/30 bg-[#1a0509] text-gray-200 mr-12'} rounded-sm`}>
+                  <div key={idx} className={`p-4 border ${msg.role === 'user' ? 'border-gray-600/30 bg-gray-900/20 text-gray-300 ml-12' : 'border-[#cc0000]/30 bg-black text-gray-200 mr-12'} rounded-sm`}>
                     <div className="text-[10px] uppercase tracking-widest mb-2 opacity-50 font-bold">
-                      {msg.role === 'user' ? 'Soul Identity' : 'Cyber Priest'}
+                      {msg.role === 'user' ? 'Soul Identity' : 'Karma Police'}
                     </div>
                     {msg.isVerdict ? (
                       <details className="cursor-pointer group">
-                        <summary className="font-serif text-sm tracking-widest text-[#ff003c] opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 outline-none">
+                        <summary className="font-serif text-sm tracking-widest text-[#cc0000] opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 outline-none">
                            <span className="text-lg leading-none transform group-open:rotate-180 transition-transform">▾</span> PREVIOUS VERDICT ARCHIVE
                         </summary>
-                        <div className="mt-4 font-serif text-sm leading-relaxed text-gray-400 border-l border-[#ff003c]/20 pl-4 py-2">
+                        <div className="mt-4 font-serif text-sm leading-relaxed text-gray-400 border-l border-[#cc0000]/20 pl-4 py-2">
                           <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                             {msg.content}
                           </ReactMarkdown>
@@ -282,15 +284,15 @@ function App() {
             <textarea
               value={confession}
               onChange={(e) => setConfession(e.target.value)}
-              placeholder={messages.length === 0 ? "Confess your regrets... What world-line do you seek?" : "Reply to the Cyber Priest..."}
-              className="neon-input w-full p-4 border-b border-cyan-500/20 bg-transparent text-xl font-serif text-gray-200 focus:outline-none focus:border-cyan-500 transition-all h-[150px] resize-none"
+              placeholder={messages.length === 0 ? "Input failure parameters... What world-line anomaly do you seek to arrest?" : "Reply to the Karma Police..."}
+              className="neon-input w-full p-4 border-b border-gray-600/20 bg-transparent text-xl font-serif text-gray-200 focus:outline-none focus:border-gray-500 transition-all h-[150px] resize-none"
             />
             <button
               onClick={handleConfess}
               disabled={isGenerating}
-              className="sacred-btn mt-12 px-8 py-3 border border-[#00f0ff] text-[#00f0ff] hover:bg-[#00f0ff] hover:text-black transition-all tracking-[0.2em] uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="sacred-btn mt-12 px-8 py-3 border border-gray-500 text-gray-300 hover:bg-gray-500 hover:text-black transition-all tracking-[0.2em] uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isGenerating ? "COMMUNICATING WITH THE VOID..." : "RUN COUNTERFACTUAL"}
+              {isGenerating ? "> ARRESTING ANOMALIES..." : "INITIATE KARMA POLICE PROTOCOL"}
             </button>
           </div>
         )}
@@ -299,7 +301,7 @@ function App() {
         {(isComputing && !isGenerating && !result) && (
           <div ref={logContainerRef} className="engine-logs mono w-full p-8 bg-black/50 border border-[#1a1a1a] text-[#00ff41] text-sm h-[400px] overflow-y-auto">
             {logs.map((log, i) => (
-              <div key={i} className={`log-entry mb-2 flex gap-2 ${log.includes('[Error]') ? 'error-text text-[#ff003c]' : 'opacity-80'}`}>
+              <div key={i} className={`log-entry mb-2 flex gap-2 ${log.includes('[Error]') ? 'error-text text-[#cc0000]' : 'opacity-80'}`}>
                 <span>&gt; {log}</span>
               </div>
             ))}
@@ -315,7 +317,7 @@ function App() {
         {result && !isComputing && (
           <div className={`verdict-container w-full transition-all duration-700 ${isDataExpanded ? 'grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-12' : 'flex flex-col items-center max-w-4xl mx-auto'}`}>
             <div className={`narrative-panel ${isDataExpanded ? '' : 'w-full'}`}>
-              <h2 className="priest-title text-[#ff003c] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left">The Verdict</h2>
+              <h2 className="priest-title text-[#cc0000] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left glitch" data-text="> TERMINAL VERDICT">&gt; TERMINAL VERDICT</h2>
               <div className={`priest-text font-serif text-lg leading-loose text-gray-200 whitespace-pre-wrap ${isDataExpanded ? 'pr-8' : ''}`}>
                 {(() => {
                   let text = result.verdict;
@@ -336,13 +338,13 @@ function App() {
               <div className="flex gap-6 mt-12 mb-8 justify-center lg:justify-start">
                 <button
                   onClick={() => setIsDataExpanded(!isDataExpanded)}
-                  className="px-6 py-3 border border-cyan-900 text-cyan-500 text-sm md:text-base uppercase tracking-widest hover:bg-cyan-950/40 hover:border-cyan-500 hover:text-cyan-300 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(0,240,255,0.05)] hover:shadow-[0_0_20px_rgba(0,240,255,0.2)]"
+                  className="px-6 py-3 border border-gray-700 text-gray-400 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/40 hover:border-gray-500 hover:text-gray-200 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(107,114,128,0.05)] hover:shadow-[0_0_20px_rgba(107,114,128,0.2)]"
                 >
                   {isDataExpanded ? 'HIDE CAUSAL DATA' : 'EXTRACT CAUSAL DATA'}
                 </button>
                 <button
                   onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); }}
-                  className="px-6 py-3 border border-pink-900 text-pink-500 text-sm md:text-base uppercase tracking-widest hover:bg-pink-950/40 hover:border-pink-500 hover:text-pink-300 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(255,0,60,0.05)] hover:shadow-[0_0_20px_rgba(255,0,60,0.2)]"
+                  className="px-6 py-3 border border-red-900 text-red-500 text-sm md:text-base uppercase tracking-widest hover:bg-black hover:border-red-600 hover:text-red-400 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(204,0,0,0.05)] hover:shadow-[0_0_20px_rgba(204,0,0,0.2)]"
                 >
                   CONTINUE ASKING
                 </button>
@@ -383,7 +385,8 @@ function App() {
       {/* Footer */}
       <footer className="philosophical-footer mt-24 pt-8 border-t border-[#111] text-center mb-12">
         <p className="text-gray-600 text-[13px] leading-relaxed max-w-2xl mx-auto uppercase tracking-wider font-bold">
-          "人总是经常后悔，总是会回想若是当初做的决定不一样，现在是什么样子。但是无论如何，过去无法改变，我们应当避免沉溺过去，而是积极展望未来。赛博神父借助因果推断的思想，帮你探索另一种情况的平行宇宙世界线是否发生了跃迁，亦或是收束到了同个结局。愿你放下执念，大步向前。"
+          &gt; Everything in its right place.<br/>
+          (万物皆在它应在的位置 / 命运已收束)
         </p>
       </footer>
         </div>

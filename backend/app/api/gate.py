@@ -8,12 +8,7 @@ from ..models.domain import SoulMatrix
 
 router = APIRouter()
 
-class LoginRequest(BaseModel):
-    username: str
-
-class CalibrationRequest(BaseModel):
-    username: str
-    answers: List[str] # e.g. ["A", "B", "A", "A"]
+from ..models.schemas import LoginRequest, CalibrationRequest
 
 @router.post("/identify")
 def identify_soul(request: LoginRequest, session: Session = Depends(get_session)):

@@ -70,3 +70,32 @@ class ParsingResult(BaseModel):
     is_complete: bool = Field(..., description="True if the SCM parameters can be successfully extracted from the conversation. False if more information is needed.")
     clarification_question: Optional[str] = Field(None, description="If is_complete is False, the philosophical or context-seeking question to ask the user to clarify the situation.")
     engine_input: Optional[EngineInputSchema] = Field(None, description="If is_complete is True, the extracted SCM parameters.")
+
+# --- API Layer Schemas ---
+
+class ConfessionRequest(BaseModel):
+    username: str = Field(..., description="The user's calling name mapped to the database")
+    messages: list[Message] = Field(..., description="The history of conversation.")
+
+class ConfessionResponse(BaseModel):
+    is_complete: bool = Field(..., description="If false, the system is asking a clarification question")
+    clarification_question: Optional[str] = None
+    
+    confession: Optional[str] = None
+    engine_input: Optional[EngineInputSchema] = None
+    engine_output: Optional[EngineOutputSchema] = None
+    verdict: Optional[str] = None
+    mermaid_chart: Optional[str] = None
+    status: str = "World-line Convergence Confirmed"
+
+class SimulateRequest(BaseModel):
+    engine_input: EngineInputSchema
+    new_z: float = Field(..., description="新的环境因子 Z 值")
+    new_m_bias: float = Field(..., description="新的行为阻断偏置 M bias")
+
+class LoginRequest(BaseModel):
+    username: str
+
+class CalibrationRequest(BaseModel):
+    username: str
+    answers: list[str] # e.g. ["A", "B", "A", "A"]
