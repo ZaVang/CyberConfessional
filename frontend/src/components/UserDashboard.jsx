@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from './LanguageContext';
 import MermaidDAG from './MermaidDAG';
 import KarmaNetwork3D from './KarmaNetwork3D';
 
 const UserDashboard = () => {
+  const { t } = useLanguage();
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [graphData, setGraphData] = useState(null);
@@ -54,7 +56,7 @@ const UserDashboard = () => {
   return (
     <div className="w-full flex flex-col min-h-screen text-gray-200 p-8 pt-24 font-mono">
       <h2 className="text-[#00f0ff] text-2xl font-bold uppercase tracking-widest mb-8 border-b border-[#00f0ff]/30 pb-4">
-        Soul Archives (LTM Knowledge Graph)
+        {t('dash_title')}
       </h2>
       
       {error && <div className="text-[#ff003c] mb-4">Error: {error}</div>}
@@ -62,8 +64,8 @@ const UserDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl mx-auto">
         {/* User List Panel */}
         <div className="col-span-1 border border-cyan-900/50 bg-black/40 p-6 flex flex-col h-[70vh] overflow-y-auto custom-scrollbar">
-          <h3 className="text-gray-400 uppercase tracking-widest text-sm mb-6 pb-2 border-b border-gray-800">Anchored Souls</h3>
-          {loading && !selectedUser && <div className="text-cyan-500 animate-pulse">Scanning DB...</div>}
+          <h3 className="text-gray-400 uppercase tracking-widest text-sm mb-6 pb-2 border-b border-gray-800">{t('dash_anchored')}</h3>
+          {loading && !selectedUser && <div className="text-cyan-500 animate-pulse">{t('loading')}</div>}
           
           <div className="flex flex-col gap-4">
             {users.map(u => (
@@ -100,9 +102,9 @@ const UserDashboard = () => {
                 </div>
                 
                 <div className="mb-6 pb-4 border-b border-[#ff003c]/20">
-                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 font-bold">Global Persona Abstract</div>
+                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 font-bold">{t('dash_persona')}</div>
                   <p className="font-serif text-gray-300 leading-relaxed">
-                    {selectedUser.global_persona_summary || "No abstract converged yet. Soul is still opaque."}
+                    {selectedUser.global_persona_summary || t('dash_no_abstract')}
                   </p>
                 </div>
                 
@@ -130,23 +132,23 @@ const UserDashboard = () => {
               {/* LTM Graph */}
               <div className="border border-cyan-900/50 p-6 flex-1 min-h-[400px] bg-black/60 flex flex-col">
                 <div className="text-xs text-gray-500 uppercase tracking-widest mb-4 font-bold flex justify-between items-center">
-                  <span>Causal Karma Network (LTM)</span>
-                  {loading && <span className="text-cyan-500 animate-pulse">Syncing...</span>}
+                  <span>{t('dash_network')}</span>
+                  {loading && <span className="text-cyan-500 animate-pulse">{t('dash_syncing')}</span>}
                 </div>
                 <div className="flex-1 rounded border border-gray-900 overflow-hidden relative">
                   {graphData ? (
                     <KarmaNetwork3D graphData={graphData} />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-600 italic font-serif z-10">
-                      Awaiting World-line Extrapolation...
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-600 italic font-serif z-10 text-center px-4">
+                      {t('dash_waiting')}
                     </div>
                   )}
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center border border-dashed border-gray-800 text-gray-600 font-serif text-lg">
-              Select a soul from the archives to view its causal destiny.
+            <div className="flex-1 flex items-center justify-center border border-dashed border-gray-800 text-gray-600 font-serif text-lg text-center px-8">
+              {t('dash_select_hint')}
             </div>
           )}
         </div>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useLanguage } from './LanguageContext';
 
 const CyberLogin = ({ onLogin }) => {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -35,8 +37,8 @@ const CyberLogin = ({ onLogin }) => {
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center font-mono text-gray-100 relative z-10 p-4">
       <div className="glass-panel max-w-lg w-full p-12 flex flex-col items-center rounded-sm animate-entry">
-        <h1 className="text-gray-300 text-xl md:text-2xl tracking-[0.15em] mb-12 text-center font-mono glitch font-semibold" data-text="> SYSTEM_ENTRY_: UID_REQ">
-          &gt; SYSTEM_ENTRY_: UID_REQ
+        <h1 className="text-gray-300 text-xl md:text-2xl tracking-[0.15em] mb-12 text-center font-mono glitch font-semibold" data-text={t('login_title')}>
+          {t('login_title')}
         </h1>
         
         <form onSubmit={handleLogin} className="w-full flex flex-col items-center">
@@ -44,7 +46,7 @@ const CyberLogin = ({ onLogin }) => {
             type="text" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="INSERT_UID..."
+            placeholder={t('login_placeholder')}
             className="w-full bg-black/40 border-b-2 border-gray-700 text-center text-2xl py-3 focus:outline-none focus:border-red-500 transition-colors duration-300 tracking-widest text-gray-100 placeholder-gray-600 font-mono"
             autoFocus
           />
@@ -59,7 +61,7 @@ const CyberLogin = ({ onLogin }) => {
               }
             `}
           >
-            {isLoading ? '> PARSING_UID...' : '> INIT_CONNECTION'}
+            {isLoading ? t('login_parsing') : t('login_init')}
           </button>
         </form>
 

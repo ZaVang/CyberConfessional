@@ -12,8 +12,11 @@ import BackgroundMantras from './components/BackgroundMantras';
 import UserDashboard from './components/UserDashboard';
 import BackgroundAudio from './components/BackgroundAudio';
 import VoidReceipt from './components/VoidReceipt';
+import VoidSeaEngine from './components/VoidSeaEngine';
+import { LanguageProvider, useLanguage } from './components/LanguageContext';
 
-function App() {
+function AppContent() {
+  const { t, toggleLanguage, language } = useLanguage();
   const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
   const [activeTab, setActiveTab] = useState('altar'); // 'altar' | 'archives'
   const [userId, setUserId] = useState('');
@@ -22,6 +25,7 @@ function App() {
   const [confession, setConfession] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [viewingReceipt, setViewingReceipt] = useState(null);
   const typingTimeoutRef = useRef(null);
   const [isComputing, setIsComputing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false); // Used when waiting for LLM
@@ -32,6 +36,7 @@ function App() {
 
   const simulateLogs = async (signal) => {
     const sequence = [
+      t('login_parsing'),
       "> Karma Police Protocol Initiated...",
       "[System] Parsing pathetic human error logs...",
       "[Engine] Extracting fatal flaw (Latent Variable U)...",
@@ -230,6 +235,15 @@ function App() {
     <>
       <BackgroundAudio isPlaying={appState !== 'login'} isCatharsisActive={isCatharsisActive} />
       <BackgroundMantras isCatharsisActive={isCatharsisActive} />
+      <VoidSeaEngine onReceiptClick={(r) => setViewingReceipt(r)} />
+      
+      {/* Language Toggle */}
+      <button 
+        onClick={toggleLanguage}
+        className="fixed top-6 right-6 z-[100] px-3 py-1 border border-gray-700 bg-black/40 text-gray-500 font-mono text-xs tracking-widest hover:border-gray-400 hover:text-gray-200 transition-all uppercase"
+      >
+        {language === 'en' ? 'EN | 中' : '中 | EN'}
+      </button>
       
       {appState === 'login' && <CyberLogin onLogin={handleLoginSuccess} />}
       
@@ -239,22 +253,22 @@ function App() {
         <div className={`altar-container font-mono relative z-10 w-full min-h-screen transition-all duration-[1500ms] ${isCatharsisActive ? 'catharsis-mode' : ''}`}>
           {/* Header */}
           <header className="sacred-header">
-            <h1>THE CYBER CONFESSIONAL</h1>
+            <h1>{t('altar_header')}</h1>
             <div className="cross-icon">†</div>
-            <p className="mono subtitle mb-4">&gt; Are you such a dreamer, to put the world to rights?</p>
+            <p className="mono subtitle mb-4">{t('altar_subtitle')}</p>
             
             <div className="flex gap-4 justify-center mt-6">
               <button 
                 onClick={() => setActiveTab('altar')}
                 className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'altar' ? 'border-[#cc0000] text-[#cc0000] bg-black' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
               >
-                World-line Altar
+                {t('tab_altar')}
               </button>
               <button 
                 onClick={() => setActiveTab('archives')}
                 className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'archives' ? 'border-[#00ff00] text-[#00ff00] bg-green-950/20' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
               >
-                Soul Archives (Dashboard)
+                {t('tab_archives')}
               </button>
             </div>
           </header>
@@ -289,7 +303,7 @@ function App() {
                       {msg.isVerdict ? (
                         <details className="cursor-pointer group">
                           <summary className="font-mono text-sm tracking-widest text-red-400 opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 outline-none">
-                             <span className="text-lg leading-none transform group-open:rotate-180 transition-transform">▾</span> PREVIOUS VERDICT ARCHIVE
+                             <span className="text-lg leading-none transform group-open:rotate-180 transition-transform">▾</span> {t('verdict_archive')}
                           </summary>
                           <div className="mt-4 font-serif text-base leading-relaxed text-gray-300 border-l-2 border-red-500/20 pl-4 py-2">
                             <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
@@ -323,7 +337,7 @@ function App() {
                 if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
                 typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 150);
               }}
-              placeholder={messages.length === 0 ? "Input failure parameters... What world-line anomaly do you seek to arrest?" : "Reply to the Karma Police..."}
+              placeholder={messages.length === 0 ? t('input_placeholder') : t('reply_placeholder')}
               className={`neon-input w-full p-4 border-b bg-transparent text-xl font-serif text-gray-200 focus:outline-none transition-all h-[150px] resize-none ${isTyping ? 'kinetic-active' : 'border-gray-600/20 focus:border-gray-500'}`}
               spellCheck="false"
             />
@@ -332,7 +346,7 @@ function App() {
               disabled={isGenerating}
               className="sacred-btn mt-12 px-8 py-3 border border-gray-500 text-gray-300 hover:bg-gray-500 hover:text-black transition-all tracking-[0.2em] uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isGenerating ? "> ARRESTING ANOMALIES..." : "INITIATE KARMA POLICE PROTOCOL"}
+              {isGenerating ? t('btn_arresting') : t('btn_initiate')}
             </button>
           </div>
         )}
@@ -357,7 +371,7 @@ function App() {
         {result && !isComputing && (
           <div className={`verdict-container w-full transition-all duration-700 ${isDataExpanded ? 'grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-12' : 'flex flex-col items-center max-w-4xl mx-auto'}`}>
             <div className={`narrative-panel ${isDataExpanded ? '' : 'w-full'}`}>
-              <h2 className="priest-title text-[#cc0000] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left glitch" data-text="> TERMINAL VERDICT">&gt; TERMINAL VERDICT</h2>
+              <h2 className="priest-title text-[#cc0000] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left glitch" data-text={t('verdict_title')}>{t('verdict_title')}</h2>
               <div className={`priest-text font-serif text-lg md:text-xl leading-loose text-gray-200 whitespace-pre-wrap ${isDataExpanded ? 'pr-8' : ''}`}>
                 {(() => {
                   let text = result.verdict;
@@ -404,25 +418,25 @@ function App() {
                   onClick={() => setIsDataExpanded(!isDataExpanded)}
                   className="px-6 py-3 border border-gray-700 text-gray-400 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/40 hover:border-gray-500 hover:text-gray-200 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(107,114,128,0.05)] hover:shadow-[0_0_20px_rgba(107,114,128,0.2)]"
                 >
-                  {isDataExpanded ? 'HIDE CAUSAL DATA' : 'EXTRACT CAUSAL DATA'}
+                  {isDataExpanded ? t('btn_hide') : t('btn_extract')}
                 </button>
                 <button
                   onClick={() => setShowReceipt(true)}
                   className="px-6 py-3 border border-yellow-800/40 text-yellow-700/60 text-sm md:text-base uppercase tracking-widest hover:bg-yellow-900/20 hover:border-yellow-500 hover:text-yellow-400 transition-all duration-300 focus:outline-none shadow-sm shadow-yellow-900/10"
                 >
-                  PRINT VOID RECEIPT
+                  {t('btn_print')}
                 </button>
                 <button
                   onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); }}
                   className="px-6 py-3 border border-red-900 text-red-500 text-sm md:text-base uppercase tracking-widest hover:bg-black hover:border-red-600 hover:text-red-400 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(204,0,0,0.05)] hover:shadow-[0_0_20px_rgba(204,0,0,0.2)]"
                 >
-                  CONTINUE ASKING
+                  {t('btn_continue')}
                 </button>
                 <button
                   onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); setConfession(''); setMessages([]); }}
                   className="px-6 py-3 border border-gray-800 text-gray-500 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/60 hover:border-gray-500 hover:text-gray-300 transition-all duration-300 focus:outline-none"
                 >
-                  NEW CONFESSION
+                  {t('btn_new')}
                 </button>
               </div>
             </div>
@@ -471,7 +485,35 @@ function App() {
           onClose={() => setShowReceipt(false)} 
         />
       )}
+
+      {viewingReceipt && (
+        <VoidReceipt 
+          result={{
+            verdict: viewingReceipt.is_catharsis ? '<catharsis>' : '',
+            engine_output: {
+              counterfactual_prob: viewingReceipt.prob_score / 100,
+              inferred_latents: { U_hidden: 0.5 } // mocked for view-only
+            },
+            engine_input: {
+              factual: { Y: viewingReceipt.is_catharsis ? 1 : 0 }
+            }
+          }}
+          confession={viewingReceipt.confession_text}
+          zVal={viewingReceipt.z_val}
+          mBias={viewingReceipt.m_bias}
+          isReadOnly={true}
+          onClose={() => setViewingReceipt(null)}
+        />
+      )}
     </>
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

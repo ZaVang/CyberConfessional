@@ -91,6 +91,20 @@ class CausalMemoryNode(SQLModel, table=True):
     u_locus_posterior: Optional[float] = None
 
 # ==========================================
+# Table 5: VoidReceiptLog (Anonymous Sea of Destiny)
+# ==========================================
+class VoidReceiptLog(SQLModel, table=True):
+    __tablename__ = "void_receipt_log"
+    
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    confession_text: str = Field(..., description="Anonymized confession")
+    z_val: float = Field(default=1.0)
+    m_bias: float = Field(default=0.0)
+    prob_score: float = Field(..., description="Causal probability")
+    is_catharsis: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# ==========================================
 # Table 4: CausalMemoryEdge (Graph Edges)
 # ==========================================
 class CausalMemoryEdge(SQLModel, table=True):

@@ -1,5 +1,5 @@
 ---
-iteration: 2
-max_iterations: 20
+iteration: 4
+max_iterations: 1
 completion_promise: "sprint_complete"
 ---

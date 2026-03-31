@@ -1,26 +1,22 @@
-# Sprint Contract: The Void Receipt (Sprint 4)
+# Sprint Contract: Consent Workflow & Seeding (Sprint 6)
 **Date:** 2026-03-31
-**Target:** Sprint 4
+**Target:** Sprint 6
 
 ## What are we building right now?
-A completely new viral interaction mechanic: **The Void Receipt (Karma Ticket)**.
-We are adding a UI button in the verdict container that, when clicked, renders a stylized thermal-receipt artifact overlay showing the user's "Cosmic Transaction" details. It also allows them to copy a brutalist ASCII version to their clipboard.
+A frontend intercept mechanism for casting receipts (providing explicit user consent regarding anonymity), and a backend scripting utility to retroactively seed the Void Sea using existing database logs.
 
 ## Implementation Details (Strict API)
-1.  **Component Creation (`frontend/src/components/VoidReceipt.jsx`):**
-    *   Accepts props: `result` (the verdict data), `confession` (the user's text), `zVal`, `mBias`, and `onClose`.
-    *   DOM structure mimics a tall thermal paper receipt using Tailwind (bg-white or off-white, black monospace text, dashed borders).
-    *   Includes a generated `<pre>` barcode using simple box-drawing characters (`█ ▄ █ █ ▀`).
-2.  **App Integration (`frontend/src/App.jsx`):**
-    *   Add a new state: `const [showReceipt, setShowReceipt] = useState(false);`
-    *   Add a button next to "EXTRACT CAUSAL DATA": `[ PRINT VOID RECEIPT ]`.
-    *   When clicked, conditionally render `<VoidReceipt ... />` as a fixed modal layer with a high z-index.
-3.  **ASCII Copy Mechanic:**
-    *   Inside `<VoidReceipt>`, a button "COPY TO CLIPBOARD" that concatenates the data into a pure `.txt` format and calls `navigator.clipboard.writeText(...)`.
-    *   Format: `> CYBER_CONFESSIONAL_RECEIPT \n> Anomaly: [Text] \n> Latent U: [X] \n> ... \n> NO REFUNDS ON DESTINY.`
+1.  **Consent UI (`frontend/src/components/VoidReceipt.jsx`):**
+    *   Change the `castStatus` state logic. Introduce a new state `showConsent` (boolean, default false).
+    *   Clicking `CAST ANONYMOUSLY INTO VOID` sets `showConsent = true`.
+    *   When true, the right-side button panel is replaced by a warning box with two actions: `[ PROCEED TO CAST ]` and `[ CANCEL ]`.
+    *   `[ PROCEED TO CAST ]` triggers the actual API payload submission.
+2.  **Data Hydration Script (`backend/scripts/seed_sea.py`):**
+    *   Initialize SQLModel Session connected to `sqlite:///cyber_priest.db`.
+    *   Select all `ConfessionLog` rows.
+    *   For each row, create a `VoidReceiptLog` mapping `content` -> `confession_text`, `counterfactual_prob` -> `prob_score`. If the verdict text contains `<catharsis>`, set `is_catharsis = True`. Use fallback defaults for `z_val` and `m_bias`.
+    *   Commit to database.
 
 ## EXACT Testing Criteria (Acceptance Criteria)
-1. **Trigger:** The "PRINT VOID RECEIPT" button only appears after a verdict is successfully generated.
-2. **Rendering:** The `VoidReceipt` modal renders above all other elements (`z-index`) and has a distinct light/thermal-paper aesthetic that contrasts hilariously with the dark app.
-3. **Data Binding:** The receipt accurately reflects the `confession`, `zVal`, `mBias`, and `result` causal variables.
-4. **Copy Action:** Clicking copy correctly writes the formatted ASCII string to the system clipboard without crashing.
+1. **Double Opt-In:** The user cannot cast an anomaly without clicking exactly two affirmative buttons outlining the anonymity rules.
+2. **Hydration Success:** Running the python script successfully populates `VoidReceiptLog` without crashing or violating DB constraints, and reloading the frontend Altar visibly shows these seeded receipts drifting.

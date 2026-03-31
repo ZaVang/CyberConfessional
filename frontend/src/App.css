@@ -215,6 +215,45 @@
   line-height: 1.6;
 }
 
+/* --- VOID SEA ENGINE --- */
+.jagged-receipt {
+  background-image: linear-gradient(to bottom, #fdfdf9 0%, #fdfdf9 100%);
+  position: relative;
+}
+
+.jagged-receipt::before, .jagged-receipt::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-size: 8px 100%;
+}
+.jagged-receipt::before {
+  top: -4px;
+  background-image: linear-gradient(-45deg, #fdfdf9 25%, transparent 25%, transparent 75%, #fdfdf9 75%, #fdfdf9), 
+                    linear-gradient(45deg, #fdfdf9 25%, transparent 25%, transparent 75%, #fdfdf9 75%, #fdfdf9);
+  background-position: 0 0, 4px 0;
+}
+.jagged-receipt::after {
+  bottom: -4px;
+  background-image: linear-gradient(-45deg, transparent 25%, #fdfdf9 25%, #fdfdf9 75%, transparent 75%, transparent), 
+                    linear-gradient(45deg, transparent 25%, #fdfdf9 25%, #fdfdf9 75%, transparent 75%, transparent);
+  background-position: 0 0, 4px 0;
+}
+
+@keyframes floatUpDrift {
+  0% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-50vh) rotate(2deg); }
+  100% { transform: translateY(-120vh) rotate(-1deg); }
+}
+
+.animate-drift {
+  animation-name: floatUpDrift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
 /* Kinetic Terminal Input */
 .neon-input {
   caret-color: var(--accent-red);
