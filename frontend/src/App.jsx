@@ -11,6 +11,7 @@ import CyberOnboarding from './components/CyberOnboarding';
 import BackgroundMantras from './components/BackgroundMantras';
 import UserDashboard from './components/UserDashboard';
 import BackgroundAudio from './components/BackgroundAudio';
+import VoidReceipt from './components/VoidReceipt';
 
 function App() {
   const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
@@ -20,6 +21,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [confession, setConfession] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
   const typingTimeoutRef = useRef(null);
   const [isComputing, setIsComputing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false); // Used when waiting for LLM
@@ -405,6 +407,12 @@ function App() {
                   {isDataExpanded ? 'HIDE CAUSAL DATA' : 'EXTRACT CAUSAL DATA'}
                 </button>
                 <button
+                  onClick={() => setShowReceipt(true)}
+                  className="px-6 py-3 border border-yellow-800/40 text-yellow-700/60 text-sm md:text-base uppercase tracking-widest hover:bg-yellow-900/20 hover:border-yellow-500 hover:text-yellow-400 transition-all duration-300 focus:outline-none shadow-sm shadow-yellow-900/10"
+                >
+                  PRINT VOID RECEIPT
+                </button>
+                <button
                   onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); }}
                   className="px-6 py-3 border border-red-900 text-red-500 text-sm md:text-base uppercase tracking-widest hover:bg-black hover:border-red-600 hover:text-red-400 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(204,0,0,0.05)] hover:shadow-[0_0_20px_rgba(204,0,0,0.2)]"
                 >
@@ -452,6 +460,16 @@ function App() {
         </p>
       </footer>
         </div>
+      )}
+
+      {showReceipt && result && (
+        <VoidReceipt 
+          result={result} 
+          confession={confession} 
+          zVal={zVal} 
+          mBias={mBias} 
+          onClose={() => setShowReceipt(false)} 
+        />
       )}
     </>
   );

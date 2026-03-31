@@ -1,25 +1,26 @@
-# Sprint Contract: The Neural Terminal (Sprint 2)
+# Sprint Contract: The Void Receipt (Sprint 4)
 **Date:** 2026-03-31
-**Target:** Sprint 2 (Self-Approved Execution)
+**Target:** Sprint 4
 
 ## What are we building right now?
-We are implementing **Kinetic Confessional Input** to make the act of typing a dark secret feel like interfacing with a volatile "Karma Police" mainframe.
-Currently, typing feels like standard HTML. We will introduce a reactive CSS and React state combination that causes the text to "glitch" or "pulsate" upon keystrokes.
+A completely new viral interaction mechanic: **The Void Receipt (Karma Ticket)**.
+We are adding a UI button in the verdict container that, when clicked, renders a stylized thermal-receipt artifact overlay showing the user's "Cosmic Transaction" details. It also allows them to copy a brutalist ASCII version to their clipboard.
 
 ## Implementation Details (Strict API)
-1. **State Management (`App.jsx`):** 
-    *   Introduce `isTyping` state hook.
-    *   Introduce `typingTimeoutRef` using `useRef`.
-    *   On the `<textarea>`'s `onChange`, set `isTyping(true)` and establish a 150ms timeout to set it to `false`. This creates an active debounce window that keeps the input in a "kinetic" state while keys are pressed.
-    *   Append a `kinetic-active` class to the textarea conditionally based on `isTyping`.
-2. **CSS Overhaul (`App.css`):**
-    *   Update `.neon-input` to use a thick `caret-color: var(--accent-red)`. If `.catharsis-mode` applies, change it to `#ffd700`.
-    *   Define `.kinetic-active` class: applies an aggressive text-shadow (cyan/red chromatic split) and attaches the `typeGlitch` keyframes animation.
-    *   If `.catharsis-mode` applies, redefine `.kinetic-active` to attach a soft `typeBreathe` animation with a warm, blooming shadow (so it doesn't fight the newfound peace).
-    *   Create `@keyframes typeGlitch` mapping micro-translations and hue rotations simulating signal instability.
-    *   Create `@keyframes typeBreathe` with subtle scaling (`scale(1.002)`).
+1.  **Component Creation (`frontend/src/components/VoidReceipt.jsx`):**
+    *   Accepts props: `result` (the verdict data), `confession` (the user's text), `zVal`, `mBias`, and `onClose`.
+    *   DOM structure mimics a tall thermal paper receipt using Tailwind (bg-white or off-white, black monospace text, dashed borders).
+    *   Includes a generated `<pre>` barcode using simple box-drawing characters (`█ ▄ █ █ ▀`).
+2.  **App Integration (`frontend/src/App.jsx`):**
+    *   Add a new state: `const [showReceipt, setShowReceipt] = useState(false);`
+    *   Add a button next to "EXTRACT CAUSAL DATA": `[ PRINT VOID RECEIPT ]`.
+    *   When clicked, conditionally render `<VoidReceipt ... />` as a fixed modal layer with a high z-index.
+3.  **ASCII Copy Mechanic:**
+    *   Inside `<VoidReceipt>`, a button "COPY TO CLIPBOARD" that concatenates the data into a pure `.txt` format and calls `navigator.clipboard.writeText(...)`.
+    *   Format: `> CYBER_CONFESSIONAL_RECEIPT \n> Anomaly: [Text] \n> Latent U: [X] \n> ... \n> NO REFUNDS ON DESTINY.`
 
-## EXACT Testing Criteria (Acceptance Criteria - Evaluated Autonomously)
-1. **Typing Trigger**: The CSS glitch properties only activate when keys are being rapidly pressed (`isTyping` true) and quickly disappear when the user stops.
-2. **Contextual Theming**: The typing feedback correctly maps to current context—aggressive instability for dark confession mode, soft breathing pulse for catharsis mode.
-3. **No Memory Leaks**: Timeout is properly cleared if the user keeps typing fast, ensuring DOM doesn't get flooded with pending state resets.
+## EXACT Testing Criteria (Acceptance Criteria)
+1. **Trigger:** The "PRINT VOID RECEIPT" button only appears after a verdict is successfully generated.
+2. **Rendering:** The `VoidReceipt` modal renders above all other elements (`z-index`) and has a distinct light/thermal-paper aesthetic that contrasts hilariously with the dark app.
+3. **Data Binding:** The receipt accurately reflects the `confession`, `zVal`, `mBias`, and `result` causal variables.
+4. **Copy Action:** Clicking copy correctly writes the formatted ASCII string to the system clipboard without crashing.
