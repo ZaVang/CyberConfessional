@@ -19,6 +19,8 @@ function App() {
   
   const [messages, setMessages] = useState([]);
   const [confession, setConfession] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
   const [isComputing, setIsComputing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false); // Used when waiting for LLM
   const [logs, setLogs] = useState([]);
@@ -211,17 +213,28 @@ function App() {
     setAppState('confessional');
   };
 
+  const getIsCatharsisActive = () => {
+    if (!result || !result.verdict) return false;
+    let text = result.verdict;
+    try {
+      const parsed = JSON.parse(text);
+      text = parsed.message || text;
+    } catch(e) {}
+    return Boolean(typeof text === 'string' && text.match(/<catharsis>([\s\S]*?)<\/catharsis>/i));
+  };
+  const isCatharsisActive = getIsCatharsisActive();
+
   return (
     <>
-      <BackgroundAudio isPlaying={appState !== 'login'} />
-      <BackgroundMantras />
+      <BackgroundAudio isPlaying={appState !== 'login'} isCatharsisActive={isCatharsisActive} />
+      <BackgroundMantras isCatharsisActive={isCatharsisActive} />
       
       {appState === 'login' && <CyberLogin onLogin={handleLoginSuccess} />}
       
       {appState === 'onboarding' && <CyberOnboarding username={userId} onComplete={handleCalibrationComplete} />}
 
       {appState === 'confessional' && (
-        <div className="altar-container font-mono relative z-10 w-full min-h-screen">
+        <div className={`altar-container font-mono relative z-10 w-full min-h-screen transition-all duration-[1500ms] ${isCatharsisActive ? 'catharsis-mode' : ''}`}>
           {/* Header */}
           <header className="sacred-header">
             <h1>THE CYBER CONFESSIONAL</h1>
@@ -302,9 +315,15 @@ function App() {
 
             <textarea
               value={confession}
-              onChange={(e) => setConfession(e.target.value)}
+              onChange={(e) => {
+                setConfession(e.target.value);
+                setIsTyping(true);
+                if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 150);
+              }}
               placeholder={messages.length === 0 ? "Input failure parameters... What world-line anomaly do you seek to arrest?" : "Reply to the Karma Police..."}
-              className="neon-input w-full p-4 border-b border-gray-600/20 bg-transparent text-xl font-serif text-gray-200 focus:outline-none focus:border-gray-500 transition-all h-[150px] resize-none"
+              className={`neon-input w-full p-4 border-b bg-transparent text-xl font-serif text-gray-200 focus:outline-none transition-all h-[150px] resize-none ${isTyping ? 'kinetic-active' : 'border-gray-600/20 focus:border-gray-500'}`}
+              spellCheck="false"
             />
             <button
               onClick={handleConfess}

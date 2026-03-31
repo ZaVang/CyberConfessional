@@ -215,4 +215,127 @@
   line-height: 1.6;
 }
 
-/* removed max-width media query since we use tailwind now */
+/* Kinetic Terminal Input */
+.neon-input {
+  caret-color: var(--accent-red);
+}
+
+.kinetic-active {
+  animation: typeGlitch 0.15s infinite;
+  border-bottom-color: var(--accent-red) !important;
+  text-shadow: 0 0 8px rgba(204, 0, 0, 0.6), -2px 0 2px rgba(0, 240, 255, 0.4);
+}
+
+@keyframes typeGlitch {
+  0% { transform: translate(0, 0); filter: hue-rotate(0deg); }
+  25% { transform: translate(-1px, 1px); filter: hue-rotate(90deg); }
+  50% { transform: translate(1px, -1px); filter: saturate(1.5); }
+  75% { transform: translate(-1px, -1px); filter: hue-rotate(-90deg); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes typeBreathe {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.002); }
+  100% { transform: scale(1); }
+}
+
+/* --- CATHARSIS MODE OVERRIDES --- */
+/* Slow transition for standard elements affected by the state */
+.catharsis-mode * {
+  transition: background-color 1.5s ease-out, border-color 1.5s ease-out, color 1.5s ease-out, text-shadow 1.5s ease-out, box-shadow 1.5s ease-out;
+}
+
+.catharsis-mode .sacred-header h1 {
+  color: #fffaf0;
+  text-shadow: 0 0 15px rgba(255, 250, 240, 0.8), 0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+.catharsis-mode .cross-icon {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.catharsis-mode .neon-input {
+  border-bottom-color: rgba(255, 215, 0, 0.3);
+  color: #fffaf0;
+  caret-color: #ffd700;
+}
+
+.catharsis-mode .kinetic-active {
+  animation: typeBreathe 0.15s infinite;
+  border-bottom-color: #ffd700 !important;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.8) !important;
+}
+
+.catharsis-mode .neon-input:focus {
+  border-bottom-color: #ffd700;
+  box-shadow: 0 4px 10px -5px #ffd700;
+}
+
+.catharsis-mode .sacred-btn {
+  border-color: #ffd700;
+  color: #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+}
+
+.catharsis-mode .sacred-btn:hover {
+  background: #ffd700;
+  color: #000 !important;
+  box-shadow: 0 0 30px #ffd700;
+}
+
+.catharsis-mode .engine-logs {
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.2);
+  background: rgba(25, 25, 20, 0.4);
+}
+
+.catharsis-mode .priest-title {
+  color: #ffd700;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+.catharsis-mode .priest-text {
+  color: #fffaf0;
+}
+
+.catharsis-mode .data-card {
+  border-color: rgba(255, 215, 0, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.catharsis-mode .fill {
+  background: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.catharsis-mode .value {
+  color: #ffd700;
+}
+
+/* Specific overrides for Tailwind classes in App.jsx */
+.catharsis-mode .border-red-900 {
+  border-color: rgba(255, 215, 0, 0.4) !important;
+  color: #ffd700 !important;
+}
+
+.catharsis-mode .verdict-container button:hover {
+  background-color: rgba(255, 215, 0, 0.1) !important;
+  border-color: #ffd700 !important;
+  color: #fffaf0 !important;
+}
+
+.catharsis-mode .glass-panel {
+  border-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+.catharsis-mode .bg-black\/60.border-red-500\/40 {
+  border-color: rgba(255, 215, 0, 0.4) !important;
+  background-color: rgba(40, 35, 10, 0.6) !important;
+}
+
+.catharsis-mode .catharsis-block {
+  border-left-color: #ffd700 !important;
+  background-color: rgba(255, 215, 0, 0.05) !important;
+}

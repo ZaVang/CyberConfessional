@@ -1,7 +1,7 @@
 import React from 'react';
 import { MANTRAS } from '../config/mantras';
 
-export default function BackgroundMantras() {
+export default function BackgroundMantras({ isCatharsisActive }) {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 bg-[#020202] selection:bg-transparent">
       {/* Gradient mask to make edges fade out */}
@@ -18,9 +18,12 @@ export default function BackgroundMantras() {
           return (
             <div key={i} className="w-[400vw] flex">
               <div
-                className={`font-serif tracking-[0.3em] text-xl lg:text-2xl text-[#00f0ff] uppercase ${isReverse ? 'animate-[marquee_90s_linear_infinite_reverse]' : 'animate-[marquee_120s_linear_infinite]'}`}
+                className={`font-serif tracking-[0.3em] text-xl lg:text-2xl uppercase transition-all duration-[2000ms] ${isReverse ? (isCatharsisActive ? 'animate-[marquee_180s_linear_infinite_reverse]' : 'animate-[marquee_90s_linear_infinite_reverse]') : (isCatharsisActive ? 'animate-[marquee_240s_linear_infinite]' : 'animate-[marquee_120s_linear_infinite]')}`}
                 style={{
-                  textShadow: '0 0 10px rgba(0,240,255,0.8), 0 0 20px rgba(0,240,255,0.4)',
+                  color: isCatharsisActive ? '#fff0b3' : '#00f0ff',
+                  textShadow: isCatharsisActive 
+                    ? '0 0 15px rgba(255,240,179,0.5), 0 0 30px rgba(255,240,179,0.3)'
+                    : '0 0 10px rgba(0,240,255,0.8), 0 0 20px rgba(0,240,255,0.4)',
                   whiteSpace: 'nowrap'
                 }}
               >

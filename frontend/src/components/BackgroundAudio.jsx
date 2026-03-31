@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-const BackgroundAudio = ({ isPlaying }) => {
+const BackgroundAudio = ({ isPlaying, isCatharsisActive }) => {
   const audioCtxRef = useRef(null);
   const oscillatorsRef = useRef([]);
   const gainNodeRef = useRef(null);
@@ -71,6 +71,10 @@ const BackgroundAudio = ({ isPlaying }) => {
       noiseSource.start();
 
       oscillatorsRef.current = [osc1, osc2, noiseSource];
+      
+      audioCtxRef.current._osc2 = osc2;
+      audioCtxRef.current._filter = filter;
+      audioCtxRef.current._masterGain = masterGain;
     }
 
     return () => {
@@ -78,6 +82,22 @@ const BackgroundAudio = ({ isPlaying }) => {
       // as it's meant to play indefinitely once interaction started.
     };
   }, [isPlaying]);
+
+  useEffect(() => {
+    if (audioCtxRef.current && audioCtxRef.current._osc2) {
+      const ctx = audioCtxRef.current;
+      const now = ctx.currentTime;
+      if (isCatharsisActive) {
+        ctx._osc2.frequency.linearRampToValueAtTime(65.41, now + 3);
+        ctx._filter.frequency.linearRampToValueAtTime(800, now + 3);
+        ctx._masterGain.gain.linearRampToValueAtTime(0.12, now + 3);
+      } else {
+        ctx._osc2.frequency.linearRampToValueAtTime(54.5, now + 2);
+        ctx._filter.frequency.linearRampToValueAtTime(200, now + 2);
+        ctx._masterGain.gain.linearRampToValueAtTime(0.08, now + 2);
+      }
+    }
+  }, [isCatharsisActive]);
 
   return null;
 };
