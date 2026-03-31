@@ -50,7 +50,7 @@ class LLMService:
                 )
             )
 
-    async def generate_verdict(self, text: str, engine_result: EngineOutputSchema, persona: str = None, subgraph: str = None) -> str:
+    async def generate_verdict(self, text: str, engine_result: EngineOutputSchema, persona: str = None, subgraph: str = None, future_aspiration: str = None) -> str:
         """
         Generate the Cyber Priest's persona response based on the causal calculation via Jinja2.
         """
@@ -62,7 +62,8 @@ class LLMService:
                 u_value=engine_result.inferred_latents.get("U_hidden", 0.0),
                 message=engine_result.message,
                 persona=persona,
-                subgraph=subgraph
+                subgraph=subgraph,
+                future_aspiration=future_aspiration
             )
 
             response = await self.bridge.chat(

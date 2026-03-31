@@ -109,7 +109,13 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
         engine_output = EngineOutputSchema(**engine_result_dict)
         
         # 3. 生成判词
-        verdict = await llm_service.generate_verdict(last_confession, engine_output, persona=persona, subgraph=subgraph)
+        verdict = await llm_service.generate_verdict(
+            last_confession, 
+            engine_output, 
+            persona=persona, 
+            subgraph=subgraph,
+            future_aspiration=request.future_aspiration
+        )
         
         # 4. 生成动态拓扑图
         mermaid_chart = generate_mermaid_dag(engine_input, engine_output)
@@ -145,7 +151,8 @@ async def confess_endpoint(request: ConfessionRequest, session: Session = Depend
             z_name=engine_input.graph_params.z_name,
             m_name=engine_input.graph_params.m_weights.name,
             verdict_text=verdict,
-            mermaid_chart=mermaid_chart
+            mermaid_chart=mermaid_chart,
+            future_aspiration=request.future_aspiration
         )
         
         session.add(log_entry)

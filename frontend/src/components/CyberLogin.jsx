@@ -23,7 +23,7 @@ const CyberLogin = ({ onLogin }) => {
       
       const data = await response.json();
       if (response.ok) {
-        onLogin(data.is_new, data.username || username.trim());
+        onLogin(data.is_new, data.username || username.trim(), data.user_id || null);
       } else {
         setErrorMsg(data.detail || '识别失败，世界线干扰。');
       }

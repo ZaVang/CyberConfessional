@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useLanguage } from './LanguageContext';
 
 const CyberOnboarding = ({ username, onComplete }) => {
@@ -12,6 +12,7 @@ const CyberOnboarding = ({ username, onComplete }) => {
   
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
+  const typingIntervalRef = useRef(null);
 
   const BAPTISM_QUESTIONS = useMemo(() => [
     {
@@ -56,18 +57,39 @@ const CyberOnboarding = ({ username, onComplete }) => {
     // Typewriter effect speed
     const msPerChar = 40; 
     
-    const typingInterval = setInterval(() => {
+    typingIntervalRef.current = setInterval(() => {
       if (currentIndex < currentQ.text.length) {
         setDisplayedText(currentQ.text.slice(0, currentIndex + 1));
         currentIndex++;
       } else {
-        clearInterval(typingInterval);
+        clearInterval(typingIntervalRef.current);
         setIsTyping(false);
       }
     }, msPerChar); 
 
-    return () => clearInterval(typingInterval);
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        if (isTyping) {
+          skipTyping();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearInterval(typingIntervalRef.current);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [step, currentQ?.text]); 
+
+  const skipTyping = () => {
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+    }
+    setDisplayedText(currentQ.text);
+    setIsTyping(false);
+  };
 
   const handleOptionClick = (option) => {
     if (isFadingOut || isInitializing || isTyping) return;
@@ -76,7 +98,7 @@ const CyberOnboarding = ({ username, onComplete }) => {
 
     setTimeout(() => {
       setIsFadingOut(true);
-    }, 1500);
+    }, 500); // Reduced from 1500ms
 
     setTimeout(() => {
       const newAnswers = [...answers, option];
@@ -89,22 +111,22 @@ const CyberOnboarding = ({ username, onComplete }) => {
         setIsInitializing(true);
         submitCalibration(newAnswers);
       }
-    }, 5500);
+    }, 1300); // Reduced from 5500ms
   };
 
   const submitCalibration = async (finalAnswers) => {
     try {
-        await fetch('http://localhost:8888/api/gate/calibrate', {
+        const res = await fetch('http://localhost:8888/api/gate/calibrate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: username, answers: finalAnswers })
         });
-        
+        const data = await res.json();
         setTimeout(() => {
-            onComplete(username);
+            onComplete(username, data.user_id || null);
         }, 1500);
     } catch (err) {
-        onComplete(username);
+        onComplete(username, null);
     }
   };
 
@@ -131,13 +153,22 @@ const CyberOnboarding = ({ username, onComplete }) => {
         {t('onboarding_phase')} 0{step + 1} / 04
       </div>
 
-      <div className="glass-panel p-8 md:p-12 max-w-3xl w-full flex flex-col transition-opacity duration-[4000ms] ease-in-out font-mono animate-entry delay-200">
+      <div className={`glass-panel p-8 md:p-12 max-w-3xl w-full flex flex-col transition-all duration-700 ease-in-out font-mono animate-entry delay-200 ${isFadingOut ? 'opacity-0 scale-95 blur-md' : 'opacity-100'}`}>
         
-        <div className="min-h-[160px] mb-16 text-left">
+        <div className="min-h-[160px] mb-16 text-left relative group">
           <p className="text-gray-100 text-xl md:text-2xl font-serif leading-[2.2] tracking-wider text-justify drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] inline font-medium">
             {displayedText}
           </p>
           <span className="inline-block w-[12px] h-[26px] bg-red-600 ml-2 animate-pulse align-middle shadow-[0_0_8px_rgba(255,51,51,0.6)]"></span>
+          
+          {isTyping && (
+            <button 
+              onClick={skipTyping}
+              className="absolute -bottom-8 right-0 text-[10px] text-gray-500 hover:text-red-400 transition-colors uppercase tracking-[0.2em] font-mono animate-pulse"
+            >
+              [ {t('onboarding_skip')} ]
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col w-full gap-5 font-mono transition-opacity duration-1000 pt-8 border-t border-gray-900/50">

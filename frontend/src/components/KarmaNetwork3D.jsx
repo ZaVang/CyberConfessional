@@ -5,20 +5,51 @@ import * as THREE from 'three';
 
 const KarmaNetwork3D = ({ graphData }) => {
   const fgRef = useRef();
-  const [zoom, setZoom] = useState(400);
+  const [zoom, setZoom] = useState(250);
+  const [entropyThreshold, setEntropyThreshold] = useState(0); // 0-100% threshold
 
   // Pin the 'U' node to the center (0,0,0) forming the core of the soul
   const processedData = useMemo(() => {
     if (!graphData || !graphData.nodes) return null;
-    const nodes = graphData.nodes.map(n => {
-      // Pin U node to origin
-      if (n.node_type === 'U') {
-        return { ...n, fx: 0, fy: 0, fz: 0 };
-      }
-      return { ...n };
-    });
-    return { nodes, links: graphData.links || [] };
-  }, [graphData]);
+    
+    // 1. Calculate Decay and Filtering
+    const now = new Date();
+    const filteredNodes = graphData.nodes
+      .map(n => {
+        const lastTriggered = new Date(n.last_triggered_at);
+        const ageInDays = (now - lastTriggered) / (1000 * 60 * 60 * 24);
+        
+        // Decay factor: trigger_count matters most, then age
+        // Nodes triggered once long ago are most likely to be filtered
+        const importance = (n.trigger_count * 10) / (Math.log(ageInDays + 2));
+        
+        // Pin U node to origin
+        const baseNode = n.node_type === 'U' 
+          ? { ...n, fx: 0, fy: 0, fz: 0 } 
+          : { ...n };
+          
+        return { 
+          ...baseNode, 
+          importance,
+          ageInDays
+        };
+      })
+      .filter(n => {
+        if (n.node_type === 'U') return true; // Always keep the core
+        // Simple threshold based on trigger count for now (easier for user to understand)
+        // If threshold > 0, hide nodes with trigger_count <= threshold - 1
+        return n.trigger_count >= (entropyThreshold / 10);
+      });
+
+    // 2. Filter links - only keep links where both source and target exist
+    const nodeIds = new Set(filteredNodes.map(n => n.id));
+    const filteredLinks = (graphData.links || []).filter(l => 
+      nodeIds.has(typeof l.source === 'object' ? l.source.id : l.source) && 
+      nodeIds.has(typeof l.target === 'object' ? l.target.id : l.target)
+    );
+
+    return { nodes: filteredNodes, links: filteredLinks };
+  }, [graphData, entropyThreshold]);
 
   const resetView = useCallback(() => {
     setZoom(400);
@@ -27,7 +58,7 @@ const KarmaNetwork3D = ({ graphData }) => {
       if (uNode) {
         // Lock onto the exact rendered coordinate of U, instead of assuming absolute 0
         fgRef.current.cameraPosition(
-          { x: uNode.x || 0, y: uNode.y || 0, z: (uNode.z || 0) + 400 }, 
+          { x: uNode.x || 0, y: uNode.y || 0, z: (uNode.z || 0) + 250 }, 
           { x: uNode.x || 0, y: uNode.y || 0, z: uNode.z || 0 }, 
           1200
         );
@@ -38,19 +69,13 @@ const KarmaNetwork3D = ({ graphData }) => {
     }
   }, [processedData]);
 
+  // Only reset camera when the underlying graph data identity changes
   useEffect(() => {
     if (fgRef.current && processedData?.nodes?.length > 0) {
-      fgRef.current.d3Force('charge').strength(-600); // Stronger repulsion for a cleaner web
-      
-      // Give the browser 400ms to finish CSS layout calculations and viewport scaling
-      // before we calculate the exact center.
-      const timer = setTimeout(() => {
-        resetView();
-      }, 400);
-      
+      const timer = setTimeout(() => resetView(), 600);
       return () => clearTimeout(timer);
     }
-  }, [processedData, resetView]);
+  }, [processedData]);
 
   const handleZoom = (e) => {
     const val = parseInt(e.target.value);
@@ -62,14 +87,15 @@ const KarmaNetwork3D = ({ graphData }) => {
     }
   };
 
-  const getNodeColor = (type) => {
+  const getNodeColor = (type, triggerCount = 1) => {
+    const opacity = triggerCount > 1 ? 1 : 0.6;
     switch (type) {
-      case 'Z': return '#3b82f6'; // Blue for Environment
-      case 'M': return '#EAB308'; // Yellow for Mechanism
-      case 'X': return '#22c55e'; // Green for Actions
-      case 'Y': return '#a855f7'; // Purple for Outcomes
-      case 'U': return '#FF003C'; // Red for Latents
-      default: return '#ffffff';
+      case 'Z': return `rgba(59, 130, 246, ${opacity})`; // Blue
+      case 'M': return `rgba(234, 179, 8, ${opacity})`; // Yellow
+      case 'X': return `rgba(34, 197, 94, ${opacity})`; // Green
+      case 'Y': return `rgba(168, 85, 247, ${opacity})`; // Purple
+      case 'U': return '#FF003C'; // Red for Latents (Full)
+      default: return `rgba(255, 255, 255, ${opacity})`;
     }
   };
 
@@ -94,8 +120,12 @@ const KarmaNetwork3D = ({ graphData }) => {
         backgroundColor="rgba(0,0,0,0)" // Transparent background let CSS shine through
         
         // Nodes
-        nodeColor={(n) => getNodeColor(n.node_type)}
-        nodeRelSize={6}
+        nodeColor={(n) => getNodeColor(n.node_type, n.trigger_count)}
+        nodeRelSize={1} // We will provide custom size in nodeThreeObject or nodeVal
+        nodeVal={n => {
+          if (n.node_type === 'U') return 12;
+          return 4 + (n.trigger_count * 2); // Scale size by frequency
+        }}
         nodeResolution={32}
         
         // Node labels
@@ -109,8 +139,8 @@ const KarmaNetwork3D = ({ graphData }) => {
           }
 
           const sprite = new SpriteText(labelText);
-          sprite.color = getNodeColor(node.node_type);
-          sprite.textHeight = 6;
+          sprite.color = getNodeColor(node.node_type, node.trigger_count);
+          sprite.textHeight = node.trigger_count > 1 ? 8 : 5;
           sprite.backgroundColor = 'rgba(0, 0, 0, 0.8)';
           sprite.padding = 3;
           sprite.borderRadius = 8;
@@ -132,6 +162,21 @@ const KarmaNetwork3D = ({ graphData }) => {
         linkDirectionalParticleSpeed={() => 0.005}
         linkDirectionalArrowLength={4}
         linkDirectionalArrowRelPos={1}
+        
+        warmupTicks={50}
+        cooldownTicks={200}
+        d3AlphaDecay={0.02}
+        d3VelocityDecay={0.3}
+        onEngineStop={() => {
+          // Set compact forces AFTER engine initializes, then reheat so they take effect
+          if (fgRef.current) {
+            const charge = fgRef.current.d3Force('charge');
+            const link = fgRef.current.d3Force('link');
+            if (charge) charge.strength(-120);
+            if (link) link.distance(55);
+          }
+          resetView();
+        }}
         
         // Interactivity
         onNodeClick={(node) => {
@@ -163,8 +208,9 @@ const KarmaNetwork3D = ({ graphData }) => {
         </button>
         
         <div className="flex flex-col items-center w-full bg-black/60 p-3 border border-gray-800 backdrop-blur-sm">
-          <label className="text-[10px] uppercase text-gray-500 mb-2 font-bold tracking-widest w-full text-left">
-            Observation Distance
+          <label className="text-[10px] uppercase text-gray-500 mb-2 font-bold tracking-widest w-full text-left flex justify-between">
+            <span>Observation Distance</span>
+            <span className="text-cyan-600">{zoom}</span>
           </label>
           <input 
             type="range" 
@@ -173,6 +219,24 @@ const KarmaNetwork3D = ({ graphData }) => {
             onChange={handleZoom}
             className="w-full accent-[#00f0ff] cursor-pointer"
           />
+        </div>
+
+        <div className="flex flex-col items-center w-full bg-black/60 p-3 border border-gray-800 backdrop-blur-sm">
+          <label className="text-[10px] uppercase text-red-500 mb-2 font-bold tracking-widest w-full text-left flex justify-between">
+            <span>Noise Cancellation</span>
+            <span className={entropyThreshold > 0 ? 'animate-pulse' : ''}>{entropyThreshold}%</span>
+          </label>
+          <input 
+            type="range" 
+            min="0" max="100" step="1"
+            value={entropyThreshold} 
+            onChange={(e) => setEntropyThreshold(parseInt(e.target.value))}
+            className="w-full accent-red-600 cursor-pointer"
+          />
+          <div className="w-full flex justify-between text-[8px] text-gray-600 mt-1 uppercase font-bold">
+            <span>Original</span>
+            <span>Collapse</span>
+          </div>
         </div>
       </div>
 

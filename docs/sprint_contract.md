@@ -1,22 +1,29 @@
-# Sprint Contract: Consent Workflow & Seeding (Sprint 6)
-**Date:** 2026-03-31
-**Target:** Sprint 6
+# Sprint Contract: V3 Resonance & Archive
+**Execution Phase:** Generator (Next Step)
 
-## What are we building right now?
-A frontend intercept mechanism for casting receipts (providing explicit user consent regarding anonymity), and a backend scripting utility to retroactively seed the Void Sea using existing database logs.
+This document is the rigid specification for the Generator Phase. The Evaluator will use these exact criteria to judge the output.
 
-## Implementation Details (Strict API)
-1.  **Consent UI (`frontend/src/components/VoidReceipt.jsx`):**
-    *   Change the `castStatus` state logic. Introduce a new state `showConsent` (boolean, default false).
-    *   Clicking `CAST ANONYMOUSLY INTO VOID` sets `showConsent = true`.
-    *   When true, the right-side button panel is replaced by a warning box with two actions: `[ PROCEED TO CAST ]` and `[ CANCEL ]`.
-    *   `[ PROCEED TO CAST ]` triggers the actual API payload submission.
-2.  **Data Hydration Script (`backend/scripts/seed_sea.py`):**
-    *   Initialize SQLModel Session connected to `sqlite:///cyber_priest.db`.
-    *   Select all `ConfessionLog` rows.
-    *   For each row, create a `VoidReceiptLog` mapping `content` -> `confession_text`, `counterfactual_prob` -> `prob_score`. If the verdict text contains `<catharsis>`, set `is_catharsis = True`. Use fallback defaults for `z_val` and `m_bias`.
-    *   Commit to database.
+## 1. Feature: The Shadow of Tomorrow (Future Aspiration)
+**Status:** REQUIRED (Architectural Addition)
+*   **UI Update (`CyberOnboarding.jsx` / `CyberLogin.jsx`):** The confession form must be split or augmented to accept `future_aspiration` as an **Optional** field. It should be styled cold and dehumanized (e.g., "Declare a required future state").
+*   **API Update (`POST /generate_verdict`):** Accept `future_aspiration: Optional[str]`.
+*   **Prompt Update:** If `future_aspiration` is present, prompt the LLM to structurally prove that the past regret is a mandatory boundary condition for this future aspiration. The tone must remain mathematical and fatalistic (Radiohead aesthetic).
 
-## EXACT Testing Criteria (Acceptance Criteria)
-1. **Double Opt-In:** The user cannot cast an anomaly without clicking exactly two affirmative buttons outlining the anonymity rules.
-2. **Hydration Success:** Running the python script successfully populates `VoidReceiptLog` without crashing or violating DB constraints, and reloading the frontend Altar visibly shows these seeded receipts drifting.
+## 2. Feature: The Black Box Archive (History Persistence)
+**Status:** REQUIRED (New Endpoint & Component)
+*   **API Update (`GET /api/users/{user_id}/logs`):** A new endpoint returning a list of `ConfessionLog` objects. Must return `id`, `created_at`, `content` (the prompt), and `verdict_text` (the LLM output).
+*   **UI Update (`UserDashboard.jsx`):** Add an "ARCHIVES" tab or container.
+*   **Component (`ConfessionArchive.jsx`):** A new component that renders the list of logs. Dates formatted as `HEX` timestamps or cold terminals.
+*   **Interaction:** Clicking a log triggers a typewriter decryption effect revealing the text.
+
+## 3. Feature: Causal Half-Life (Graph Simplification)
+**Status:** REQUIRED (Data Viz Modification)
+*   **API Update (`GET /api/users/{user_id}/graph`):** Ensure `trigger_count` and `last_triggered_at` are provided for all nodes.
+*   **Component Update (`KarmaNetwork3D.jsx`):**
+    *   **Decay Logic:** Nodes with `trigger_count == 1` should be physically smaller and have an opacity `< 1` (e.g., 0.4). Nodes with `trigger_count > 1` are "Gravity Wells" (size multiplier = `trigger_count * 1.5`, max threshold).
+    *   **Noise Filter:** A range slider that filters out nodes based on `trigger_count` or age. If slider is shifted, low-tier nodes are removed from the `processedData` sent to `react-force-graph-3d`.
+
+## 4. Evaluator Acceptance Criteria
+1.  Can a user submit a confession *with* a future aspiration, and does the UI pass it to the backend?
+2.  Does the dashboard successfully call `GET /api/users/{user_id}/logs` and display previous sessions?
+3.  Does the 3D Graph visually distinguish between single-use nodes and frequent nodes? Does the `NOISE CANCELLATION` slider successfully hide the weak nodes?

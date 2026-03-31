@@ -19,10 +19,13 @@ function AppContent() {
   const { t, toggleLanguage, language } = useLanguage();
   const [appState, setAppState] = useState('login'); // 'login' | 'onboarding' | 'confessional'
   const [activeTab, setActiveTab] = useState('altar'); // 'altar' | 'archives'
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState('');   // username string
+  const [soulId, setSoulId] = useState('');   // UUID string for API calls
+  const [resonanceAlert, setResonanceAlert] = useState(null); // null | { count: number }
   
   const [messages, setMessages] = useState([]);
   const [confession, setConfession] = useState('');
+  const [futureAspiration, setFutureAspiration] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [viewingReceipt, setViewingReceipt] = useState(null);
@@ -73,7 +76,11 @@ function AppContent() {
       const response = await fetch('http://localhost:8888/confess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, username: userId }),
+        body: JSON.stringify({ 
+          messages: newMessages, 
+          username: userId,
+          future_aspiration: futureAspiration.trim() || null
+        }),
       });
 
       if (!response.ok) {
@@ -110,6 +117,33 @@ function AppContent() {
     } finally {
       setIsComputing(false);
     }
+  };
+
+  // Resonance polling: check for new signals when in confessional
+  useEffect(() => {
+    if (appState !== 'confessional' || !soulId) return;
+    const checkResonances = async () => {
+      try {
+        const res = await fetch(`http://localhost:8888/api/receipts/resonances/${soulId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.new_resonance_count > 0) {
+            setResonanceAlert({ count: data.new_resonance_count });
+          }
+        }
+      } catch(e) {}
+    };
+    checkResonances();
+    const interval = setInterval(checkResonances, 30000); // every 30s
+    return () => clearInterval(interval);
+  }, [appState, soulId]);
+
+  const dismissResonanceAlert = async () => {
+    setResonanceAlert(null);
+    if (!soulId) return;
+    try {
+      await fetch(`http://localhost:8888/api/receipts/resonances/${soulId}/dismiss`, { method: 'POST' });
+    } catch(e) {}
   };
 
   useEffect(() => {
@@ -206,8 +240,9 @@ function AppContent() {
     debounceTimer.current = setTimeout(() => handleSimulate(zVal, val), 150);
   };
 
-  const handleLoginSuccess = (isNewUser, usernameStr) => {
+  const handleLoginSuccess = (isNewUser, usernameStr, uuidStr) => {
     setUserId(usernameStr);
+    setSoulId(uuidStr || '');
     if (isNewUser) {
       setAppState('onboarding');
     } else {
@@ -215,8 +250,9 @@ function AppContent() {
     }
   };
 
-  const handleCalibrationComplete = (usernameStr) => {
+  const handleCalibrationComplete = (usernameStr, uuidStr) => {
     setUserId(usernameStr);
+    setSoulId(uuidStr || '');
     setAppState('confessional');
   };
 
@@ -235,7 +271,35 @@ function AppContent() {
     <>
       <BackgroundAudio isPlaying={appState !== 'login'} isCatharsisActive={isCatharsisActive} />
       <BackgroundMantras isCatharsisActive={isCatharsisActive} />
-      <VoidSeaEngine onReceiptClick={(r) => setViewingReceipt(r)} />
+      <VoidSeaEngine onReceiptClick={(r) => setViewingReceipt(r)} soulId={soulId} />
+      
+      {/* Resonance Interference Notification */}
+      {resonanceAlert && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-entry"
+          onClick={dismissResonanceAlert}
+        >
+          <div
+            className="relative border border-cyan-500/50 bg-black p-10 max-w-md text-center font-mono shadow-[0_0_60px_rgba(0,240,255,0.15)] animate-glitch-overlay"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-[10px] uppercase tracking-[0.4em] text-cyan-500 mb-6 animate-pulse">
+              {t('resonance_alert_title')}
+            </div>
+            <div className="text-4xl mb-4 text-cyan-400">⌁</div>
+            <p className="text-gray-300 text-sm leading-loose mb-2">{t('resonance_alert_body')}</p>
+            <p className="text-cyan-600 text-xs mb-8">
+              {t('resonance_alert_count')} <span className="text-cyan-400 font-bold text-lg">{resonanceAlert.count}</span>
+            </p>
+            <button
+              onClick={dismissResonanceAlert}
+              className="px-8 py-3 border border-cyan-700 text-cyan-500 uppercase tracking-widest text-xs hover:bg-cyan-900/30 hover:text-cyan-300 transition-all"
+            >
+              {t('resonance_alert_dismiss')}
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Language Toggle */}
       <button 
@@ -341,6 +405,22 @@ function AppContent() {
               className={`neon-input w-full p-4 border-b bg-transparent text-xl font-serif text-gray-200 focus:outline-none transition-all h-[150px] resize-none ${isTyping ? 'kinetic-active' : 'border-gray-600/20 focus:border-gray-500'}`}
               spellCheck="false"
             />
+            
+            {/* Future Aspiration Input (Optional) */}
+            <div className="w-full mt-6 animate-entry delay-200">
+               <div className="text-[10px] uppercase tracking-[0.2em] mb-2 text-gray-500 font-bold flex justify-between">
+                  <span>{t('future_label')}</span>
+                  <span className="opacity-50">{t('future_label_sub')}</span>
+               </div>
+               <textarea
+                value={futureAspiration}
+                onChange={(e) => setFutureAspiration(e.target.value)}
+                placeholder={t('future_placeholder')}
+                className="w-full p-3 bg-black/40 border border-gray-800 focus:border-gray-600 text-sm font-mono text-gray-400 focus:outline-none h-[60px] resize-none transition-all"
+                spellCheck="false"
+              />
+            </div>
+
             <button
               onClick={handleConfess}
               disabled={isGenerating}
@@ -482,6 +562,7 @@ function AppContent() {
           confession={confession} 
           zVal={zVal} 
           mBias={mBias} 
+          soulId={soulId}
           onClose={() => setShowReceipt(false)} 
         />
       )}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from './LanguageContext';
 
-export default function VoidReceipt({ result, confession, zVal, mBias, onClose, isReadOnly = false }) {
+export default function VoidReceipt({ result, confession, zVal, mBias, onClose, isReadOnly = false, soulId = null }) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
@@ -56,7 +56,8 @@ EVERYTHING IN ITS RIGHT PLACE.
         z_val: Number(zVal),
         m_bias: Number(mBias),
         prob_score: Number(prob) || 0,
-        is_catharsis: Boolean(result?.verdict?.includes('<catharsis>'))
+        is_catharsis: Boolean(result?.verdict?.includes('<catharsis>')),
+        soul_id: soulId || null
       };
       
       const response = await fetch('http://localhost:8888/api/receipts/cast', {

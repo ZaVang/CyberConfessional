@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from uuid import UUID
 
 from ..db.database import get_session
-from ..models.domain import SoulMatrix, CausalMemoryNode, CausalMemoryEdge
+from ..models.domain import SoulMatrix, CausalMemoryNode, CausalMemoryEdge, ConfessionLog
 
 router = APIRouter()
 
@@ -85,3 +85,27 @@ def get_user_graph(user_id: UUID, session: Session = Depends(get_session)):
         "nodes": nodes_res,
         "edges": edges_res
     }
+
+@router.get("/{user_id}/logs")
+def get_user_logs(user_id: UUID, session: Session = Depends(get_session)):
+    """Fetch the history of confessions/verdicts for a specific user"""
+    # 1. Fetch user info
+    user = session.get(SoulMatrix, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # 2. Fetch Logs sorted by time
+    log_statement = select(ConfessionLog).where(ConfessionLog.soul_id == user_id).order_by(ConfessionLog.created_at.desc())
+    logs = session.exec(log_statement).all()
+    
+    return [{
+        "id": l.id,
+        "created_at": l.created_at,
+        "content": l.content,
+        "verdict_text": l.verdict_text,
+        "future_aspiration": l.future_aspiration,
+        "counterfactual_prob": l.counterfactual_prob,
+        "z_name": l.z_name,
+        "m_name": l.m_name,
+        "mermaid_chart": l.mermaid_chart
+    } for l in logs]

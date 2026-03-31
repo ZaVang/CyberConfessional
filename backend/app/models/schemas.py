@@ -76,6 +76,7 @@ class ParsingResult(BaseModel):
 class ConfessionRequest(BaseModel):
     username: str = Field(..., description="The user's calling name mapped to the database")
     messages: list[Message] = Field(..., description="The history of conversation.")
+    future_aspiration: Optional[str] = Field(None, description="Optional future goal declared by the user")
 
 class ConfessionResponse(BaseModel):
     is_complete: bool = Field(..., description="If false, the system is asking a clarification question")
