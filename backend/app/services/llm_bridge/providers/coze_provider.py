@@ -23,6 +23,7 @@ Integrates with Coze Bot API for chat completions.
 from __future__ import annotations
 
 import aiohttp
+import asyncio
 import json
 import logging
 from typing import Optional, Type
@@ -102,11 +103,12 @@ class CozeProvider(BaseProvider):
             "Content-Type": "application/json"
         }
 
-        url = f"{self.BASE_URL}/v3/chat"
-
+        # Step 1: Create chat
+        chat_url = f"{self.BASE_URL}/v3/chat"
+        
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                url,
+                chat_url,
                 headers=headers,
                 json=request_body
             ) as response:
@@ -116,8 +118,125 @@ class CozeProvider(BaseProvider):
 
                 result = await response.json()
 
-        # Parse Coze response
-        return self._parse_response(result, response_model)
+        # Check for errors
+        code = result.get("code", 0)
+        if code != 0:
+            raise RuntimeError(f"Coze API returned error: {result.get('msg', 'Unknown error')}")
+
+        data = result.get("data", {})
+        chat_id = data.get("id")
+        conversation_id = data.get("conversation_id")
+        
+        if not chat_id:
+            raise RuntimeError(f"No chat_id in response: {result}")
+
+        # Step 2: Poll for completion
+        content = await self._poll_for_response(
+            session=aiohttp.ClientSession(),
+            bot_id=bot_id,
+            chat_id=chat_id,
+            conversation_id=conversation_id,
+            headers=headers
+        )
+
+        # Parse structured output if requested
+        parsed = None
+        if response_model and content:
+            try:
+                json_content = self._extract_json(content)
+                if json_content:
+                    parsed = response_model.model_validate(json_content)
+            except Exception as e:
+                logger.warning(f"Failed to parse structured output: {e}")
+
+        return UnifiedResponse(
+            provider="coze",
+            model=model,
+            content=content,
+            usage=UsageInfo(),
+            stop_reason="stop",
+            model_id=chat_id,
+            parsed=parsed,
+        )
+
+    async def _poll_for_response(
+        self,
+        session: aiohttp.ClientSession,
+        bot_id: str,
+        chat_id: str,
+        conversation_id: str,
+        headers: dict,
+        max_wait: int = 60,
+        poll_interval: float = 1.0,
+    ) -> str:
+        """Poll for chat completion and return the response content."""
+        retrieve_url = f"{self.BASE_URL}/v3/chat/retrieve"
+        
+        try:
+            elapsed = 0
+            while elapsed < max_wait:
+                params = {
+                    "conversation_id": conversation_id,
+                    "chat_id": chat_id,
+                }
+                
+                async with session.get(retrieve_url, headers=headers, params=params) as response:
+                    if response.status != 200:
+                        error_text = await response.text()
+                        raise RuntimeError(f"Coze retrieve error ({response.status}): {error_text}")
+                    
+                    result = await response.json()
+                
+                data = result.get("data", {})
+                status = data.get("status", "")
+                
+                if status == "completed":
+                    # Get the messages
+                    return await self._get_messages(session, conversation_id, chat_id, headers)
+                
+                elif status == "failed":
+                    error = data.get("last_error", {})
+                    raise RuntimeError(f"Chat failed: {error.get('msg', 'Unknown error')}")
+                
+                # Still in progress, wait and retry
+                await asyncio.sleep(poll_interval)
+                elapsed += poll_interval
+            
+            raise RuntimeError(f"Chat timed out after {max_wait}s")
+        
+        finally:
+            await session.close()
+
+    async def _get_messages(
+        self,
+        session: aiohttp.ClientSession,
+        conversation_id: str,
+        chat_id: str,
+        headers: dict,
+    ) -> str:
+        """Get messages from completed chat."""
+        messages_url = f"{self.BASE_URL}/v3/chat/message/list"
+        
+        params = {
+            "conversation_id": conversation_id,
+            "chat_id": chat_id,
+        }
+        
+        async with session.get(messages_url, headers=headers, params=params) as response:
+            if response.status != 200:
+                error_text = await response.text()
+                raise RuntimeError(f"Coze messages error ({response.status}): {error_text}")
+            
+            result = await response.json()
+        
+        data = result.get("data", [])
+        
+        # Find the assistant's answer
+        for msg in data:
+            if msg.get("role") == "assistant" and msg.get("type") == "answer":
+                return msg.get("content", "")
+        
+        return ""
 
     def _build_user_message(self, messages: list[dict]) -> str:
         """Build a single user message from conversation history."""
@@ -132,56 +251,6 @@ class CozeProvider(BaseProvider):
             elif role == "assistant":
                 parts.append(f"[助手]\n{content}\n")
         return "\n".join(parts)
-
-    def _parse_response(
-        self,
-        result: dict,
-        response_model: Optional[Type[BaseModel]] = None
-    ) -> UnifiedResponse:
-        """Parse Coze API response into UnifiedResponse."""
-        # Coze v3 response structure
-        code = result.get("code", 0)
-        if code != 0:
-            raise RuntimeError(f"Coze API returned error: {result.get('msg', 'Unknown error')}")
-
-        data = result.get("data", {})
-        
-        # Extract content from the response
-        # Coze returns messages in data.messages
-        messages = data.get("messages", [])
-        content = ""
-        
-        for msg in messages:
-            if msg.get("role") == "assistant" and msg.get("type") == "answer":
-                content = msg.get("content", "")
-                break
-
-        # Extract usage info if available
-        usage_data = data.get("usage", {})
-        usage = UsageInfo(
-            input_tokens=usage_data.get("input_tokens", 0),
-            output_tokens=usage_data.get("output_tokens", 0),
-            total_tokens=usage_data.get("token_count", 0),
-        )
-
-        # Parse structured output if requested
-        parsed = None
-        if response_model and content:
-            try:
-                # Try to extract JSON from the response
-                json_content = self._extract_json(content)
-                if json_content:
-                    parsed = response_model.model_validate(json_content)
-            except Exception as e:
-                logger.warning(f"Failed to parse structured output: {e}")
-
-        return UnifiedResponse(
-            content=content,
-            usage=usage,
-            stop_reason="stop",
-            model_id=data.get("chat_id", "coze-chat"),
-            parsed=parsed,
-        )
 
     def _extract_json(self, content: str) -> Optional[dict]:
         """Try to extract JSON from the response content."""
