@@ -6,6 +6,7 @@ Import and register all available provider adapters here.
 
 from .anthropic_provider import AnthropicProvider
 from .base import BaseProvider
+from .coze_provider import CozeProvider
 from .google_provider import GoogleProvider
 from .openai_provider import OpenAIProvider
 
@@ -15,6 +16,7 @@ PROVIDER_REGISTRY: dict[str, type[BaseProvider]] = {
     "anthropic": AnthropicProvider,
     "google": GoogleProvider,
     "vertexai": GoogleProvider,  # same adapter, different init params
+    "coze": CozeProvider,  # Coze Bot API provider
 }
 
 __all__ = [
@@ -22,5 +24,6 @@ __all__ = [
     "OpenAIProvider",
     "AnthropicProvider",
     "GoogleProvider",
+    "CozeProvider",
     "PROVIDER_REGISTRY",
 ]

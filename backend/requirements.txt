@@ -9,4 +9,5 @@ anthropic>=0.40
 google-genai>=1.0
 jinja2>=3.0.0
 sqlmodel>=0.0.14
+aiohttp>=3.8.0  # For Coze API requests
 

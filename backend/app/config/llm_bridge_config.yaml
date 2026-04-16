@@ -11,7 +11,7 @@ retry:
 log_usage: true
 
 # Default model alias to use when none is specified
-default_model: priest_gemini
+default_model: priest_coze
 
 # Model aliases and configurations
 models:
@@ -34,7 +34,17 @@ models:
     provider: google
     model: gemini-2.5-flash
     api_keys: ["${GOOGLE_API_KEY:-}"]
-
     max_tokens: 4096
     temperature: 0.7
+
+  # Coze Bot API integration
+  # Create a bot at https://www.coze.cn with the Cyber Priest persona
+  # Get your bot_id from the bot settings
+  # Get your access_token from https://www.coze.cn/open/oauth/pats
+  priest_coze:
+    provider: coze
+    model: "${COZE_BOT_ID:-}"  # Your Coze Bot ID
+    api_keys: ["${COZE_ACCESS_TOKEN:-}"]  # Your Coze Personal Access Token
+    # Coze-specific options (passed via kwargs)
+    # user_id: "default_user"  # Optional: User identifier
 

@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前行者人格测试 | Forward Type</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-hover: #1a1a25;
+            --text-primary: #e8e6e3;
+            --text-secondary: #9a9a9a;
+            --text-muted: #666;
+            --accent-warm: #d4a574;
+            --accent-cool: #7eb8c9;
+            --accent-glow: rgba(212, 165, 116, 0.15);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gradient-warm: linear-gradient(135deg, #d4a574 0%, #c9937a 100%);
+            --gradient-cool: linear-gradient(135deg, #7eb8c9 0%, #6a9eb0 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Background Effects */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, var(--accent-glow) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(126, 184, 201, 0.08) 0%, transparent 40%);
+            animation: drift 20s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-2%, 1%) rotate(1deg); }
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Landing Screen */
+        .landing {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient-warm);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: 0.1em;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            letter-spacing: 0.3em;
+        }
+
+        .tagline {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+
+        .tagline-en {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 50px;
+        }
+
+        .dimensions-preview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 50px;
+            width: 100%;
+        }
+
+        .dim-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .dim-card:hover {
+            border-color: var(--accent-warm);
+            transform: translateY(-2px);
+        }
+
+        .dim-name {
+            font-weight: 600;
+            color: var(--accent-warm);
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .dim-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .btn {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 16px 48px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-warm);
+            color: var(--bg-dark);
+            box-shadow: 0 4px 20px rgba(212, 165, 116, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(212, 165, 116, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 12px 32px;
+            font-size: 0.9rem;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 40px;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--bg-card);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-warm);
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        /* Question Screen */
+        .question-screen {
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 32px 28px;
+            margin-bottom: 24px;
+        }
+
+        .question-number {
+            font-size: 0.75rem;
+            color: var(--accent-warm);
+            letter-spacing: 0.2em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin-bottom: 28px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .option:hover {
+            border-color: var(--accent-warm);
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .option.selected {
+            border-color: var(--accent-warm);
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--text-primary);
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            background: var(--bg-card);
+            margin-right: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+        }
+
+        .option.selected .option-letter {
+            background: var(--accent-warm);
+            color: var(--bg-dark);
+        }
+
+        /* Result Screen */
+        .result-screen {
+            padding-top: 40px;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 0.2em;
+            margin-bottom: 16px;
+        }
+
+        .result-type {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: var(--gradient-warm);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .result-name {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .result-tagline {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .result-dimensions {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .dim-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .dim-badge.high {
+            background: rgba(212, 165, 116, 0.2);
+            color: var(--accent-warm);
+        }
+
+        .dim-badge.low {
+            background: rgba(126, 184, 201, 0.2);
+            color: var(--accent-cool);
+        }
+
+        .result-description {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 32px 28px;
+            margin-bottom: 24px;
+        }
+
+        .result-section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1rem;
+            color: var(--accent-warm);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-section-title::before {
+            content: '';
+            display: block;
+            width: 3px;
+            height: 16px;
+            background: var(--gradient-warm);
+            border-radius: 2px;
+        }
+
+        .result-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+            margin-bottom: 20px;
+        }
+
+        .result-text:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-advice {
+            background: rgba(126, 184, 201, 0.08);
+            border: 1px solid rgba(126, 184, 201, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .advice-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .result-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .loading-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-warm);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: auto;
+        }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .footer-link {
+            color: var(--accent-warm);
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2.2rem;
+            }
+
+            .dimensions-preview {
+                grid-template-columns: 1fr;
+            }
+
+            .result-type {
+                font-size: 2.5rem;
+            }
+
+            .result-dimensions {
+                flex-wrap: wrap;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Animation for option selection */
+        @keyframes selectPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+
+        .option.selected {
+            animation: selectPulse 0.2s ease;
+        }
+
+        /* Type badge in result */
+        .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <!-- Landing Screen -->
+        <div id="landing-screen" class="screen landing active">
+            <h1 class="logo">前行者</h1>
+            <p class="subtitle">FORWARD TYPE</p>
+            
+            <p class="tagline">你不是被困在过去，<br>你只是在整理行李。</p>
+            <p class="tagline-en">"You're not stuck in the past, you're just packing your bags."</p>
+            
+            <div class="dimensions-preview">
+                <div class="dim-card">
+                    <div class="dim-name">R · 回望倾向</div>
+                    <div class="dim-desc">翻篇快 or 常回头</div>
+                </div>
+                <div class="dim-card">
+                    <div class="dim-name">E · 经验萃取</div>
+                    <div class="dim-desc">不长记性 or 汲取智慧</div>
+                </div>
+                <div class="dim-card">
+                    <div class="dim-name">F · 未来引力</div>
+                    <div class="dim-desc">活在当下 or 被未来召唤</div>
+                </div>
+                <div class="dim-card">
+                    <div class="dim-name">W · 行动意志</div>
+                    <div class="dim-desc">想得多 or 说走就走</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="startTest()">开始测试</button>
+            
+            <div class="footer">
+                <p class="footer-text">探索 16 种前行者人格 · 结合赛博忏悔室</p>
+            </div>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="question-screen" class="screen question-screen">
+            <div class="progress-container">
+                <p class="progress-text"><span id="current-q">1</span> / <span id="total-q">22</span></p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="question-card">
+                <p class="question-number" id="question-number">第一题</p>
+                <p class="question-text" id="question-text"></p>
+                
+                <div class="options" id="options-container">
+                    <!-- Options will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen loading-screen">
+            <p class="loading-text">正在计算你的前行者类型...</p>
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen result-screen">
+            <div class="result-header">
+                <p class="result-label">你是哪种前行者？</p>
+                <span class="type-badge" id="type-badge">R+ E+ F+ W+</span>
+                <h2 class="result-type" id="result-type">HERO</h2>
+                <p class="result-name" id="result-name">英雄</p>
+                <p class="result-tagline" id="result-tagline">每道伤疤都是勋章</p>
+                
+                <div class="result-dimensions" id="result-dimensions">
+                    <!-- Dimension badges -->
+                </div>
+            </div>
+            
+            <div class="result-description">
+                <h3 class="result-section-title">人格解读</h3>
+                <p class="result-text" id="result-description"></p>
+            </div>
+            
+            <div class="result-advice">
+                <p class="advice-icon">🌱</p>
+                <h3 class="result-section-title">前行建议</h3>
+                <p class="result-text" id="result-advice"></p>
+            </div>
+            
+            <div class="result-actions">
+                <button class="btn btn-primary" onclick="restartTest()">再次测试</button>
+                <button class="btn btn-secondary" onclick="goToConfessional()">进入赛博忏悔室</button>
+            </div>
+            
+            <div class="footer">
+                <p class="footer-text">前行者人格测试 · Forward Type</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA =====
+        
+        // 22 Questions with dimension scores (R, E, F, W)
+        // Each option has a score array [R_score, E_score, F_score, W_score]
+        // Score range: 0-3 per dimension per option
+        const questions = [
+            {
+                text: "当你想起过去的一个遗憾，你的第一反应是？",
+                options: [
+                    { text: "算了，都过去了，向前看", scores: [-1, 0, 1, 1] },
+                    { text: "如果当时那样做就好了...", scores: [2, 1, -1, 0] },
+                    { text: "这段经历教会了我什么？", scores: [1, 2, 1, 0] },
+                    { text: "想这些没用，直接行动才重要", scores: [-1, 0, 1, 2] }
+                ]
+            },
+            {
+                text: "朋友问你「如果重来一次会怎样」，你会怎么回答？",
+                options: [
+                    { text: "人生没有如果，活在当下", scores: [-1, 0, 0, 1] },
+                    { text: "我可能会做出不同的选择吧...", scores: [2, 0, -1, 0] },
+                    { text: "我觉得那段经历塑造了现在的我", scores: [1, 2, 0, 0] },
+                    { text: "不重要，重要的是现在怎么做", scores: [-1, 0, 2, 2] }
+                ]
+            },
+            {
+                text: "你更害怕哪一种未来？",
+                options: [
+                    { text: "未来和过去一样，一成不变", scores: [0, 1, 2, 1] },
+                    { text: "重复同样的错误，走同样的弯路", scores: [1, 2, 0, 0] },
+                    { text: "被时代抛弃，错过所有可能性", scores: [-1, 0, 2, 0] },
+                    { text: "不知道自己想要什么样的未来", scores: [1, 0, 0, -1] }
+                ]
+            },
+            {
+                text: "周末下午，你更想做什么？",
+                options: [
+                    { text: "翻翻老照片，和老朋友聊天", scores: [2, 1, -1, -1] },
+                    { text: "规划下一个旅行目的地", scores: [-1, 0, 2, 1] },
+                    { text: "整理房间，处理积压的事情", scores: [0, 1, 0, 2] },
+                    { text: "发呆、晒太阳、什么都不想", scores: [0, -1, 0, 0] }
+                ]
+            },
+            {
+                text: "看到朋友圈里老同学的成功，你会？",
+                options: [
+                    { text: "点个赞，继续自己的生活", scores: [-1, 0, 1, 0] },
+                    { text: "回想当年一起的时光，感慨万千", scores: [2, 0, -1, 0] },
+                    { text: "暗暗较劲，自己也要更努力", scores: [0, 1, 1, 1] },
+                    { text: "思考：什么才是我真正想要的？", scores: [0, 2, 1, 0] }
+                ]
+            },
+            {
+                text: "你搬家时最可能保留什么？",
+                options: [
+                    { text: "那些充满回忆的老物件", scores: [2, 1, -1, 0] },
+                    { text: "经验和技能，其他都可以重新买", scores: [-1, 2, 0, 1] },
+                    { text: "对未来的憧憬和计划清单", scores: [-1, 0, 2, 1] },
+                    { text: "什么都不想保留，轻装上阵", scores: [-2, -1, 0, 1] }
+                ]
+            },
+            {
+                text: "睡前最后一刻，你在思考什么？",
+                options: [
+                    { text: "今天做得不够好的地方", scores: [2, 1, 0, 0] },
+                    { text: "明天要完成的任务清单", scores: [0, 1, 1, 1] },
+                    { text: "人生的意义到底是什么", scores: [1, 1, 1, -1] },
+                    { text: "希望明天能有新的体验", scores: [-1, 0, 2, 1] }
+                ]
+            },
+            {
+                text: "面对一个需要从头开始的机会，你会？",
+                options: [
+                    { text: "犹豫不决，害怕失去已有的东西", scores: [2, 0, 0, -2] },
+                    { text: "欣喜若狂，终于可以重新开始了", scores: [-1, 0, 1, 2] },
+                    { text: "谨慎评估：过去积累的经验能用上吗？", scores: [1, 2, 0, 0] },
+                    { text: "管他呢，先做了再说", scores: [-1, -1, 1, 2] }
+                ]
+            },
+            {
+                text: "你手机相册里最多的是什么照片？",
+                options: [
+                    { text: "和家人朋友的合照", scores: [1, 0, -1, 0] },
+                    { text: "旅行和风景照", scores: [-1, 0, 1, 1] },
+                    { text: "工作/学习的记录", scores: [0, 1, 0, 1] },
+                    { text: "随手拍的日常，几乎不整理", scores: [0, -1, 0, 0] }
+                ]
+            },
+            {
+                text: "听到一首老歌时，你首先想到的是？",
+                options: [
+                    { text: "那段时间的人和事", scores: [2, 0, -1, 0] },
+                    { text: "音乐本身的美好", scores: [0, 0, 0, 0] },
+                    { text: "现在的生活和那时候有什么不同", scores: [1, 1, 0, 0] },
+                    { text: "下次旅行要去哪里听现场", scores: [-1, 0, 2, 1] }
+                ]
+            },
+            {
+                text: "如果可以回到过去，你会选择哪个时刻？",
+                options: [
+                    { text: "不会回去，过去就让它过去吧", scores: [-2, 0, 1, 1] },
+                    { text: "某个遗憾的十字路口", scores: [2, 1, 0, 0] },
+                    { text: "某个让我成长的关键时刻", scores: [1, 2, 0, 0] },
+                    { text: "为什么要回去？未来不是更值得期待吗", scores: [-1, 0, 2, 1] }
+                ]
+            },
+            {
+                text: "你更喜欢什么样的故事结局？",
+                options: [
+                    { text: "开放式结局，留给想象空间", scores: [0, 0, 1, -1] },
+                    { text: "大团圆，所有人都有了交代", scores: [1, 0, 0, 0] },
+                    { text: "主角找到人生新方向", scores: [-1, 1, 1, 1] },
+                    { text: "戛然而止，意犹未尽", scores: [0, 0, 1, 0] }
+                ]
+            },
+            {
+                text: "有人说「人生没有白走的路」，你认同吗？",
+                options: [
+                    { text: "认同，每段经历都有意义", scores: [0, 2, 0, 0] },
+                    { text: "部分认同，有些弯路真的可以避免", scores: [1, 1, 0, 0] },
+                    { text: "不认同，有些路就是浪费时间", scores: [0, 0, 1, 1] },
+                    { text: "管它白不白走，走就是了", scores: [-1, 0, 1, 2] }
+                ]
+            },
+            {
+                text: "深夜失眠时，你通常在想什么？",
+                options: [
+                    { text: "过去的种种得失", scores: [2, 0, -1, 0] },
+                    { text: "明天/未来要面对的挑战", scores: [0, 1, 1, 0] },
+                    { text: "人生的意义和方向", scores: [1, 1, 1, -1] },
+                    { text: "什么都不想，就是睡不着", scores: [0, -1, 0, 0] }
+                ]
+            },
+            {
+                text: "你更愿意参加哪种聚会？",
+                options: [
+                    { text: "老朋友重聚，聊聊往事", scores: [2, 0, -1, 0] },
+                    { text: "认识新朋友的社交场合", scores: [-1, 0, 1, 1] },
+                    { text: "主题分享会，能学到新东西", scores: [0, 2, 1, 0] },
+                    { text: "独自一人的户外活动", scores: [-1, 0, 1, 1] }
+                ]
+            },
+            {
+                text: "对于「放下过去才能继续前行」这句话，你怎么看？",
+                options: [
+                    { text: "放下不代表遗忘，而是释怀", scores: [0, 1, 1, 1] },
+                    { text: "有些事永远放不下，但也阻挡不了我前进", scores: [2, 1, 1, 0] },
+                    { text: "不一定要放下，带着它一起走也可以", scores: [2, 0, 0, 0] },
+                    { text: "为什么要放下？过去是前进的动力", scores: [1, 1, 0, 0] }
+                ]
+            },
+            {
+                text: "你更倾向于哪种生活节奏？",
+                options: [
+                    { text: "稳定规律，日复一日", scores: [0, 0, 0, -1] },
+                    { text: "时而激昂，时而平静", scores: [0, 1, 1, 1] },
+                    { text: "不断探索，永不止步", scores: [-1, 0, 2, 2] },
+                    { text: "随心所欲，不被定义", scores: [0, 0, 1, 1] }
+                ]
+            },
+            {
+                text: "当别人问起你的「当年勇」，你会？",
+                options: [
+                    { text: "滔滔不绝，那是我的黄金时代", scores: [2, 0, -1, 0] },
+                    { text: "轻描淡写，现在才是最好的时光", scores: [-1, 1, 1, 0] },
+                    { text: "分享经验，希望对对方有帮助", scores: [0, 2, 0, 1] },
+                    { text: "没什么好说的，一切向前看", scores: [-1, 0, 1, 1] }
+                ]
+            },
+            {
+                text: "你更容易为什么事感到后悔？",
+                options: [
+                    { text: "那些没说出口的话，没做出的选择", scores: [2, 1, 0, -1] },
+                    { text: "因为犹豫而错过的机会", scores: [0, 1, 1, 1] },
+                    { text: "那些冲动之下做出的决定", scores: [0, 1, 0, 0] },
+                    { text: "几乎不后悔，做了就承担", scores: [-1, 0, 1, 2] }
+                ]
+            },
+            {
+                text: "如果明天就是世界末日，你会怎么度过今天？",
+                options: [
+                    { text: "和最爱的人待在一起", scores: [1, 0, -1, 0] },
+                    { text: "去做一直想做却没做的事", scores: [-1, 0, 1, 2] },
+                    { text: "回顾一生，写下想说的话", scores: [2, 1, 0, 0] },
+                    { text: "和平常一样，谁知道呢", scores: [0, 0, 0, 0] }
+                ]
+            },
+            {
+                text: "你更喜欢哪种成长方式？",
+                options: [
+                    { text: "在挫折中成长，吃一堑长一智", scores: [1, 2, 0, 0] },
+                    { text: "不断尝试新事物，在体验中成长", scores: [-1, 0, 1, 2] },
+                    { text: "稳扎稳打，一步一个脚印", scores: [0, 1, 0, 0] },
+                    { text: "随心而动，成长是自然发生的", scores: [0, 0, 1, 1] }
+                ]
+            },
+            {
+                text: "你收到一条久未联系的朋友的消息，第一反应是？",
+                options: [
+                    { text: "Ta还记得我，好感动", scores: [1, 0, -1, 0] },
+                    { text: "要约出来见面吗？好久没聚了", scores: [0, 0, 1, 1] },
+                    { text: "Ta找我有什么事吗？", scores: [0, 1, 0, 0] },
+                    { text: "回完消息继续忙我的事", scores: [-1, 0, 1, 0] }
+                ]
+            }
+        ];
+
+        // 16 Personality Types
+        const personalityTypes = {
+            // R+ (High Retrospection) Types
+            "R+E+F+W+": {
+                code: "HERO",
+                name: "英雄",
+                tagline: "每道伤疤都是勋章，背负过去却依然向前冲锋",
+                description: "你是那种把苦难当养料的人。过去的伤痛不会拖垮你，反而会成为你的勋章和力量源泉。你有能力带着沉重的过去依然冲锋陷阵，这种在逆境中绽放的特质，让你成为身边人眼中的光。",
+                advice: "记得偶尔停下来，抱抱那个一直在战斗的自己。英雄也需要休息，而你的伤疤不是负担，是你活过的证明。"
+            },
+            "R+E+F+W-": {
+                code: "DREAM",
+                name: "梦想家",
+                tagline: "在过去中寻找意义，用未来愿景治愈自己",
+                description: "你是一个善于编织故事的人。过去的遗憾在你眼中不是伤口，而是素材；未来的美好在你心中不是幻想，而是治愈。你用愿景对抗伤痛，用故事赋予生命意义。",
+                advice: "梦想是你的翅膀，但别忘了偶尔落地走走。真正的治愈不只是想象，还需要一步一个脚印的践行。"
+            },
+            "R+E+F-W+": {
+                code: "VETERAN",
+                name: "老兵",
+                tagline: "经验丰富但困在过去，用行动麻痹自己",
+                description: "你经历了太多，以至于「动起来」成了你的本能反应。不是因为热爱，而是因为停下来就要面对。你是那种宁愿一直在路上，也不愿在寂静中听见内心声音的人。",
+                advice: "战友，你已经战斗得够久了。有时候最大的勇气不是继续冲锋，而是允许自己坐下来，好好看看走过的路。"
+            },
+            "R+E+F-W-": {
+                code: "LOOP",
+                name: "循环者",
+                tagline: "反复咀嚼过去，陷入停滞",
+                description: "你是那个在原地打转的人。过去像一个漩涡，你一次次被卷入，却找不到出口。不是不想前进，而是那个结怎么也解不开。",
+                advice: "每个LOOP都有一个出口，你只是还没找到。也许答案不在思考里，而在行动中——哪怕是小小的一步。"
+            },
+            "R+E-F+W+": {
+                code: "PHOENIX",
+                name: "凤凰",
+                tagline: "烧毁过去，浴火重生",
+                description: "你有壮士断腕的魄力。当过去成为负担，你选择一把火烧尽，然后在废墟上重新开始。这种彻底的决绝，是你的天赋，也是你的诅咒。",
+                advice: "重生是美丽的，但别忘了在燃烧之前带走那几颗珍贵的火星。有些东西值得保留，哪怕只是一点微光。"
+            },
+            "R+E-F+W-": {
+                code: "SPARK",
+                name: "火花",
+                tagline: "想要重新开始，却迟迟不动",
+                description: "你心里有一团火，渴望燃烧，渴望改变。但那团火总是在燃烧前的最后一刻熄灭，于是你一次次点燃，又一次次等待。你是那种「想动但身体不动」的人。",
+                advice: "别等那个完美的时机，它不会来。从最小的行动开始，让「动起来」变成习惯，而不是一次性的壮举。"
+            },
+            "R+E-F-W+": {
+                code: "NOMAD",
+                name: "游牧者",
+                tagline: "穿梭时空，不在此处也不在彼处",
+                description: "你的灵魂不属于任何地方。过去是你回不去的远方，未来是你触不到的彼岸，而「现在」只是你路过的驿站。你一直在走，但从不驻足。",
+                advice: "试着在某个地方停留久一点。不是为了停留本身，而是为了体验「落地」的感觉。那也是一种风景。"
+            },
+            "R+E-F-W-": {
+                code: "DRIFT",
+                name: "漂流者",
+                tagline: "随波逐流，不知去向",
+                description: "你是那种「随便」的人。不是因为豁达，而是因为无所谓。过去漂走了，未来看不清，现在只是水流的惯性。你可能不知道自己是谁，但至少知道自己不想要什么。",
+                advice: "漂流也是一种漂流法，但至少你可以选择漂向哪里。哪怕只是一点点主动，都能让方向变得不同。"
+            },
+            // R- (Low Retrospection) Types
+            "R-E+F+W+": {
+                code: "ARROW",
+                name: "箭矢",
+                tagline: "经验丰富+目标明确+行动迅猛，终极前行者",
+                description: "你是完美的前行者。过去的经验被你萃取成智慧，未来在你眼中清晰可见，而你的行动力如同离弦之箭。你是那种说到做到、箭无虚发的人。",
+                advice: "偶尔放慢脚步不是为了休息，而是为了确认方向是否正确。箭射出去了就收不回来，所以瞄准比发射更重要。"
+            },
+            "R-E+F+W-": {
+                code: "COMPASS",
+                name: "罗盘",
+                tagline: "知道方向，但还在蓄力",
+                description: "你是一个有方向感的人。你清楚地知道自己要去哪里，过去的经验给了你智慧，未来的愿景给了你动力。只是那股推你出发的力量，还在积蓄中。",
+                advice: "方向已经对了，现在需要的是迈出第一步。不要等到完全准备好，因为没有人能完全准备好。边走边准备，才是常态。"
+            },
+            "R-E+F-W+": {
+                code: "BLADE",
+                name: "利刃",
+                tagline: "披荆斩棘但不知道去哪",
+                description: "你有惊人的行动力和解决问题的能力，但这一切似乎没有方向。你在战斗，却不知道敌人是谁；你在奔跑，却不知道终点在哪。这种空转的勤奋，是你最大的困惑。",
+                advice: "停下挥舞的剑，问问自己：我为什么要战斗？找到「为什么」，才能让「怎么做」有意义。"
+            },
+            "R-E+F-W-": {
+                code: "SEED",
+                name: "种子",
+                tagline: "潜力无限，还在等待破土",
+                description: "你是一颗沉睡的种子。内在积蓄着巨大的能量，但还没有找到发芽的时机和方向。你不缺乏能力，只是还没有决定要成为什么。",
+                advice: "种子不需要着急。给自己时间和空间，但不要忘记：再好的种子，不破土就永远不会知道外面有什么。"
+            },
+            "R-E-F+W+": {
+                code: "METEOR",
+                name: "流星",
+                tagline: "燃烧自己，冲向未来",
+                description: "你是那种活在明天的人。过去于你是空白，未来于你是全部。你不是在前进，你是在飞奔——带着一种近乎燃烧的热情，冲向那个让你心动的未来。",
+                advice: "流星虽美，但燃尽了就什么都没有了。偶尔回头看看，不是为了停留，而是为了记得自己从哪里出发。"
+            },
+            "R-E-F+W-": {
+                code: "KITE",
+                name: "风筝",
+                tagline: "被未来牵引，但需要风",
+                description: "你的眼睛永远看着天空。那个关于未来的愿景牵引着你，让你想要飞起来。但你是风筝，需要风——需要外部的推动力才能腾空。",
+                advice: "学会自己制造风。等待风来是浪漫的，但主动起飞是成熟的。内在的驱动力，永远比外部的风更可靠。"
+            },
+            "R-E-F-W+": {
+                code: "WANDERER",
+                name: "旅人",
+                tagline: "一直在走，但不问去向",
+                description: "行走本身就是意义。你不是为了到达某个目的地而走，而是因为走在路上让你感到活着。过去不能困扰你，未来不需要规划，此刻的风景就是全部。",
+                advice: "浪迹天涯是诗，但请记得在某个地方留下联系方式。偶尔的牵挂和被牵挂，是旅人最好的礼物。"
+            },
+            "R-E-F-W-": {
+                code: "LEAF",
+                name: "落叶",
+                tagline: "随风飘荡，无牵无挂",
+                description: "你是最自由的人，也是最迷失的人。没有方向的束缚，没有过去的牵绊，没有未来的焦虑。你只是存在着，像一片落叶，随风，随缘。",
+                advice: "无牵挂是一种解脱，但也可以是一种虚空。试着在某件事上扎根，看看「牵挂」会带来什么不同的风景。"
+            }
+        };
+
+        // ===== STATE =====
+        let currentQuestion = 0;
+        let userScores = { R: 0, E: 0, F: 0, W: 0 };
+        let shuffledQuestions = [];
+        let answeredQuestions = [];
+
+        // ===== FUNCTIONS =====
+
+        // Fisher-Yates shuffle
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Calculate dimension vector from scores
+        function getDimensionVector(scores) {
+            const dimensions = ['R', 'E', 'F', 'W'];
+            return dimensions.map(dim => scores[dim] >= 0 ? '+' : '-').join('');
+        }
+
+        // Manhattan distance for vector matching
+        function calculateManhattanDistance(vec1, vec2) {
+            let distance = 0;
+            for (let i = 0; i < vec1.length; i++) {
+                const v1 = vec1[i] === '+' ? 1 : -1;
+                const v2 = vec2[i] === '+' ? 1 : -1;
+                distance += Math.abs(v1 - v2);
+            }
+            return distance;
+        }
+
+        // Find best matching personality type
+        function findBestMatch(userVector) {
+            let bestMatch = null;
+            let bestDistance = Infinity;
+
+            for (const [pattern, type] of Object.entries(personalityTypes)) {
+                const distance = calculateManhattanDistance(userVector, pattern);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestMatch = type;
+                }
+            }
+
+            return bestMatch;
+        }
+
+        // Screen transitions
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Start the test
+        function startTest() {
+            currentQuestion = 0;
+            userScores = { R: 0, E: 0, F: 0, W: 0 };
+            shuffledQuestions = shuffle(questions);
+            answeredQuestions = [];
+
+            document.getElementById('total-q').textContent = shuffledQuestions.length;
+            showScreen('question-screen');
+            renderQuestion();
+        }
+
+        // Render current question
+        function renderQuestion() {
+            const q = shuffledQuestions[currentQuestion];
+            const questionNum = currentQuestion + 1;
+            
+            // Update progress
+            document.getElementById('current-q').textContent = questionNum;
+            document.getElementById('progress-fill').style.width = 
+                `${(currentQuestion / shuffledQuestions.length) * 100}%`;
+            
+            // Chinese number formatting
+            const cnNumbers = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+                              '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十', '二十一', '二十二'];
+            document.getElementById('question-number').textContent = `第${cnNumbers[questionNum]}题`;
+            document.getElementById('question-text').textContent = q.text;
+            
+            // Render options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.innerHTML = `<span class="option-letter">${letters[index]}</span>${option.text}`;
+                optionEl.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionEl);
+            });
+        }
+
+        // Handle option selection
+        function selectOption(index) {
+            const q = shuffledQuestions[currentQuestion];
+            const option = q.options[index];
+            
+            // Update scores
+            userScores.R += option.scores[0];
+            userScores.E += option.scores[1];
+            userScores.F += option.scores[2];
+            userScores.W += option.scores[3];
+            
+            // Visual feedback
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === index) opt.classList.add('selected');
+            });
+            
+            // Store answer
+            answeredQuestions.push({
+                questionIndex: currentQuestion,
+                optionIndex: index,
+                scores: [...option.scores]
+            });
+            
+            // Move to next question after brief delay
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < shuffledQuestions.length) {
+                    renderQuestion();
+                } else {
+                    showLoadingThenResult();
+                }
+            }, 300);
+        }
+
+        // Show loading then result
+        function showLoadingThenResult() {
+            showScreen('loading-screen');
+            
+            setTimeout(() => {
+                showResult();
+            }, 2000);
+        }
+
+        // Display result
+        function showResult() {
+            const userVector = getDimensionVector(userScores);
+            const match = findBestMatch(userVector);
+            
+            // Update result UI
+            document.getElementById('type-badge').textContent = userVector.replace(/\+/g, '+').replace(/-/g, '-');
+            document.getElementById('result-type').textContent = match.code;
+            document.getElementById('result-name').textContent = match.name;
+            document.getElementById('result-tagline').textContent = match.tagline;
+            document.getElementById('result-description').textContent = match.description;
+            document.getElementById('result-advice').textContent = match.advice;
+            
+            // Render dimension badges
+            const dimensionsContainer = document.getElementById('result-dimensions');
+            dimensionsContainer.innerHTML = '';
+            
+            const dimensions = [
+                { key: 'R', label: 'R', value: userScores.R },
+                { key: 'E', label: 'E', value: userScores.E },
+                { key: 'F', label: 'F', value: userScores.F },
+                { key: 'W', label: 'W', value: userScores.W }
+            ];
+            
+            dimensions.forEach(dim => {
+                const badge = document.createElement('span');
+                badge.className = `dim-badge ${dim.value >= 0 ? 'high' : 'low'}`;
+                badge.textContent = `${dim.label}${dim.value >= 0 ? '+' : '-'}`;
+                dimensionsContainer.appendChild(badge);
+            });
+            
+            showScreen('result-screen');
+        }
+
+        // Restart test
+        function restartTest() {
+            startTest();
+        }
+
+        // Go to Cyber Confessional
+        function goToConfessional() {
+            window.location.href = '/';
+        }
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pre-shuffle questions for initial display
+            shuffledQuestions = shuffle(questions);
+        });
+    </script>
+</body>
+</html>
