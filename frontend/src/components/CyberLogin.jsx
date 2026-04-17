@@ -25,51 +25,105 @@ const CyberLogin = ({ onLogin }) => {
       if (response.ok) {
         onLogin(data.is_new, data.username || username.trim(), data.user_id || null);
       } else {
-        setErrorMsg(data.detail || '识别失败，世界线干扰。');
+        setErrorMsg(data.detail || '[ERR] Identity verification failed');
       }
     } catch (err) {
-      setErrorMsg('网络失联，无法接入祭坛。');
+      setErrorMsg('[ERR] Network connection lost');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center font-mono text-gray-100 relative z-10 p-4">
-      <div className="glass-panel max-w-lg w-full p-12 flex flex-col items-center rounded-sm animate-entry">
-        <h1 className="text-gray-300 text-xl md:text-2xl tracking-[0.15em] mb-12 text-center font-mono glitch font-semibold" data-text={t('login_title')}>
-          {t('login_title')}
-        </h1>
+    <div className="w-full h-screen flex flex-col items-center justify-center font-mono text-gray-200 relative z-10 p-4">
+      {/* CRT Overlay Effect */}
+      <div className="crt-overlay"></div>
+      
+      <div className="max-w-lg w-full animate-slide-up">
+        {/* ASCII Art Header */}
+        <div className="text-center mb-8">
+          <pre className="text-primary text-xs leading-tight mb-4" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+{`
+ ████████╗██╗  ██╗███████╗
+ ╚══██╔══╝██║  ██║██╔════╝
+    ██║   ███████║█████╗  
+    ██║   ██╔══██║██╔══╝  
+    ██║   ██║  ██║███████╗
+    ╚═╝   ╚═╝  ╚═╝╚══════╝
+ ██████╗███████╗██╗     ██╗     
+ ██╔════╝██╔════╝██║     ██║     
+ ██║     █████╗  ██║     ██║     
+ ██║     ██╔══╝  ██║     ██║     
+ ╚██████╗███████╗███████╗███████╗
+ ╚═════╝╚══════╝╚══════╝╚══════╝
+`}
+          </pre>
+          <h1 
+            className="text-gray-300 text-xl md:text-2xl tracking-[0.15em] font-mono glitch font-semibold" 
+            data-text={t('login_title')}
+          >
+            {t('login_title')}
+          </h1>
+          <p className="text-muted text-xs mt-2 uppercase tracking-widest">[ Terminal v2.0 ]</p>
+        </div>
         
+        {/* Login Form - Terminal Style */}
         <form onSubmit={handleLogin} className="w-full flex flex-col items-center">
-          <input 
-            type="text" 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder={t('login_placeholder')}
-            className="w-full bg-black/40 border-b-2 border-gray-700 text-center text-2xl py-3 focus:outline-none focus:border-red-500 transition-colors duration-300 tracking-widest text-gray-100 placeholder-gray-600 font-mono"
-            autoFocus
-          />
+          <div className="w-full terminal-panel mb-4">
+            <label className="text-xs text-tertiary uppercase tracking-wider mb-2 block">
+              <span className="text-secondary">$</span> identifier:
+            </label>
+            <input 
+              type="text" 
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder={t('login_placeholder')}
+              className="terminal-input"
+              autoFocus
+            />
+          </div>
           
           <button 
             type="submit" 
             disabled={isLoading || !username.trim()}
-            className={`mt-12 w-full py-3 border tracking-[0.5em] focus:outline-none transition-all duration-500 font-mono text-sm
+            className={`w-full py-3 border tracking-[0.3em] transition-all duration-300 font-mono text-sm
               ${(!isLoading && username.trim()) 
-                ? 'border-gray-500 text-gray-200 hover:border-red-500 hover:text-red-400 hover:shadow-[0_0_20px_rgba(255,51,51,0.3)] hover:bg-red-950/40 cursor-pointer' 
-                : 'border-gray-800 text-gray-600 opacity-60 cursor-not-allowed bg-black/20'
+                ? 'terminal-btn cursor-pointer' 
+                : 'border-[#333] text-[#333] cursor-not-allowed opacity-50'
               }
             `}
           >
-            {isLoading ? t('login_parsing') : t('login_init')}
+            {isLoading ? (
+              <span className="loading-indicator">
+                <span className="loading-dots">
+                  <span className="loading-dot"></span>
+                  <span className="loading-dot"></span>
+                  <span className="loading-dot"></span>
+                </span>
+                {t('login_parsing')}
+              </span>
+            ) : (
+              <>
+                <span className="text-secondary">$</span> {t('login_init')}
+              </>
+            )}
           </button>
         </form>
 
         {errorMsg && (
-          <p className="mt-8 text-red-500 font-mono text-base tracking-widest text-center glass-panel px-4 py-2 border-red-900/50">
-            &gt; {errorMsg}
-          </p>
+          <div className="mt-6 terminal-card border-error">
+            <p className="text-error text-sm tracking-wider">
+              <span className="text-secondary">!</span> {errorMsg}
+            </p>
+          </div>
         )}
+
+        {/* Footer hint */}
+        <div className="mt-8 text-center">
+          <p className="text-muted text-xs uppercase tracking-widest">
+            <span className="text-primary">[</span> All confessions are monitored <span className="text-primary">]</span>
+          </p>
+        </div>
       </div>
     </div>
   );

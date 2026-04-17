@@ -10,40 +10,39 @@ export default function VoidReceipt({ result, confession, zVal, mBias, onClose, 
   const realityY = result?.engine_input?.factual?.Y === 1 ? 'POSITIVE' : 'NEGATIVE';
   const prob = result?.engine_output?.counterfactual_prob ? (result.engine_output.counterfactual_prob * 100).toFixed(2) : 'ERR';
 
-  const generateASCII = () => {
-    return `
-========================================
-     ${t('receipt_title').split('').join(' ')}
-========================================
-[ ${t('receipt_subtitle')} ]
-${isReadOnly ? `[ ${t('receipt_view_only')} ]` : ''}
-
-${t('receipt_itemized')}
-"${confession || 'Unspeakable Truth'}"
-
-CAUSAL ASSESSMENTS:
-> ${t('receipt_z')} : ${zVal}
-> ${t('receipt_u')} : ${latentU}
-> ${t('receipt_m')} : ${mBias}
-> ${t('receipt_y')} : ${realityY}
-
-${t('receipt_total')} (TAX):
-${prob}%
-
-> VERDICT SUMMARY STATUS:
-${result?.verdict?.includes('<catharsis>') ? `[ ${t('receipt_liberated')} ]` : `[ ${t('receipt_guilty')} ]`}
-========================================
-NO REFUNDS ON DESTINY.
-EVERYTHING IN ITS RIGHT PLACE.
-========================================
-`;
-  };
+  const isCatharsis = result?.verdict?.includes('<catharsis>');
 
   const [castStatus, setCastStatus] = useState(null); // 'casting' | 'success' | null
   const [showConsent, setShowConsent] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generateASCII());
+    const receiptText = `
+========================================
+     VOID RECEIPT
+     Causal Analysis Output
+========================================
+[ Transaction ID: TX-${Math.random().toString(36).substr(2, 9).toUpperCase()} ]
+${isReadOnly ? '[ VIEW ONLY MODE ]' : ''}
+
+CONFESSION:
+"${confession || 'Encrypted Truth'}"
+
+CAUSAL ASSESSMENTS:
+  > Z (Macro Env):  ${zVal}
+  > U (Latent):    ${latentU}
+  > M (Mediation): ${mBias}
+  > Y (Reality):   ${realityY}
+
+TOTAL KARMA BALANCE: ${prob}%
+
+STATUS: ${isCatharsis ? '[ LIBERATED ]' : '[ BOUND ]'}
+
+========================================
+NO REFUNDS ON DESTINY.
+EVERYTHING IN ITS RIGHT PLACE.
+========================================
+`;
+    navigator.clipboard.writeText(receiptText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -68,7 +67,7 @@ EVERYTHING IN ITS RIGHT PLACE.
       
       if (response.ok) {
         setCastStatus('success');
-        setTimeout(() => onClose(), 1500); // Close after showing success
+        setTimeout(() => onClose(), 1500);
       } else {
         setCastStatus(null);
       }
@@ -79,111 +78,159 @@ EVERYTHING IN ITS RIGHT PLACE.
 
   return (
     <div 
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-all duration-1000 ${castStatus === 'success' ? 'opacity-0 scale-90 blur-xl' : 'animate-entry'}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 transition-all duration-500 ${castStatus === 'success' ? 'opacity-0 scale-90' : 'animate-fade-in'}`}
       onClick={(e) => {
         if (e.target === e.currentTarget && !castStatus) onClose();
       }}
     >
-      <div className="relative w-full max-w-sm bg-[#fdfdf9] text-black shadow-[0_0_30px_rgba(255,255,255,0.4)] overflow-hidden flex flex-col font-mono" style={{ filter: 'contrast(1.2) sepia(0.2)' }}>
+      {/* CRT Overlay */}
+      <div className="crt-overlay"></div>
+
+      {/* Terminal-style Receipt */}
+      <div className="relative w-full max-w-md bg-surface border border-primary overflow-hidden">
         
-        {/* Receipt jagged top */}
-        <div className="w-full h-4" style={{ backgroundImage: 'linear-gradient(45deg, transparent 33.333%, #fdfdf9 33.333%, #fdfdf9 66.667%, transparent 66.667%), linear-gradient(-45deg, transparent 33.333%, #fdfdf9 33.333%, #fdfdf9 66.667%, transparent 66.667%)', backgroundSize: '16px 32px', backgroundPosition: '0 -16px' }}></div>
-        
-        <div className="px-8 py-6 flex-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold tracking-widest text-[#111]">{t('receipt_title')}</h2>
-            <div className="text-xs uppercase tracking-widest mt-1 opacity-70">
-              {t('receipt_subtitle')}
-              {isReadOnly && <span className="block text-[8px] mt-1 text-red-600 font-bold tracking-normal">[{t('receipt_view_only')}]</span>}
-            </div>
-            <div className="font-bold text-2xl mt-4 tracking-[-0.2em]">||| || | ||| | || |</div>
-            <div className="text-[10px] uppercase mt-1">TX-{Math.random().toString(36).substr(2, 9).toUpperCase()}</div>
+        {/* Receipt Header - ASCII style */}
+        <div className="bg-primary text-background p-3">
+          <pre className="text-[8px] leading-tight text-center" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+{`
+╔═══════════════════════════════════════╗
+║      V O I D   R E C E I P T          ║
+╚═══════════════════════════════════════╝
+`}
+          </pre>
+          <div className="text-center text-xs uppercase tracking-widest mt-1">
+            {t('receipt_title')}
           </div>
-          
-          <div className="border-b-2 border-dashed border-gray-400 pb-4 mb-4">
-            <div className="text-xs text-gray-500 uppercase font-bold mb-1">{t('receipt_itemized')}</div>
-            <div className="text-sm font-serif italic mb-2 break-words">"{confession || 'Unspeakable Truth'}"</div>
+          <div className="text-center text-[10px] mt-1 opacity-80">
+            TX-{Math.random().toString(36).substr(2, 9).toUpperCase()}
           </div>
-
-          <div className="space-y-2 text-xs mb-6 uppercase">
-            <div className="flex justify-between">
-              <span>{t('receipt_z')}</span>
-              <span className="font-bold">{Number(zVal).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>{t('receipt_u')}</span>
-              <span className="font-bold">{latentU}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>{t('receipt_m')}</span>
-              <span className="font-bold">{Number(mBias).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>{t('receipt_y')}</span>
-              <span className="font-bold">{realityY === 'POSITIVE' ? (t('language') === 'zh' ? '积极' : 'POSITIVE') : (t('language') === 'zh' ? '消极' : 'NEGATIVE')}</span>
-            </div>
-          </div>
-
-          <div className="border-y-2 border-dashed border-gray-400 py-3 mb-6 bg-gray-100/50">
-            <div className="flex justify-between items-end">
-              <span className="text-sm font-bold uppercase">{t('receipt_total')}</span>
-              <span className="text-xl font-bold w-full text-right">{prob}%</span>
-            </div>
-          </div>
-
-          <div className="text-center mb-4">
-            <div className="text-[10px] opacity-80 uppercase tracking-widest leading-loose">
-              {result?.verdict?.includes('<catharsis>') ? t('receipt_liberated') : t('receipt_guilty')}
-              <br/>
-              Everything in its right place.<br/>
-              NO REFUNDS ON DESTINY.
-            </div>
-          </div>
-          
-          <div className="text-center mb-4 mt-6">
-            <div className="text-[9px] uppercase tracking-widest mt-1 opacity-60 flex justify-between">
-                <span>TERMS & CONDITIONS APPLY</span>
-                <span>{new Date().toLocaleDateString()}</span>
-            </div>
-          </div>
-          
         </div>
+        
+        <div className="p-6">
+          {/* Confession Item */}
+          <div className="mb-6 pb-4 border-b border-dashed border-primary/50">
+            <div className="text-xs text-tertiary uppercase tracking-wider mb-2">
+              <span className="text-secondary">$</span> confession_input:
+            </div>
+            <div className="text-sm text-text-primary italic pl-4 border-l-2 border-primary/30">
+              "{confession || 'Encrypted Truth'}"
+            </div>
+            {isReadOnly && (
+              <div className="text-xs text-secondary mt-2 uppercase tracking-wider">
+                [ {t('receipt_view_only')} ]
+              </div>
+            )}
+          </div>
 
-        {/* Receipt jagged bottom */}
-        <div className="w-full h-4 mt-auto rotate-180" style={{ backgroundImage: 'linear-gradient(45deg, transparent 33.333%, #fdfdf9 33.333%, #fdfdf9 66.667%, transparent 66.667%), linear-gradient(-45deg, transparent 33.333%, #fdfdf9 33.333%, #fdfdf9 66.667%, transparent 66.667%)', backgroundSize: '16px 32px', backgroundPosition: '0 -16px' }}></div>
+          {/* Causal Data */}
+          <div className="space-y-3 mb-6">
+            <div className="flex justify-between items-center terminal-card">
+              <span className="text-xs text-muted uppercase tracking-wider">
+                <span className="text-tertiary">[Z]</span> Macro Env
+              </span>
+              <span className="text-primary font-bold">{Number(zVal).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center terminal-card">
+              <span className="text-xs text-muted uppercase tracking-wider">
+                <span className="text-secondary">[U]</span> Latent Fate
+              </span>
+              <span className="text-secondary font-bold">{latentU}</span>
+            </div>
+            <div className="flex justify-between items-center terminal-card">
+              <span className="text-xs text-muted uppercase tracking-wider">
+                <span className="text-tertiary">[M]</span> Mediation
+              </span>
+              <span className="text-primary font-bold">{Number(mBias).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center terminal-card">
+              <span className="text-xs text-muted uppercase tracking-wider">
+                <span className="text-tertiary">[Y]</span> Reality
+              </span>
+              <span className={realityY === 'POSITIVE' ? 'text-primary' : 'text-error'} font-bold">
+                {realityY === 'POSITIVE' ? (t('language') === 'zh' ? '积极' : 'POSITIVE') : (t('language') === 'zh' ? '消极' : 'NEGATIVE')}
+              </span>
+            </div>
+          </div>
+
+          {/* Total */}
+          <div className="bg-surface border border-secondary p-4 mb-6">
+            <div className="flex justify-between items-end">
+              <span className="text-xs text-secondary uppercase tracking-wider font-bold">
+                <span className="text-muted">$</span> TOTAL_BALANCE
+              </span>
+              <span className="text-2xl font-bold text-primary">{prob}%</span>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="text-center mb-6 terminal-card border-secondary">
+            <div className="text-xs text-secondary uppercase tracking-widest mb-2">
+              <span className="text-muted">@</span> VERDICT
+            </div>
+            <div className={`text-lg font-bold ${isCatharsis ? 'text-primary' : 'text-error'}`}>
+              {isCatharsis ? `[ ${t('receipt_liberated')} ]` : `[ ${t('receipt_guilty')} ]`}
+            </div>
+          </div>
+
+          {/* Footer Message */}
+          <div className="text-center text-xs text-muted uppercase tracking-wider leading-loose">
+            Everything in its right place.<br/>
+            NO REFUNDS ON DESTINY.
+          </div>
+
+          {/* Timestamp */}
+          <div className="text-center mt-4 pt-4 border-t border-border">
+            <span className="text-[10px] text-muted uppercase tracking-widest">
+              {new Date().toLocaleDateString()} | {new Date().toLocaleTimeString()}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="absolute right-4 bottom-8 lg:right-8 lg:top-8 flex flex-col gap-4 pointer-events-auto z-[60]">
+      {/* Action Buttons */}
+      <div className="absolute right-4 bottom-8 lg:right-8 lg:top-8 flex flex-col gap-3 pointer-events-auto z-[60]">
         {castStatus === 'success' ? (
-           <div className="text-white font-mono tracking-widest text-center px-6 py-4 border border-green-500 bg-green-900/40">
-             {t('receipt_cast_success')}
+           <div className="terminal-btn border-primary text-primary px-6 py-3">
+             [+] {t('receipt_cast_success')}
            </div>
         ) : isReadOnly ? (
           <button 
             onClick={onClose}
-            className="px-6 py-3 border border-gray-600 bg-black text-gray-400 font-mono tracking-widest uppercase hover:bg-white hover:text-black transition-colors shadow-2xl"
+            className="terminal-btn"
           >
-            {t('receipt_exit')}
+            <span className="text-muted">$</span> EXIT
           </button>
         ) : showConsent ? (
-          <div className="bg-red-950/90 border border-red-500 p-6 flex flex-col gap-4 max-w-sm ml-auto backdrop-blur-md shadow-[0_0_30px_rgba(255,0,0,0.3)]">
-            <h3 className="text-red-400 font-bold uppercase tracking-widest border-b border-red-500/50 pb-2 text-sm">{t('consent_warning')}</h3>
-            <p className="text-gray-300 text-[10px] font-mono leading-relaxed whitespace-pre-line">
+          <div className="terminal-card border-error p-4 max-w-sm">
+            <div className="text-error text-xs uppercase tracking-wider mb-3 font-bold">
+              [!] WARNING
+            </div>
+            <p className="text-text-primary text-xs leading-relaxed mb-4 whitespace-pre-line">
               {t('consent_body')}
             </p>
-            <div className="flex flex-col gap-2 mt-2">
+            <div className="flex flex-col gap-2">
               <button 
                 onClick={handleCast}
                 disabled={castStatus === 'casting'}
-                className="px-6 py-3 border border-yellow-500 bg-yellow-600 text-black font-mono tracking-widest uppercase hover:bg-yellow-400 hover:shadow-[0_0_15px_rgba(250,204,21,0.5)] transition-all font-bold"
+                className="terminal-btn border-secondary text-secondary"
               >
-                {castStatus === 'casting' ? t('receipt_casting') : t('consent_yes')}
+                {castStatus === 'casting' ? (
+                  <span className="loading-indicator">
+                    <span className="loading-dots">
+                      <span className="loading-dot"></span>
+                      <span className="loading-dot"></span>
+                      <span className="loading-dot"></span>
+                    </span>
+                  </span>
+                ) : (
+                  <><span className="text-primary">$</span> CONFIRM CAST</>
+                )}
               </button>
               <button 
                 onClick={() => setShowConsent(false)}
-                className="px-6 py-3 border border-gray-600 bg-black/50 text-gray-400 font-mono tracking-widest uppercase hover:text-white transition-colors"
+                className="terminal-btn"
               >
-                {t('cancel')}
+                <span className="text-muted">$</span> ABORT
               </button>
             </div>
           </div>
@@ -191,21 +238,25 @@ EVERYTHING IN ITS RIGHT PLACE.
           <>
             <button 
               onClick={() => setShowConsent(true)}
-              className="px-6 py-4 border border-yellow-600 bg-yellow-900/20 text-yellow-500 font-mono tracking-widest uppercase hover:bg-yellow-500 hover:text-black transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] animate-pulse"
+              className="terminal-btn border-secondary text-secondary animate-blink"
             >
-              {t('receipt_cast')}
+              <span className="text-secondary">$</span> CAST_TO_VOID
             </button>
             <button 
               onClick={handleCopy}
-              className="px-6 py-3 border border-gray-500 bg-black text-gray-200 font-mono tracking-widest uppercase hover:bg-white hover:text-black transition-colors shadow-2xl"
+              className={`terminal-btn ${copied ? 'border-primary text-primary' : ''}`}
             >
-              {copied ? t('receipt_copied') : t('receipt_copy')}
+              {copied ? (
+                <><span className="text-primary">*</span> COPIED</>
+              ) : (
+                <><span className="text-muted">$</span> COPY_ASCII</>
+              )}
             </button>
             <button 
               onClick={onClose}
-              className="px-6 py-3 border border-red-900 bg-black/60 text-red-500 font-mono tracking-widest uppercase hover:bg-red-900 hover:text-white transition-colors text-center shadow-2xl"
+              className="terminal-btn"
             >
-              {t('close')}
+              <span className="text-muted">$</span> CLOSE
             </button>
           </>
         )}

@@ -2,11 +2,11 @@ import React from 'react';
 import { useLanguage } from './LanguageContext';
 
 const TYPE_STYLES = {
-  treatment: { border: 'border-gray-500/50', text: 'text-gray-200', bg: 'bg-black/40' },
-  outcome: { border: 'border-gray-400/50', text: 'text-gray-100', bg: 'bg-black/40' },
-  latent: { border: 'border-red-500/60', text: 'text-red-400', bg: 'bg-red-950/30', glow: 'drop-shadow-[0_0_8px_rgba(255,51,51,0.6)]' },
-  confounder: { border: 'border-gray-400/50', text: 'text-gray-300', bg: 'bg-gray-800/40' },
-  mediator: { border: 'border-yellow-500/60', text: 'text-yellow-400', bg: 'bg-yellow-950/30' }
+  treatment: { border: 'border-primary', text: 'text-primary', bg: 'bg-surface' },
+  outcome: { border: 'border-tertiary', text: 'text-tertiary', bg: 'bg-surface' },
+  latent: { border: 'border-error', text: 'text-error', bg: 'bg-surface' },
+  confounder: { border: 'border-secondary', text: 'text-secondary', bg: 'bg-surface' },
+  mediator: { border: 'border-secondary', text: 'text-secondary', bg: 'bg-surface' }
 };
 
 const CyberParamsPanel = ({ 
@@ -19,35 +19,50 @@ const CyberParamsPanel = ({
   isSimulating = false
 }) => {
   const { t } = useLanguage();
+  
   return (
-    <div className="flex flex-col gap-8 p-8 glass-panel rounded-md shadow-lg font-mono antialiased animate-entry delay-300 border border-gray-600/50 w-full max-w-4xl mx-auto">
+    <div className="terminal-panel w-full max-w-4xl mx-auto animate-slide-up">
       
-      <div className="border-b border-gray-600/80 pb-3 mb-2 flex items-center justify-between">
-        <h3 className="text-gray-200 text-lg tracking-[0.2em] uppercase font-bold glitch" data-text={t('params_title')}>{t('params_title')}</h3>
+      {/* Header */}
+      <div className="border-b border-border pb-3 mb-6 flex items-center justify-between">
+        <h3 className="text-primary text-lg tracking-[0.2em] uppercase font-bold glitch" data-text={t('params_title')}>
+          {t('params_title')}
+        </h3>
+        <span className="text-muted text-xs uppercase tracking-wider">
+          <span className="text-secondary">[</span>
+          SYSTEM_ACTIVE
+          <span className="text-secondary">]</span>
+        </span>
       </div>
 
-      {/* Top: Variables Horizontal */}
-      <div className="flex flex-col gap-4">
-        <div className="text-sm text-gray-300 uppercase tracking-widest mb-1 font-bold italic opacity-90">{t('params_subtitle')}</div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {/* Variables Section */}
+      <div className="mb-8">
+        <div className="text-sm text-tertiary uppercase tracking-widest mb-4 font-bold">
+          <span className="text-secondary">//</span> CAUSAL_VARIABLES
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {causalNodes.map((node, index) => {
             const style = TYPE_STYLES[node.type] || TYPE_STYLES.outcome;
             
             return (
-              <div key={index} className={`p-5 border rounded-sm relative overflow-hidden ${style.bg} ${style.border} transition-colors hover:bg-gray-800/60`}>
+              <div 
+                key={index} 
+                className={`terminal-card ${style.border} relative overflow-hidden`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <div className="flex items-center gap-2 mb-2">
                   {node.type === 'latent' && (
-                    <span className="w-2.5 h-2.5 rounded-none bg-red-500 animate-pulse shadow-[0_0_10px_rgba(255,51,51,0.8)]"></span>
+                    <span className="text-[8px] text-error animate-blink">●</span>
                   )}
                   <span className={`text-sm font-bold uppercase tracking-wider ${style.text}`}>
                     [{node.symbol}] {node.name}
                   </span>
                 </div>
-                <div className="flex flex-col mt-2">
-                  <span className={`text-3xl font-bold font-mono ${style.text} ${style.glow || ''} tracking-tight`}>
+                <div className="flex flex-col mt-3">
+                  <span className={`text-3xl font-bold tracking-tight ${style.text}`}>
                     {node.value}
                   </span>
-                  <span className="text-xs text-gray-400 uppercase tracking-widest mt-3 font-mono italic border-t border-gray-700/80 pt-2">
+                  <span className="text-xs text-muted uppercase tracking-widest mt-3 border-t border-border pt-2 italic">
                     {node.desc || 'Variable'}
                   </span>
                 </div>
@@ -57,18 +72,22 @@ const CyberParamsPanel = ({
         </div>
       </div>
 
-      {/* Middle: Sliders Horizontal */}
-      <div className="p-6 md:p-8 border border-gray-600/60 bg-black/50 rounded-md">
-        <div className="text-sm text-gray-300 uppercase tracking-[0.15em] mb-8 font-bold border-b border-gray-600/60 pb-3 italic">
-          {t('params_intervention')}
+      {/* Intervention Sliders Section */}
+      <div className="terminal-card mb-8">
+        <div className="text-sm text-tertiary uppercase tracking-[0.15em] mb-6 font-bold border-b border-border pb-3">
+          <span className="text-secondary">$</span> INTERVENTION_SIMULATION
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Slider Z */}
           <div className="slider-group">
-            <div className="flex justify-between text-sm mb-4">
-               <span className="text-gray-300 uppercase tracking-wide font-mono font-bold">{t('params_z_label')} (Z)</span>
-               <span className="text-gray-200 font-bold px-3 py-1 bg-gray-800 border border-gray-600 rounded-sm">{zVal}</span>
+            <div className="flex justify-between items-center mb-4">
+               <span className="text-text-primary uppercase tracking-wide font-bold">
+                 <span className="text-tertiary">[Z]</span> MACRO_ENV
+               </span>
+               <span className="text-primary font-bold px-3 py-1 border border-primary bg-surface">
+                 {zVal}
+               </span>
             </div>
             <input 
               type="range" 
@@ -77,22 +96,29 @@ const CyberParamsPanel = ({
               step="0.1" 
               value={zVal} 
               onChange={(e) => onZChange(parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-gray-700 rounded-none appearance-none cursor-pointer accent-gray-400 hover:accent-white transition-colors"
+              className="w-full h-2 bg-border appearance-none cursor-pointer accent-primary"
+              style={{
+                background: `linear-gradient(to right, var(--primary) 0%, var(--primary) ${((zVal + 3) / 6) * 100}%, var(--border) ${((zVal + 3) / 6) * 100}%, var(--border) 100%)`
+              }}
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-4 uppercase tracking-widest font-mono italic font-medium">
-              <span>{t('params_z_3')}</span>
+            <div className="flex justify-between text-xs text-muted mt-3 uppercase tracking-widest">
+              <span>[-3] COLLAPSE</span>
               <span className="opacity-40">|</span>
-              <span>{t('params_z_mid')}</span>
+              <span>[0] BASELINE</span>
               <span className="opacity-40">|</span>
-              <span>{t('params_z_3_pos')}</span>
+              <span>[+3] THRIVE</span>
             </div>
           </div>
 
           {/* Slider M */}
           <div className="slider-group">
-            <div className="flex justify-between text-sm mb-4">
-              <span className="text-gray-300 uppercase tracking-wide font-mono font-bold">{t('params_m_label')} (M)</span>
-              <span className="text-red-400 font-bold px-3 py-1 bg-red-950/40 border border-red-800/60 rounded-sm">{mBias}</span>
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-text-primary uppercase tracking-wide font-bold">
+                <span className="text-secondary">[M]</span> MEDIATION
+              </span>
+              <span className="text-error font-bold px-3 py-1 border border-error bg-surface">
+                {mBias}
+              </span>
             </div>
             <input 
               type="range" 
@@ -101,31 +127,53 @@ const CyberParamsPanel = ({
               step="0.5" 
               value={mBias} 
               onChange={(e) => onMChange(parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-gray-700 rounded-none appearance-none cursor-pointer accent-red-500 hover:accent-red-400 transition-colors"
+              className="w-full h-2 bg-border appearance-none cursor-pointer accent-error"
+              style={{
+                background: `linear-gradient(to right, var(--secondary) 0%, var(--secondary) ${((mBias + 10) / 20) * 100}%, var(--border) ${((mBias + 10) / 20) * 100}%, var(--border) 100%)`
+              }}
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-4 uppercase tracking-widest font-mono italic font-medium">
-              <span>{t('params_m_low')}</span>
+            <div className="flex justify-between text-xs text-muted mt-3 uppercase tracking-widest">
+              <span>[-10] FULL</span>
               <span className="opacity-40">|</span>
-              <span>{t('params_m_mid')}</span>
+              <span>[0] NONE</span>
               <span className="opacity-40">|</span>
-              <span>{t('params_m_high')}</span>
+              <span>[+10] BLOCK</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom: Probability Summary */}
-      <div className="mt-4 flex justify-between items-center pt-6 border-t border-gray-600/80">
+      {/* Probability Summary */}
+      <div className="flex justify-between items-center pt-6 border-t border-border">
         <div>
-          <span className="text-sm text-gray-400 block uppercase tracking-[0.2em] mb-2 font-mono font-bold">{t('params_predictability')}</span>
-          <span className="text-6xl text-white font-bold tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+          <span className="text-xs text-muted block uppercase tracking-[0.2em] mb-2 font-bold">
+            <span className="text-secondary">$</span> PREDICTABILITY_SCORE
+          </span>
+          <span className="text-5xl text-primary font-bold tracking-tighter">
             {prob}%
           </span>
         </div>
         <div className="text-right">
-          <span className="text-sm text-gray-400 block uppercase tracking-[0.2em] mb-3 font-mono font-bold">{t('params_status')}</span>
-          <span className={`text-base px-5 py-2 rounded-sm border ${isSimulating ? 'text-red-400 border-red-500/60 bg-red-950/30' : 'text-green-400 border-green-500/60 bg-green-950/30'} font-bold uppercase tracking-widest shadow-lg`}>
-            {isSimulating ? t('params_calculating') : t('params_convergence')}
+          <span className="text-xs text-muted block uppercase tracking-[0.2em] mb-3 font-bold">
+            SYSTEM_STATUS
+          </span>
+          <span className={`text-sm px-4 py-2 border font-bold uppercase tracking-widest ${
+            isSimulating 
+              ? 'text-secondary border-secondary bg-surface' 
+              : 'text-primary border-primary bg-surface'
+          }`}>
+            {isSimulating ? (
+              <>
+                <span className="loading-dots inline-flex gap-1 mr-2">
+                  <span className="loading-dot"></span>
+                  <span className="loading-dot"></span>
+                  <span className="loading-dot"></span>
+                </span>
+                COMPUTING...
+              </>
+            ) : (
+              '[+] CONVERGED'
+            )}
           </span>
         </div>
       </div>

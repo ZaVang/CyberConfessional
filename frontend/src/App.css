@@ -1,380 +1,544 @@
+/* ========================================
+   APP.CSS - Cyber Confessional
+   TerminalUI Component Styles
+   ======================================== */
+
+/* ========================================
+   MAIN LAYOUT
+   ======================================== */
 .altar-container {
   width: 100%;
-  max-width: 1400px;
-  display: flex;
-  flex-direction: column;
+  max-width: 1200px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
+/* ========================================
+   HEADER / SACRED HEADER
+   ======================================== */
 .sacred-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .sacred-header h1 {
-  font-size: 3.5rem;
-  letter-spacing: 0.5rem;
-  color: #ffffff;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-    0 0 20px rgba(0, 240, 255, 0.3);
-}
-
-/* Removed neon-flicker animation and keyframes as per user request */
-
-.cross-icon {
-  font-size: 2.2rem;
-  color: var(--accent-blue);
-  text-shadow: var(--glow-blue);
-  margin-top: 0.5rem;
-  opacity: 0.8;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--primary);
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .subtitle {
-  font-size: 0.8rem;
+  font-size: var(--font-caption);
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-top: 0.5rem;
+  letter-spacing: 0.2em;
 }
 
+/* ========================================
+   CONFESSION ZONE
+   ======================================== */
 .confession-zone {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  margin-bottom: 2rem;
 }
 
 .input-wrapper {
   width: 100%;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.input-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--tertiary);
+  font-size: var(--font-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.input-header::before {
+  content: '//';
+  color: var(--secondary);
+}
+
+/* ========================================
+   INPUTS - Terminal Style
+   ======================================== */
 .neon-input {
   width: 100%;
-  height: 250px;
+  min-height: 200px;
   background: transparent;
-  border: none;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  border: 1px solid var(--border);
   color: var(--text-primary);
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  line-height: 1.6;
-  resize: none;
-  padding: 1rem;
-  transition: all 0.3s ease;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-body);
+  line-height: 1.8;
+  resize: vertical;
+  padding: 1.5rem;
+  transition: border-color var(--transition);
 }
 
 .neon-input:focus {
   outline: none;
-  border-bottom-color: var(--accent-blue);
-  box-shadow: 0 4px 10px -5px var(--accent-blue);
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
 }
 
-.sacred-btn {
-  margin-top: 3rem;
+.neon-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Future Aspiration Input */
+.aspiration-input {
+  width: 100%;
   background: transparent;
-  border: 1px solid var(--accent-blue);
-  color: var(--accent-blue);
-  padding: 1.2rem 2.5rem;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  /* Slightly larger */
-  font-weight: 900;
-  /* Much bolder */
-  cursor: pointer;
-  letter-spacing: 0.3rem;
-  /* More spacing */
+  border: 1px solid var(--border);
+  border-top: none;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-caption);
+  line-height: 1.6;
+  resize: none;
+  padding: 1rem 1.5rem;
+  transition: border-color var(--transition);
+}
+
+.aspiration-input:focus {
+  outline: none;
+  border-color: var(--secondary);
+}
+
+.aspiration-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ========================================
+   BUTTONS - Terminal Style
+   ======================================== */
+.sacred-btn {
+  margin-top: 2rem;
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 1rem 3rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-body);
+  font-weight: 700;
   text-transform: uppercase;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
 }
 
 .sacred-btn:hover {
-  background: var(--accent-blue);
-  color: #000 !important;
-  box-shadow: 0 0 30px var(--accent-blue);
-  transform: translateY(-2px);
+  background: var(--primary);
+  color: var(--background);
 }
 
+.sacred-btn:active {
+  background: var(--text-primary);
+  color: var(--background);
+}
+
+.sacred-btn:disabled {
+  border-color: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.sacred-btn:disabled:hover {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+/* Loading state */
+.sacred-btn.loading {
+  color: var(--secondary);
+  border-color: var(--secondary);
+}
+
+/* ========================================
+   ENGINE LOGS - Terminal Output
+   ======================================== */
 .engine-logs {
   width: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid #1a1a1a;
-  padding: 2rem;
-  color: var(--data-green);
-  font-size: 0.85rem;
-  max-height: 400px;
+  max-width: 800px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  color: var(--primary);
+  font-size: var(--font-caption);
+  max-height: 350px;
   overflow-y: auto;
+  margin-top: 2rem;
+}
+
+.engine-logs-header {
+  color: var(--tertiary);
+  font-size: var(--font-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.engine-logs-header::before {
+  content: '[$ ';
+  color: var(--secondary);
+}
+
+.engine-logs-header::after {
+  content: ']';
+  color: var(--secondary);
 }
 
 .log-entry {
-  margin-bottom: 0.5rem;
-  opacity: 0.8;
-}
-
-.error-text {
-  color: var(--accent-red) !important;
-  opacity: 1;
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+  animation: fade-in 0.2s ease forwards;
 }
 
 .log-entry::before {
-  content: "> ";
+  content: '> ';
+  color: var(--primary);
 }
 
-/* Verdict Styles */
+.log-entry.system {
+  color: var(--tertiary);
+}
+
+.log-entry.engine {
+  color: var(--secondary);
+}
+
+.log-entry.error {
+  color: var(--error);
+}
+
+.log-entry.success {
+  color: var(--primary);
+}
+
+/* ========================================
+   VERDICT / RESULT STYLES
+   ======================================== */
 .verdict-container {
   width: 100%;
+  max-width: 800px;
+  margin-top: 2rem;
 }
 
 .priest-title {
-  color: var(--accent-red);
-  font-size: 1.8rem;
+  color: var(--secondary);
+  font-size: var(--font-subhead);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
   margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.priest-title::before {
+  content: '[SYS]';
+  font-size: var(--font-caption);
+  color: var(--text-muted);
 }
 
 .priest-text {
-  font-size: 1.1rem;
+  font-size: var(--font-body);
   line-height: 1.8;
   white-space: pre-wrap;
   word-break: break-word;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
 }
 
 .retry-btn {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 0.7rem;
+  font-size: var(--font-caption);
   text-decoration: underline;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: 'JetBrains Mono', monospace;
 }
 
+.retry-btn:hover {
+  color: var(--tertiary);
+}
+
+/* ========================================
+   DATA CARD / STATS
+   ======================================== */
 .data-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #1a1a1a;
+  background: var(--surface);
+  border: 1px solid var(--border);
   padding: 1.5rem;
+  margin: 1.5rem 0;
 }
 
 .stat {
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .label {
   display: block;
-  font-size: 0.7rem;
+  font-size: var(--font-caption);
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
 }
 
 .progress-bar {
   width: 100%;
   height: 4px;
-  background: #111;
-  margin-bottom: 0.3rem;
+  background: var(--border);
+  margin-bottom: 0.25rem;
 }
 
 .fill {
   height: 100%;
-  background: var(--accent-red);
-  box-shadow: var(--glow-red);
+  background: var(--error);
 }
 
 .value {
-  color: var(--accent-red);
-  font-size: 1.2rem;
+  color: var(--primary);
+  font-size: var(--font-headline);
+  font-weight: 700;
 }
 
+/* ========================================
+   ENGINE MESSAGE
+   ======================================== */
 .engine-msg {
-  font-size: 0.7rem;
+  font-size: var(--font-caption);
   color: var(--text-muted);
   margin-top: 2rem;
-  font-style: italic;
-}
-
-/* Footer */
-.philosophical-footer {
-  margin-top: 6rem;
-  padding-bottom: 3rem;
-  border-top: 1px solid #111;
-  padding-top: 2rem;
   text-align: center;
 }
 
-.philosophical-footer p {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+.engine-msg::before {
+  content: '// ';
+  color: var(--secondary);
+}
+
+/* ========================================
+   CROSS ICON - ASCII Style
+   ======================================== */
+.cross-icon {
+  font-size: 1.5rem;
+  color: var(--primary);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
+/* ASCII Cross decoration */
+.cross-icon::before {
+  content: '[+]';
+  letter-spacing: 0.2em;
+}
+
+/* ========================================
+   CHAT MESSAGES
+   ======================================== */
+.messages-container {
+  width: 100%;
   max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.6;
+  margin-bottom: 2rem;
 }
 
-/* --- VOID SEA ENGINE --- */
-.jagged-receipt {
-  background-image: linear-gradient(to bottom, #fdfdf9 0%, #fdfdf9 100%);
-  position: relative;
+.message {
+  margin-bottom: 1.5rem;
+  animation: slide-up 0.3s ease forwards;
 }
 
-.jagged-receipt::before, .jagged-receipt::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background-size: 8px 100%;
-}
-.jagged-receipt::before {
-  top: -4px;
-  background-image: linear-gradient(-45deg, #fdfdf9 25%, transparent 25%, transparent 75%, #fdfdf9 75%, #fdfdf9), 
-                    linear-gradient(45deg, #fdfdf9 25%, transparent 25%, transparent 75%, #fdfdf9 75%, #fdfdf9);
-  background-position: 0 0, 4px 0;
-}
-.jagged-receipt::after {
-  bottom: -4px;
-  background-image: linear-gradient(-45deg, transparent 25%, #fdfdf9 25%, #fdfdf9 75%, transparent 75%, transparent), 
-                    linear-gradient(45deg, transparent 25%, #fdfdf9 25%, #fdfdf9 75%, transparent 75%, transparent);
-  background-position: 0 0, 4px 0;
+.message-user {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  color: var(--tertiary);
 }
 
-@keyframes floatUpDrift {
-  0% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-50vh) rotate(2deg); }
-  100% { transform: translateY(-120vh) rotate(-1deg); }
+.message-user::before {
+  content: '$ USER: ';
+  color: var(--secondary);
+  font-weight: 700;
 }
 
-.animate-drift {
-  animation-name: floatUpDrift;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
+.message-assistant {
+  background: var(--surface);
+  border: 1px solid var(--primary);
+  padding: 1rem 1.5rem;
+  color: var(--text-primary);
 }
 
-/* Kinetic Terminal Input */
-.neon-input {
-  caret-color: var(--accent-red);
+.message-assistant::before {
+  content: '@ PRIEST: ';
+  color: var(--primary);
+  font-weight: 700;
 }
 
-.kinetic-active {
-  animation: typeGlitch 0.15s infinite;
-  border-bottom-color: var(--accent-red) !important;
-  text-shadow: 0 0 8px rgba(204, 0, 0, 0.6), -2px 0 2px rgba(0, 240, 255, 0.4);
+.message-verdict {
+  border-color: var(--secondary);
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(255, 102, 0, 0.05) 100%);
 }
 
-@keyframes typeGlitch {
-  0% { transform: translate(0, 0); filter: hue-rotate(0deg); }
-  25% { transform: translate(-1px, 1px); filter: hue-rotate(90deg); }
-  50% { transform: translate(1px, -1px); filter: saturate(1.5); }
-  75% { transform: translate(-1px, -1px); filter: hue-rotate(-90deg); }
-  100% { transform: translate(0, 0); }
+/* ========================================
+   LOADING INDICATOR
+   ======================================== */
+.loading-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--secondary);
+  font-size: var(--font-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-@keyframes typeBreathe {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.002); }
-  100% { transform: scale(1); }
+.loading-dots {
+  display: flex;
+  gap: 4px;
 }
 
-/* --- CATHARSIS MODE OVERRIDES --- */
-/* Slow transition for standard elements affected by the state */
-.catharsis-mode * {
-  transition: background-color 1.5s ease-out, border-color 1.5s ease-out, color 1.5s ease-out, text-shadow 1.5s ease-out, box-shadow 1.5s ease-out;
+.loading-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--secondary);
+  animation: blink 0.8s infinite;
 }
 
-.catharsis-mode .sacred-header h1 {
-  color: #fffaf0;
-  text-shadow: 0 0 15px rgba(255, 250, 240, 0.8), 0 0 30px rgba(255, 215, 0, 0.4);
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
-.catharsis-mode .cross-icon {
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
 }
 
-.catharsis-mode .neon-input {
-  border-bottom-color: rgba(255, 215, 0, 0.3);
-  color: #fffaf0;
-  caret-color: #ffd700;
+/* ========================================
+   TABS - Terminal Style
+   ======================================== */
+.tab-container {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
 }
 
-.catharsis-mode .kinetic-active {
-  animation: typeBreathe 0.15s infinite;
-  border-bottom-color: #ffd700 !important;
-  text-shadow: 0 0 15px rgba(255, 215, 0, 0.8) !important;
+.tab {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  color: var(--text-muted);
+  padding: 0.75rem 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-right: -1px;
 }
 
-.catharsis-mode .neon-input:focus {
-  border-bottom-color: #ffd700;
-  box-shadow: 0 4px 10px -5px #ffd700;
+.tab:hover {
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
-.catharsis-mode .sacred-btn {
-  border-color: #ffd700;
-  color: #ffd700;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+.tab.active {
+  background: var(--surface);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
-.catharsis-mode .sacred-btn:hover {
-  background: #ffd700;
-  color: #000 !important;
-  box-shadow: 0 0 30px #ffd700;
+.tab::before {
+  content: '[';
+  color: var(--text-muted);
+  margin-right: 0.25rem;
 }
 
-.catharsis-mode .engine-logs {
-  color: #ffd700;
-  border-color: rgba(255, 215, 0, 0.2);
-  background: rgba(25, 25, 20, 0.4);
+.tab::after {
+  content: ']';
+  color: var(--text-muted);
+  margin-left: 0.25rem;
 }
 
-.catharsis-mode .priest-title {
-  color: #ffd700;
-  text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+.tab.active::before,
+.tab.active::after {
+  color: var(--primary);
 }
 
-.catharsis-mode .priest-text {
-  color: #fffaf0;
+/* ========================================
+   RESONANCE ALERT
+   ======================================== */
+.resonance-alert {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
 }
 
-.catharsis-mode .data-card {
-  border-color: rgba(255, 215, 0, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+.resonance-modal {
+  background: var(--surface);
+  border: 1px solid var(--tertiary);
+  padding: 2rem;
+  max-width: 400px;
+  text-align: center;
 }
 
-.catharsis-mode .fill {
-  background: #ffd700;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+.resonance-title {
+  color: var(--tertiary);
+  font-size: var(--font-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 1.5rem;
+  animation: blink 1.5s infinite;
 }
 
-.catharsis-mode .value {
-  color: #ffd700;
+.resonance-icon {
+  font-size: 2rem;
+  color: var(--tertiary);
+  margin-bottom: 1rem;
 }
 
-/* Specific overrides for Tailwind classes in App.jsx */
-.catharsis-mode .border-red-900 {
-  border-color: rgba(255, 215, 0, 0.4) !important;
-  color: #ffd700 !important;
-}
-
-.catharsis-mode .verdict-container button:hover {
-  background-color: rgba(255, 215, 0, 0.1) !important;
-  border-color: #ffd700 !important;
-  color: #fffaf0 !important;
-}
-
-.catharsis-mode .glass-panel {
-  border-color: rgba(255, 215, 0, 0.2) !important;
-}
-
-.catharsis-mode .bg-black\/60.border-red-500\/40 {
-  border-color: rgba(255, 215, 0, 0.4) !important;
-  background-color: rgba(40, 35, 10, 0.6) !important;
-}
-
-.catharsis-mode .catharsis-block {
-  border-left-color: #ffd700 !important;
-  background-color: rgba(255, 215, 0, 0.05) !important;
+.resonance-count {
+  font-size: var(--font-headline);
+  font-weight: 700;
+  color: var(--tertiary);
+  margin-bottom: 1.5rem;
 }

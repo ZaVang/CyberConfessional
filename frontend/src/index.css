@@ -1,17 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Noto+Serif+SC:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
 @import "tailwindcss";
 
+/* ========================================
+   TERMINALUI DESIGN SYSTEM
+   Cyber Confessional - Terminal Redesign
+   ======================================== */
+
 :root {
-  --bg-color: #030405;
-  --text-primary: #e5e7eb;
-  --text-muted: #9ca3af;
-  --accent-blue: #6b7280;
-  --accent-red: #ff3333;
-  --data-green: #00ff41;
-  --font-serif: 'Noto Serif SC', serif;
-  --font-mono: 'Fira Code', monospace;
-  --glow-red: 0 0 12px rgba(255, 51, 51, 0.6);
-  --glow-green: 0 0 12px rgba(0, 255, 65, 0.4);
+  /* TerminalUI Color Palette */
+  --primary: #00FF41;        /* Hacker Green - commands, active, success */
+  --secondary: #FF6600;     /* Amber - warnings, highlights, prompts */
+  --tertiary: #00BFFF;      /* Cyan - links, info, selection */
+  --background: #0D0D0D;    /* Terminal background */
+  --surface: #141414;       /* Panel/card background */
+  --error: #FF0040;         /* Error state */
+  --text-primary: #E0E0E0;
+  --text-muted: #666666;
+  --border: #333333;
+  
+  /* Font Scale */
+  --font-display: 32px;
+  --font-headline: 24px;
+  --font-subhead: 18px;
+  --font-body: 14px;
+  --font-caption: 12px;
+  --font-code: 14px;
+  
+  /* Animation */
+  --transition: 0.2s ease;
 }
 
 @layer base {
@@ -19,61 +35,83 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    border-radius: 0 !important; /* ALL ELEMENTS 0px radius - HARD EDGES */
   }
 
   body {
-    background-color: var(--bg-color);
+    background-color: var(--background);
     color: var(--text-primary);
-    font-family: var(--font-mono);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: var(--font-body);
+    line-height: 1.5;
     min-height: 100vh;
     margin: 0;
-    /* CRT subtle scanlines background */
-    background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 4px, 6px 100%;
-    z-index: -1;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-mono);
-    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background: var(--primary);
+    color: var(--background);
   }
 }
 
-.mono {
-  font-family: var(--font-mono);
+/* ========================================
+   CRT SCANLINE EFFECT OVERLAY
+   ======================================== */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  animation: crt-flicker 0.15s infinite;
 }
 
-/* Glassmorphism Panels */
-.glass-panel {
-  background: rgba(10, 10, 12, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+@keyframes crt-flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
 }
 
-/* Staggered entry animations */
-@keyframes fade-slide-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
+/* ========================================
+   TYPOGRAPHY UTILITIES
+   ======================================== */
+.font-display { font-size: var(--font-display); font-weight: 700; }
+.font-headline { font-size: var(--font-headline); font-weight: 700; }
+.font-subhead { font-size: var(--font-subhead); font-weight: 700; }
+.font-body { font-size: var(--font-body); font-weight: 400; }
+.font-caption { font-size: var(--font-caption); font-weight: 400; }
+.font-code { font-size: var(--font-code); font-weight: 400; }
 
-.animate-entry {
-  animation: fade-slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-}
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.text-tertiary { color: var(--tertiary); }
+.text-error { color: var(--error); }
+.text-muted { color: var(--text-muted); }
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
-
-/* Glitch Animation Classes - refined for legibility */
+/* ========================================
+   GLITCH EFFECT FOR TITLES
+   ======================================== */
 .glitch {
   position: relative;
-  color: var(--text-primary);
-  display: inline-block;
+  color: var(--primary);
 }
 
 .glitch::before,
@@ -84,37 +122,321 @@
   left: 0;
   width: 100%;
   height: 100%;
-  opacity: 0.8;
 }
 
 .glitch::before {
   left: 2px;
-  text-shadow: -1px 0 var(--accent-red);
-  clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim 4s infinite linear alternate-reverse;
+  text-shadow: -2px 0 var(--error);
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim 3s infinite linear alternate-reverse;
 }
 
 .glitch::after {
   left: -2px;
-  text-shadow: -1px 0 var(--data-green);
-  clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim2 5s infinite linear alternate-reverse;
+  text-shadow: -2px 0 var(--tertiary);
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
 }
 
 @keyframes glitch-anim {
-  0% { clip: rect(10px, 9999px, 83px, 0); }
-  20% { clip: rect(61px, 9999px, 32px, 0); }
-  40% { clip: rect(93px, 9999px, 12px, 0); }
-  60% { clip: rect(21px, 9999px, 73px, 0); }
-  80% { clip: rect(40px, 9999px, 20px, 0); }
-  100% { clip: rect(70px, 9999px, 90px, 0); }
+  0% { clip: rect(51px, 9999px, 28px, 0); }
+  5% { clip: rect(70px, 9999px, 94px, 0); }
+  10% { clip: rect(52px, 9999px, 38px, 0); }
+  15% { clip: rect(89px, 9999px, 15px, 0); }
+  20% { clip: rect(21px, 9999px, 76px, 0); }
+  25% { clip: rect(45px, 9999px, 52px, 0); }
+  30% { clip: rect(33px, 9999px, 18px, 0); }
+  35% { clip: rect(88px, 9999px, 71px, 0); }
+  40% { clip: rect(56px, 9999px, 41px, 0); }
+  45% { clip: rect(23px, 9999px, 64px, 0); }
+  50% { clip: rect(79px, 9999px, 29px, 0); }
+  55% { clip: rect(37px, 9999px, 83px, 0); }
+  60% { clip: rect(12px, 9999px, 47px, 0); }
+  65% { clip: rect(65px, 9999px, 33px, 0); }
+  70% { clip: rect(28px, 9999px, 92px, 0); }
+  75% { clip: rect(73px, 9999px, 19px, 0); }
+  80% { clip: rect(41px, 9999px, 57px, 0); }
+  85% { clip: rect(92px, 9999px, 44px, 0); }
+  90% { clip: rect(17px, 9999px, 78px, 0); }
+  95% { clip: rect(59px, 9999px, 25px, 0); }
+  100% { clip: rect(84px, 9999px, 61px, 0); }
 }
 
-@keyframes glitch-anim2 {
-  0% { clip: rect(65px, 9999px, 2px, 0); }
-  20% { clip: rect(15px, 9999px, 89px, 0); }
-  40% { clip: rect(43px, 9999px, 22px, 0); }
-  60% { clip: rect(81px, 9999px, 43px, 0); }
-  80% { clip: rect(50px, 9999px, 60px, 0); }
-  100% { clip: rect(30px, 9999px, 10px, 0); }
+@keyframes glitch-anim-2 {
+  0% { clip: rect(65px, 9999px, 100px, 0); }
+  5% { clip: rect(52px, 9999px, 74px, 0); }
+  10% { clip: rect(79px, 9999px, 85px, 0); }
+  15% { clip: rect(75px, 9999px, 5px, 0); }
+  20% { clip: rect(67px, 9999px, 61px, 0); }
+  25% { clip: rect(14px, 9999px, 79px, 0); }
+  30% { clip: rect(1px, 9999px, 66px, 0); }
+  35% { clip: rect(86px, 9999px, 30px, 0); }
+  40% { clip: rect(23px, 9999px, 98px, 0); }
+  45% { clip: rect(85px, 9999px, 72px, 0); }
+  50% { clip: rect(71px, 9999px, 75px, 0); }
+  55% { clip: rect(2px, 9999px, 48px, 0); }
+  60% { clip: rect(30px, 9999px, 16px, 0); }
+  65% { clip: rect(59px, 9999px, 50px, 0); }
+  70% { clip: rect(41px, 9999px, 62px, 0); }
+  75% { clip: rect(2px, 9999px, 82px, 0); }
+  80% { clip: rect(47px, 9999px, 73px, 0); }
+  85% { clip: rect(3px, 9999px, 27px, 0); }
+  90% { clip: rect(26px, 9999px, 55px, 0); }
+  95% { clip: rect(42px, 9999px, 25px, 0); }
+  100% { clip: rect(38px, 9999px, 49px, 0); }
+}
+
+/* ========================================
+   CLI PREFIX SYMBOLS
+   ======================================== */
+.cli-prefix::before {
+  content: '> ';
+  color: var(--primary);
+}
+
+.cli-dollar::before {
+  content: '$ ';
+  color: var(--secondary);
+}
+
+.cli-bracket::before {
+  content: '[ ';
+  color: var(--tertiary);
+}
+
+.cli-bracket::after {
+  content: ' ]';
+  color: var(--tertiary);
+}
+
+/* ========================================
+   TERMINALUI COMPONENTS
+   ======================================== */
+
+/* Glass Panel - Terminal Style */
+.terminal-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+
+.terminal-panel-bright {
+  background: var(--surface);
+  border: 1px solid var(--primary);
+  padding: 1.5rem;
+}
+
+/* Buttons - NO background fill, border only */
+.terminal-btn {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 0.75rem 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.terminal-btn:hover {
+  background: var(--primary);
+  color: var(--background);
+}
+
+.terminal-btn:active {
+  background: var(--text-primary);
+  color: var(--background);
+}
+
+.terminal-btn-secondary {
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+.terminal-btn-secondary:hover {
+  background: var(--secondary);
+  color: var(--background);
+}
+
+.terminal-btn-tertiary {
+  border-color: var(--tertiary);
+  color: var(--tertiary);
+}
+
+.terminal-btn-tertiary:hover {
+  background: var(--tertiary);
+  color: var(--background);
+}
+
+.terminal-btn-error {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.terminal-btn-error:hover {
+  background: var(--error);
+  color: var(--background);
+}
+
+/* Cards - NO shadow, 1px border only */
+.terminal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.terminal-card-highlight {
+  border-color: var(--primary);
+}
+
+/* Inputs - NO radius, monospace, border style */
+.terminal-input {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-body);
+  padding: 0.75rem 1rem;
+  width: 100%;
+  transition: border-color var(--transition);
+}
+
+.terminal-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.terminal-input::placeholder {
+  color: var(--text-muted);
+}
+
+.terminal-textarea {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-body);
+  line-height: 1.6;
+  padding: 1rem;
+  width: 100%;
+  resize: vertical;
+  min-height: 200px;
+  transition: border-color var(--transition);
+}
+
+.terminal-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Status indicators */
+.status-success {
+  color: var(--primary);
+}
+
+.status-warning {
+  color: var(--secondary);
+}
+
+.status-info {
+  color: var(--tertiary);
+}
+
+.status-error {
+  color: var(--error);
+}
+
+/* Log entry styling */
+.log-entry {
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+}
+
+.log-entry.success { color: var(--primary); }
+.log-entry.warning { color: var(--secondary); }
+.log-entry.error { color: var(--error); }
+.log-entry.info { color: var(--tertiary); }
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease forwards;
+}
+
+.cursor-blink::after {
+  content: '_';
+  animation: blink 1s step-end infinite;
+  color: var(--primary);
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border: 1px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+.border-primary { border-color: var(--primary); }
+.border-secondary { border-color: var(--secondary); }
+.border-tertiary { border-color: var(--tertiary); }
+.border-error { border-color: var(--error); }
+
+.bg-surface { background-color: var(--surface); }
+.bg-background { background-color: var(--background); }
+
+.uppercase { text-transform: uppercase; }
+.tracking-wide { letter-spacing: 0.1em; }
+.tracking-wider { letter-spacing: 0.15em; }
+.tracking-widest { letter-spacing: 0.25em; }
+
+/* Mono font utility */
+.mono {
+  font-family: 'JetBrains Mono', monospace;
 }

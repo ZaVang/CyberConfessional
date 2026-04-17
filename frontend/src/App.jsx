@@ -39,15 +39,14 @@ function AppContent() {
 
   const simulateLogs = async (signal) => {
     const sequence = [
-      t('login_parsing'),
-      "> Karma Police Protocol Initiated...",
-      "[System] Parsing pathetic human error logs...",
-      "[Engine] Extracting fatal flaw (Latent Variable U)...",
-      "[System] Calculating slow suffocation (Macro Environment Z)...",
-      "[Engine] Identifying self-sabotage mechanisms (Mediation M)...",
-      "> Arresting time-line anomalies...",
-      "[System] Rejecting escapism. Escapism is invalid...",
-      "> Everything in its right place. Executing verdict..."
+      { text: t('login_parsing'), type: 'system' },
+      { text: "[System] Parsing pathetic human error logs...", type: 'engine' },
+      { text: "[Engine] Extracting fatal flaw (Latent Variable U)...", type: 'engine' },
+      { text: "[System] Calculating slow suffocation (Macro Environment Z)...", type: 'system' },
+      { text: "[Engine] Identifying self-sabotage mechanisms (Mediation M)...", type: 'engine' },
+      { text: "> Arresting time-line anomalies...", type: 'success' },
+      { text: "[System] Rejecting escapism. Escapism is invalid...", type: 'warning' },
+      { text: "> Everything in its right place. Executing verdict...", type: 'success' }
     ];
 
     for (const msg of sequence) {
@@ -113,7 +112,7 @@ function AppContent() {
     } catch (err) {
       simulationSignal.active = false;
       setIsGenerating(false);
-      setLogs(prev => [...prev, `[Error] ${err.message}. Ensure backend is running.`]);
+      setLogs(prev => [...prev, { text: `[Error] ${err.message}. Ensure backend is running.`, type: 'error' }]);
     } finally {
       setIsComputing(false);
     }
@@ -160,14 +159,14 @@ function AppContent() {
         type: 'treatment',
         symbol: 'X',
         name: 'Decision',
-        value: result.engine_input.factual.X === 1 ? 'Action Taken' : 'No Action',
+        value: result.engine_input.factual.X === 1 ? 'ACTION' : 'NO_ACTION',
         desc: 'Selected intervention point'
       },
       {
         type: 'outcome',
         symbol: 'Y',
         name: 'Reality',
-        value: result.engine_input.factual.Y === 1 ? 'Positive' : 'Negative',
+        value: result.engine_input.factual.Y === 1 ? 'POSITIVE' : 'NEGATIVE',
         desc: 'Observed temporal outcome'
       },
       {
@@ -267,35 +266,43 @@ function AppContent() {
   };
   const isCatharsisActive = getIsCatharsisActive();
 
+  // Extract probability
+  const prob = result?.engine_output?.counterfactual_prob 
+    ? (result.engine_output.counterfactual_prob * 100).toFixed(2) 
+    : '0.00';
+
   return (
     <>
       <BackgroundAudio isPlaying={appState !== 'login'} isCatharsisActive={isCatharsisActive} />
       <BackgroundMantras isCatharsisActive={isCatharsisActive} />
       <VoidSeaEngine onReceiptClick={(r) => setViewingReceipt(r)} soulId={soulId} />
       
-      {/* Resonance Interference Notification */}
+      {/* CRT Overlay Effect - Global */}
+      <div className="crt-overlay"></div>
+      
+      {/* Resonance Interference Notification - Terminal Style */}
       {resonanceAlert && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-entry"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 animate-fade-in"
           onClick={dismissResonanceAlert}
         >
           <div
-            className="relative border border-cyan-500/50 bg-black p-10 max-w-md text-center font-mono shadow-[0_0_60px_rgba(0,240,255,0.15)] animate-glitch-overlay"
+            className="relative terminal-panel border-tertiary max-w-md p-8 text-center"
             onClick={e => e.stopPropagation()}
           >
-            <div className="text-[10px] uppercase tracking-[0.4em] text-cyan-500 mb-6 animate-pulse">
-              {t('resonance_alert_title')}
+            <div className="text-tertiary text-xs uppercase tracking-[0.4em] mb-6 animate-blink cursor-blink">
+              // RESONANCE_INTERFERENCE_DETECTED
             </div>
-            <div className="text-4xl mb-4 text-cyan-400">⌁</div>
-            <p className="text-gray-300 text-sm leading-loose mb-2">{t('resonance_alert_body')}</p>
-            <p className="text-cyan-600 text-xs mb-8">
-              {t('resonance_alert_count')} <span className="text-cyan-400 font-bold text-lg">{resonanceAlert.count}</span>
+            <div className="text-4xl mb-4 text-tertiary">[~]</div>
+            <p className="text-text-primary text-sm leading-loose mb-2">{t('resonance_alert_body')}</p>
+            <p className="text-tertiary text-xs mb-8">
+              SIGNAL_COUNT: <span className="text-primary font-bold text-lg">{resonanceAlert.count}</span>
             </p>
             <button
               onClick={dismissResonanceAlert}
-              className="px-8 py-3 border border-cyan-700 text-cyan-500 uppercase tracking-widest text-xs hover:bg-cyan-900/30 hover:text-cyan-300 transition-all"
+              className="terminal-btn w-full"
             >
-              {t('resonance_alert_dismiss')}
+              <span className="text-secondary">$</span> ACKNOWLEDGE
             </button>
           </div>
         </div>
@@ -304,7 +311,8 @@ function AppContent() {
       {/* Language Toggle */}
       <button 
         onClick={toggleLanguage}
-        className="fixed top-6 right-6 z-[100] px-3 py-1 border border-gray-700 bg-black/40 text-gray-500 font-mono text-xs tracking-widest hover:border-gray-400 hover:text-gray-200 transition-all uppercase"
+        className="fixed top-6 right-6 z-[100] terminal-input px-3 py-1 text-xs uppercase tracking-widest hover:border-primary transition-all"
+        style={{ maxWidth: '80px' }}
       >
         {language === 'en' ? 'EN | 中' : '中 | EN'}
       </button>
@@ -314,266 +322,313 @@ function AppContent() {
       {appState === 'onboarding' && <CyberOnboarding username={userId} onComplete={handleCalibrationComplete} />}
 
       {appState === 'confessional' && (
-        <div className={`altar-container font-mono relative z-10 w-full min-h-screen transition-all duration-[1500ms] ${isCatharsisActive ? 'catharsis-mode' : ''}`}>
-          {/* Header */}
+        <div className={`altar-container font-mono relative z-10 w-full min-h-screen ${isCatharsisActive ? 'catharsis-mode' : ''}`}>
+          {/* Header - Terminal Style */}
           <header className="sacred-header">
-            <h1>{t('altar_header')}</h1>
-            <div className="cross-icon">†</div>
-            <p className="mono subtitle mb-4">{t('altar_subtitle')}</p>
+            <h1 className="glitch" data-text={t('altar_header')}>
+              {t('altar_header')}
+            </h1>
+            <div className="cross-icon"></div>
+            <p className="mono subtitle mb-4">// {t('altar_subtitle')}</p>
             
-            <div className="flex gap-4 justify-center mt-6">
+            {/* Tab Navigation - Terminal Style */}
+            <div className="tab-container mt-6">
               <button 
                 onClick={() => setActiveTab('altar')}
-                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'altar' ? 'border-[#cc0000] text-[#cc0000] bg-black' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
+                className={`tab ${activeTab === 'altar' ? 'active' : ''}`}
               >
                 {t('tab_altar')}
               </button>
               <button 
                 onClick={() => setActiveTab('archives')}
-                className={`px-6 py-2 border tracking-widest uppercase transition-all ${activeTab === 'archives' ? 'border-[#00ff00] text-[#00ff00] bg-green-950/20' : 'border-gray-800 text-gray-500 hover:border-gray-600'}`}
+                className={`tab ${activeTab === 'archives' ? 'active' : ''}`}
               >
                 {t('tab_archives')}
               </button>
             </div>
           </header>
 
-      {/* Main Area */}
-      <main className="confession-zone">
-        {activeTab === 'archives' ? (
-          <UserDashboard />
-        ) : (
-          <>
-            {!result && !(isComputing && !isGenerating) && (
-          <div className="input-wrapper w-full flex flex-col items-center">
-            {/* Conversation History */}
-            {messages.length > 0 && (
-              <div className="w-full mb-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar text-left animate-entry">
-                {messages.map((msg, idx) => {
-                  let mainText = msg.content;
-                  let catharsisText = null;
-                  
-                  // Parse out catharsis tag if present
-                  const catharsisMatch = msg.content.match(/<catharsis>([\s\S]*?)<\/catharsis>/i);
-                  if (catharsisMatch) {
-                    catharsisText = catharsisMatch[1].trim();
-                    mainText = msg.content.replace(catharsisMatch[0], '').trim();
-                  }
+          {/* Main Area */}
+          <main className="confession-zone">
+            {activeTab === 'archives' ? (
+              <UserDashboard />
+            ) : (
+              <>
+                {!result && !(isComputing && !isGenerating) && (
+                  <div className="input-wrapper w-full">
+                    {/* Conversation History */}
+                    {messages.length > 0 && (
+                      <div className="messages-container mb-8 max-h-[400px] overflow-y-auto pr-2">
+                        {messages.map((msg, idx) => {
+                          let mainText = msg.content;
+                          let catharsisText = null;
+                          
+                          // Parse out catharsis tag if present
+                          const catharsisMatch = msg.content.match(/<catharsis>([\s\S]*?)<\/catharsis>/i);
+                          if (catharsisMatch) {
+                            catharsisText = catharsisMatch[1].trim();
+                            mainText = msg.content.replace(catharsisMatch[0], '').trim();
+                          }
 
-                  return (
-                    <div key={idx} className={`p-5 glass-panel border ${msg.role === 'user' ? 'border-gray-500/30 bg-gray-900/40 text-gray-200 ml-12' : 'border-red-500/40 bg-black/60 text-gray-100 mr-12'} rounded-sm`}>
-                      <div className="text-xs uppercase tracking-[0.2em] mb-3 opacity-60 font-mono font-bold text-gray-400">
-                        {msg.role === 'user' ? 'Soul Identity' : 'Karma Police'}
-                      </div>
-                      {msg.isVerdict ? (
-                        <details className="cursor-pointer group">
-                          <summary className="font-mono text-sm tracking-widest text-red-400 opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 outline-none">
-                             <span className="text-lg leading-none transform group-open:rotate-180 transition-transform">▾</span> {t('verdict_archive')}
-                          </summary>
-                          <div className="mt-4 font-serif text-base leading-relaxed text-gray-300 border-l-2 border-red-500/20 pl-4 py-2">
-                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                              {mainText}
-                            </ReactMarkdown>
-                            {catharsisText && (
-                              <div className="mt-6 p-6 border-l-2 border-white/60 bg-white/5 text-white/90 font-serif leading-loose tracking-wide drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
-                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                                  {catharsisText}
-                                </ReactMarkdown>
-                              </div>
-                            )}
-                          </div>
-                        </details>
-                      ) : (
-                        <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap">
-                          {msg.content}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <textarea
-              value={confession}
-              onChange={(e) => {
-                setConfession(e.target.value);
-                setIsTyping(true);
-                if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-                typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 150);
-              }}
-              placeholder={messages.length === 0 ? t('input_placeholder') : t('reply_placeholder')}
-              className={`neon-input w-full p-4 border-b bg-transparent text-xl font-serif text-gray-200 focus:outline-none transition-all h-[150px] resize-none ${isTyping ? 'kinetic-active' : 'border-gray-600/20 focus:border-gray-500'}`}
-              spellCheck="false"
-            />
-            
-            {/* Future Aspiration Input (Optional) */}
-            <div className="w-full mt-6 animate-entry delay-200">
-               <div className="text-[10px] uppercase tracking-[0.2em] mb-2 text-gray-500 font-bold flex justify-between">
-                  <span>{t('future_label')}</span>
-                  <span className="opacity-50">{t('future_label_sub')}</span>
-               </div>
-               <textarea
-                value={futureAspiration}
-                onChange={(e) => setFutureAspiration(e.target.value)}
-                placeholder={t('future_placeholder')}
-                className="w-full p-3 bg-black/40 border border-gray-800 focus:border-gray-600 text-sm font-mono text-gray-400 focus:outline-none h-[60px] resize-none transition-all"
-                spellCheck="false"
-              />
-            </div>
-
-            <button
-              onClick={handleConfess}
-              disabled={isGenerating}
-              className="sacred-btn mt-12 px-8 py-3 border border-gray-500 text-gray-300 hover:bg-gray-500 hover:text-black transition-all tracking-[0.2em] uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isGenerating ? t('btn_arresting') : t('btn_initiate')}
-            </button>
-          </div>
-        )}
-
-        {/* Loading Logs */}
-        {(isComputing && !isGenerating && !result) && (
-          <div ref={logContainerRef} className="engine-logs mono w-full p-8 bg-black/50 border border-[#1a1a1a] text-[#00ff41] text-sm h-[400px] overflow-y-auto">
-            {logs.map((log, i) => (
-              <div key={i} className={`log-entry mb-2 flex gap-2 ${log.includes('[Error]') ? 'error-text text-[#cc0000]' : 'opacity-80'}`}>
-                <span>&gt; {log}</span>
-              </div>
-            ))}
-            {logs.some(l => l.includes('[Error]')) && (
-              <button onClick={() => { setLogs([]); setIsComputing(false); }} className="retry-btn mt-4 text-xs text-gray-500 underline uppercase tracking-widest hover:text-gray-300">
-                RESET TEMPORAL ANOMALY
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Verdict Results */}
-        {result && !isComputing && (
-          <div className={`verdict-container w-full transition-all duration-700 ${isDataExpanded ? 'grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-12' : 'flex flex-col items-center max-w-4xl mx-auto'}`}>
-            <div className={`narrative-panel ${isDataExpanded ? '' : 'w-full'}`}>
-              <h2 className="priest-title text-[#cc0000] text-3xl font-bold mb-6 uppercase tracking-widest text-center lg:text-left glitch" data-text={t('verdict_title')}>{t('verdict_title')}</h2>
-              <div className={`priest-text font-serif text-lg md:text-xl leading-loose text-gray-200 whitespace-pre-wrap ${isDataExpanded ? 'pr-8' : ''}`}>
-                {(() => {
-                  let text = result.verdict;
-                  try {
-                    const parsedVerdict = JSON.parse(result.verdict);
-                    text = parsedVerdict.message || result.verdict;
-                  } catch (e) {}
-
-                  let mainText = text;
-                  let catharsisText = null;
-                  const catharsisMatch = text.match(/<catharsis>([\s\S]*?)<\/catharsis>/i);
-                  if (catharsisMatch) {
-                    catharsisText = catharsisMatch[1].trim();
-                    mainText = text.replace(catharsisMatch[0], '').trim();
-                  }
-
-                  return (
-                    <div className="animate-entry delay-100">
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkMath]} 
-                        rehypePlugins={[rehypeKatex]}
-                      >
-                        {mainText}
-                      </ReactMarkdown>
-                      
-                      {catharsisText && (
-                        <div className="catharsis-block mt-10 p-6 md:p-8 border-l-2 border-white/60 bg-white/5 backdrop-blur-sm shadow-[0_4px_30px_rgba(255,255,255,0.02)] transition-all animate-entry delay-400">
-                          <div className="text-white/95 font-serif text-lg md:text-xl leading-loose tracking-wide drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]">
-                            <ReactMarkdown 
-                              remarkPlugins={[remarkMath]} 
-                              rehypePlugins={[rehypeKatex]}
+                          return (
+                            <div 
+                              key={idx} 
+                              className={`message ${msg.role === 'user' ? 'message-user' : 'message-assistant'} ${msg.isVerdict ? 'message-verdict' : ''}`}
                             >
-                              {catharsisText}
-                            </ReactMarkdown>
-                          </div>
-                        </div>
-                      )}
+                              <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                                {msg.isVerdict ? (
+                                  <details className="cursor-pointer group">
+                                    <summary className="cursor-pointer text-xs uppercase tracking-widest text-secondary mb-3 hover:text-primary transition-colors">
+                                      [+] VERDICT_ARCHIVE
+                                    </summary>
+                                    <div className="mt-4 pl-4 border-l-2 border-primary/30">
+                                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                        {mainText}
+                                      </ReactMarkdown>
+                                      {catharsisText && (
+                                        <div className="mt-6 p-4 border border-secondary bg-surface text-text-primary">
+                                          <div className="text-xs text-secondary uppercase tracking-wider mb-2">// CATHARSIS_UNLOCKED</div>
+                                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                            {catharsisText}
+                                          </ReactMarkdown>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </details>
+                                ) : (
+                                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                    {msg.content}
+                                  </ReactMarkdown>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Input Header */}
+                    <div className="input-header">
+                      <span className="text-secondary">$</span> confession_input:
                     </div>
-                  );
-                })()}
-              </div>
-              <div className="flex gap-6 mt-12 mb-8 justify-center lg:justify-start">
-                <button
-                  onClick={() => setIsDataExpanded(!isDataExpanded)}
-                  className="px-6 py-3 border border-gray-700 text-gray-400 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/40 hover:border-gray-500 hover:text-gray-200 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(107,114,128,0.05)] hover:shadow-[0_0_20px_rgba(107,114,128,0.2)]"
-                >
-                  {isDataExpanded ? t('btn_hide') : t('btn_extract')}
-                </button>
-                <button
-                  onClick={() => setShowReceipt(true)}
-                  className="px-6 py-3 border border-yellow-800/40 text-yellow-700/60 text-sm md:text-base uppercase tracking-widest hover:bg-yellow-900/20 hover:border-yellow-500 hover:text-yellow-400 transition-all duration-300 focus:outline-none shadow-sm shadow-yellow-900/10"
-                >
-                  {t('btn_print')}
-                </button>
-                <button
-                  onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); }}
-                  className="px-6 py-3 border border-red-900 text-red-500 text-sm md:text-base uppercase tracking-widest hover:bg-black hover:border-red-600 hover:text-red-400 transition-all duration-300 focus:outline-none shadow-[0_0_15px_rgba(204,0,0,0.05)] hover:shadow-[0_0_20px_rgba(204,0,0,0.2)]"
-                >
-                  {t('btn_continue')}
-                </button>
-                <button
-                  onClick={() => { setResult(null); setIsDataExpanded(false); setLogs([]); setConfession(''); setMessages([]); }}
-                  className="px-6 py-3 border border-gray-800 text-gray-500 text-sm md:text-base uppercase tracking-widest hover:bg-gray-900/60 hover:border-gray-500 hover:text-gray-300 transition-all duration-300 focus:outline-none"
-                >
-                  {t('btn_new')}
-                </button>
-              </div>
-            </div>
 
-            {isDataExpanded && (
-              <div className="data-panel space-y-6 flex-1 w-full animate-[fadeIn_0.5s_ease-out]">
-                <CyberParamsPanel
-                  prob={(result.engine_output.counterfactual_prob * 100).toFixed(2)}
-                  causalNodes={getCausalNodes(result)}
-                  zVal={zVal}
-                  mBias={mBias}
-                  onZChange={onZChange}
-                  onMChange={onMChange}
-                  isSimulating={isSimulating}
-                />
-                <div className="p-4 border border-[#1a1a1a] bg-black/40 min-h-[400px] flex flex-col">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-4 mono font-bold">Causal Topology</div>
-                  <div className="flex-1">
-                    <MermaidDAG chartString={result.mermaid_chart} />
+                    <textarea
+                      value={confession}
+                      onChange={(e) => {
+                        setConfession(e.target.value);
+                        setIsTyping(true);
+                        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                        typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 150);
+                      }}
+                      placeholder={messages.length === 0 ? t('input_placeholder') : t('reply_placeholder')}
+                      className={`neon-input ${isTyping ? 'cursor-blink' : ''}`}
+                      spellCheck="false"
+                    />
+                    
+                    {/* Future Aspiration Input (Optional) - Terminal Style */}
+                    <div className="w-full mt-0">
+                       <div className="text-[10px] uppercase tracking-[0.2em] mb-2 text-muted flex justify-between border-l-2 border-border pl-3">
+                          <span><span className="text-secondary">$</span> future_aspiration (optional)</span>
+                          <span className="opacity-50">// TODO</span>
+                       </div>
+                       <textarea
+                        value={futureAspiration}
+                        onChange={(e) => setFutureAspiration(e.target.value)}
+                        placeholder={t('future_placeholder')}
+                        className="aspiration-input"
+                        spellCheck="false"
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleConfess}
+                      disabled={isGenerating}
+                      className={`sacred-btn ${isGenerating ? 'loading' : ''}`}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <span className="loading-indicator">
+                            <span className="loading-dots">
+                              <span className="loading-dot"></span>
+                              <span className="loading-dot"></span>
+                              <span className="loading-dot"></span>
+                            </span>
+                            PROCESSING...
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-secondary">$</span> {t('btn_initiate')}
+                        </>
+                      )}
+                    </button>
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-          </>
-        )}
-      </main>
+                )}
 
-      {/* Footer */}
-      <footer className="philosophical-footer mt-24 pt-8 border-t border-[#111] text-center mb-12">
-        <p className="text-gray-500 text-sm leading-[2.5] max-w-2xl mx-auto uppercase tracking-widest font-mono font-bold animate-entry opacity-60 hover:opacity-100 transition-opacity">
-          &gt; Everything in its right place.<br/>
-          &gt; In math we trust, In causality we converge.
-        </p>
-      </footer>
+                {/* Loading Logs - Terminal Output Style */}
+                {(isComputing && !isGenerating && !result) && (
+                  <div ref={logContainerRef} className="engine-logs">
+                    <div className="engine-logs-header">SYSTEM_OUTPUT</div>
+                    {logs.map((log, i) => (
+                      <div 
+                        key={i} 
+                        className={`log-entry ${log.type || ''}`}
+                      >
+                        {log.text}
+                      </div>
+                    ))}
+                    {logs.some(l => l.type === 'error') && (
+                      <button onClick={() => { setLogs([]); setIsComputing(false); }} className="retry-btn">
+                        RESET_TEMPORAL_ANOMALY
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Verdict Results */}
+                {result && !isComputing && (
+                  <div className={`verdict-container ${isDataExpanded ? 'grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-8' : 'flex flex-col items-center'}`}>
+                    <div className={`${isDataExpanded ? '' : 'w-full max-w-3xl mx-auto'}`}>
+                      <h2 className="priest-title glitch" data-text={t('verdict_title')}>
+                        {t('verdict_title')}
+                      </h2>
+                      <div className="priest-text">
+                        {(() => {
+                          let text = result.verdict;
+                          try {
+                            const parsedVerdict = JSON.parse(result.verdict);
+                            text = parsedVerdict.message || result.verdict;
+                          } catch (e) {}
+
+                          let mainText = text;
+                          let catharsisText = null;
+                          const catharsisMatch = text.match(/<catharsis>([\s\S]*?)<\/catharsis>/i);
+                          if (catharsisMatch) {
+                            catharsisText = catharsisMatch[1].trim();
+                            mainText = text.replace(catharsisMatch[0], '').trim();
+                          }
+
+                          return (
+                            <div className="animate-slide-up">
+                              <ReactMarkdown 
+                                remarkPlugins={[remarkMath]} 
+                                rehypePlugins={[rehypeKatex]}
+                              >
+                                {mainText}
+                              </ReactMarkdown>
+                              
+                              {catharsisText && (
+                                <div className="mt-6 p-6 border border-secondary bg-surface animate-slide-up" style={{ animationDelay: '0.4s' }}>
+                                  <div className="text-xs text-secondary uppercase tracking-wider mb-3">
+                                    <span className="text-secondary">[+]</span> CATHARSIS_UNLOCKED
+                                  </div>
+                                  <div className="text-text-primary leading-relaxed">
+                                    <ReactMarkdown 
+                                      remarkPlugins={[remarkMath]} 
+                                      rehypePlugins={[rehypeKatex]}
+                                    >
+                                      {catharsisText}
+                                    </ReactMarkdown>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Action Buttons - Terminal Style */}
+                      <div className="flex gap-4 mt-8 flex-wrap justify-center">
+                        <button
+                          onClick={() => setIsDataExpanded(!isDataExpanded)}
+                          className="terminal-btn"
+                        >
+                          <span className="text-tertiary">[</span> 
+                          {isDataExpanded ? 'COLLAPSE' : 'EXPAND'} 
+                          <span className="text-tertiary">]</span> CAUSAL_DATA
+                        </button>
+                        <button
+                          onClick={() => setShowReceipt(true)}
+                          className="terminal-btn border-secondary text-secondary"
+                        >
+                          <span className="text-secondary">$</span> GENERATE_RECEIPT
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessages([]);
+                            setResult(null);
+                            setLogs([]);
+                            setIsDataExpanded(false);
+                          }}
+                          className="terminal-btn"
+                        >
+                          <span className="text-muted">$</span> NEW_CONFESSION
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Expanded Data View - Terminal Style */}
+                    {isDataExpanded && (
+                      <div className="animate-slide-up">
+                        {/* Causal Panel */}
+                        <CyberParamsPanel
+                          prob={prob}
+                          causalNodes={getCausalNodes(result)}
+                          zVal={zVal}
+                          mBias={mBias}
+                          onZChange={onZChange}
+                          onMChange={onMChange}
+                          isSimulating={isSimulating}
+                        />
+
+                        {/* Mermaid DAG - Terminal Styled */}
+                        {result.mermaid_chart && (
+                          <div className="terminal-panel mt-6">
+                            <div className="text-xs text-tertiary uppercase tracking-wider mb-4 border-b border-border pb-2">
+                              <span className="text-secondary">$</span> CAUSAL_GRAPH_STRUCTURE
+                            </div>
+                            <MermaidDAG chart={result.mermaid_chart} />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </main>
+
+          {/* Footer - Terminal Style */}
+          <footer className="mt-auto pt-8 text-center border-t border-border">
+            <p className="text-muted text-xs uppercase tracking-widest">
+              <span className="text-primary">[</span> Cyber Confessional v2.0 <span className="text-primary">]</span>
+              <span className="mx-2">|</span>
+              <span className="text-secondary">$</span> ALL_SYSTEMS_NOMINAL
+            </p>
+          </footer>
         </div>
       )}
 
+      {/* Void Receipt Modal */}
       {showReceipt && result && (
         <VoidReceipt 
           result={result} 
-          confession={confession} 
-          zVal={zVal} 
-          mBias={mBias} 
+          confession={confession || messages[messages.length - 1]?.content}
+          zVal={zVal}
+          mBias={mBias}
+          onClose={() => setShowReceipt(false)}
           soulId={soulId}
-          onClose={() => setShowReceipt(false)} 
         />
       )}
 
+      {/* View Receipt Modal */}
       {viewingReceipt && (
         <VoidReceipt 
           result={{
-            verdict: viewingReceipt.is_catharsis ? '<catharsis>' : '',
+            verdict: viewingReceipt.verdict_text,
             engine_output: {
-              counterfactual_prob: viewingReceipt.prob_score / 100,
-              inferred_latents: { U_hidden: 0.5 } // mocked for view-only
+              inferred_latents: { U_hidden: viewingReceipt.prob_score / 100 },
+              counterfactual_prob: viewingReceipt.prob_score / 100
             },
             engine_input: {
               factual: { Y: viewingReceipt.is_catharsis ? 1 : 0 }
@@ -582,8 +637,9 @@ function AppContent() {
           confession={viewingReceipt.confession_text}
           zVal={viewingReceipt.z_val}
           mBias={viewingReceipt.m_bias}
-          isReadOnly={true}
           onClose={() => setViewingReceipt(null)}
+          isReadOnly={true}
+          soulId={soulId}
         />
       )}
     </>
