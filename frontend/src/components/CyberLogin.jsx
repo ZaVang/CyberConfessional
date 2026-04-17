@@ -40,31 +40,14 @@ const CyberLogin = ({ onLogin }) => {
       <div className="crt-overlay"></div>
       
       <div className="max-w-lg w-full animate-slide-up">
-        {/* ASCII Art Header */}
+        {/* Terminal Header */}
         <div className="text-center mb-8">
-          <pre className="text-primary text-xs leading-tight mb-4" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-{`
- ████████╗██╗  ██╗███████╗
- ╚══██╔══╝██║  ██║██╔════╝
-    ██║   ███████║█████╗  
-    ██║   ██╔══██║██╔══╝  
-    ██║   ██║  ██║███████╗
-    ╚═╝   ╚═╝  ╚═╝╚══════╝
- ██████╗███████╗██╗     ██╗     
- ██╔════╝██╔════╝██║     ██║     
- ██║     █████╗  ██║     ██║     
- ██║     ██╔══╝  ██║     ██║     
- ╚██████╗███████╗███████╗███████╗
- ╚═════╝╚══════╝╚══════╝╚══════╝
-`}
-          </pre>
           <h1 
-            className="text-gray-300 text-xl md:text-2xl tracking-[0.15em] font-mono glitch font-semibold" 
+            className="text-primary text-xl md:text-2xl tracking-[0.15em] glitch font-bold" 
             data-text={t('login_title')}
           >
             {t('login_title')}
           </h1>
-          <p className="text-muted text-xs mt-2 uppercase tracking-widest">[ Terminal v2.0 ]</p>
         </div>
         
         {/* Login Form - Terminal Style */}

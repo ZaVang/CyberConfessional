@@ -146,7 +146,7 @@ EVERYTHING IN ITS RIGHT PLACE.
               <span className="text-xs text-muted uppercase tracking-wider">
                 <span className="text-tertiary">[Y]</span> Reality
               </span>
-              <span className={realityY === 'POSITIVE' ? 'text-primary' : 'text-error'} font-bold">
+              <span className={`${realityY === 'POSITIVE' ? 'text-primary' : 'text-error'} font-bold`}>
                 {realityY === 'POSITIVE' ? (t('language') === 'zh' ? '积极' : 'POSITIVE') : (t('language') === 'zh' ? '消极' : 'NEGATIVE')}
               </span>
             </div>
